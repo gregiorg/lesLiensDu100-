@@ -27,3 +27,24 @@ int is_big_endian() {
     static uint32_t one = 1;
     return ((* (uint8_t *) &one) == 0);
 }
+
+uint32_t reverse_endian_32(uint32_t val) {
+    uint8_t* tab_in = (uint8_t*) &val;
+    uint8_t tab_out[sizeof (uint32_t)];
+
+    for (int i = 0; i < sizeof (uint32_t); i++)
+        tab_out[i] = tab_in[sizeof (uint32_t) - 1 - i];
+
+    return *((uint32_t*) tab_out);
+}
+
+uint16_t reverse_endian_16(uint16_t val) {
+    uint8_t* tab_in = (uint8_t*) &val;
+    uint8_t tab_out[sizeof (uint16_t)];
+
+    for (int i = 0; i < sizeof (uint16_t); i++)
+        tab_out[i] = tab_in[sizeof (uint16_t) - 1 - i];
+
+    return *((uint16_t*) tab_out);
+}
+
