@@ -1,20 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "etape3.h"
 
-#include "util.h"
-
-int main(int argc, char** argv) {
-    char* fname = argv[1];
-    int nsection = atoi(argv[2]);
+uint32_t* read_data(char* fname, int nsection) {
 
     FILE* file = fopen(fname, "r");
     ElfHeader elf_header;
-    fread(&elf_header, sizeof (elf_header), 1, file);
+    fread(&elf_header, sizeof(elf_header), 1, file);
 
     fseek(file, reverse_endian_32(elf_header.shoff) + nsection*reverse_endian_16(elf_header.shentsize), SEEK_SET);
 
     Elf_SecHeader elf_sec_header;
-    fread(&elf_sec_header, sizeof (elf_sec_header), 1, file);
+    fread(&elf_sec_header, sizeof(elf_sec_header), 1, file);
 
     fseek(file, reverse_endian_32(elf_sec_header.offset), SEEK_SET);
 
@@ -24,5 +19,5 @@ int main(int argc, char** argv) {
     for (int i = 0; i < reverse_endian_32(elf_sec_header.size)/sizeof(uint32_t); i++)
         printf("%08X\n", reverse_endian_32(data[i]));
 
-    return 0;
+    return data;
 }
