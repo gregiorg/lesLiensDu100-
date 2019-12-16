@@ -1,46 +1,6 @@
 #include <stdio.h>
-#include <stdint.h>
 
-typedef struct {
-    uint8_t indent_magic_number[4];
-    uint8_t indent_class;
-    uint8_t indent_data;
-    uint8_t indent_version;
-    uint8_t indent_padding[9];
-    uint16_t type;
-    uint16_t machine;
-    uint32_t version;
-    uint32_t entry;
-    uint32_t phoff;
-    uint32_t shoff;
-    uint32_t flags;
-    uint16_t ehsize;
-    uint16_t phentsize;
-    uint16_t phnum;
-    uint16_t shentsize;
-    uint16_t shnum;
-    uint16_t shstrndx;
-} ElfHeader;
-
-uint32_t reverse_endian_32(uint32_t val) {
-    uint8_t* tab_in = (uint8_t*) &val;
-    uint8_t tab_out[sizeof (uint32_t)];
-
-    for (int i = 0; i < sizeof (uint32_t); i++)
-        tab_out[i] = tab_in[sizeof (uint32_t) - 1 - i];
-
-    return *((uint32_t*) tab_out);
-}
-
-uint16_t reverse_endian_16(uint16_t val) {
-    uint8_t* tab_in = (uint8_t*) &val;
-    uint8_t tab_out[sizeof (uint16_t)];
-
-    for (int i = 0; i < sizeof (uint16_t); i++)
-        tab_out[i] = tab_in[sizeof (uint16_t) - 1 - i];
-
-    return *((uint16_t*) tab_out);
-}
+#include "util.h"
 
 int main(int argc, char** argv) {
     FILE* file = fopen(argv[1], "r");
