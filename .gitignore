@@ -1,11 +1,5 @@
 /ARM_runner_example
-/ARM_runner_example.o
-/arm_simulator_interface.o
 /config.log
 /config.status
-/csapp.o
-/debug.o
-/gdb_protocol.o
 /Makefile
-/scanner.o
-/util.o
+*.o
