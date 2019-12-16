@@ -46,6 +46,19 @@ typedef struct {
     uint16_t shstrndx;
 } ElfHeader;
 
+typedef struct {
+	uint32_t name;
+	uint32_t type;
+	uint32_t flags;
+	uint32_t addr;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t link;
+	uint32_t info;
+	uint32_t addrAlign;
+	uint32_t entSize;
+} Elf_SecHeader;
+
 int is_big_endian();
 
 uint32_t reverse_endian_32(uint32_t val);
