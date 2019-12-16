@@ -109,6 +109,9 @@ int main(int argc, char** argv) {
     printf("\n\tPosition : %d octets", reverse_endian_32(elf_header.shoff));
     printf("\n\tNombre d'entrees : %d", reverse_endian_16(elf_header.shnum));
     printf("\n\tTaille totale : %d octets", reverse_endian_16(elf_header.shentsize)*reverse_endian_16(elf_header.shnum));
+    printf("\n\tIndex de la table des noms de sections : %d octets", reverse_endian_16(elf_header.shstrndx));
+
+    printf("\nTaille totale de l'entete : %d octets", reverse_endian_16(elf_header.ehsize));
 
     printf("\n");
 
