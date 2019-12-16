@@ -3,10 +3,10 @@
 #include "util.h"
 #include <string.h>
 
-void afficherHeader(Elf_SecHeader elf_secHeader, FILE* f);
+void afficherHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f);
 void showType(uint32_t type);
-void showName(uint32_t name, FILE *f);
-void getAddressStringTable(uint32_t tailleHeader, uint32_t positionStringTable);
+void showName(uint32_t name, uint32_t stringTableAddress, FILE *f);
+uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
 
 int main (int argc, char** argv)
 {
@@ -22,50 +22,66 @@ int main (int argc, char** argv)
 
 	const uint32_t nbSections = 15;
 
+	//on récupèrera positionStringTable de l'étape 1 (12 = position de la string table de exemple 0)
+
+	const uint32_t positionStringTable = 12;
+
+	//on récupèrera tailleEnteteSection de l'étape 1 (40 = taille des entetes de section de l'exemple 0)
+
+	const uint32_t tailleHeaderSection = 40;
+
 	fseek(f, tailleHeader, SEEK_SET);
 
-	const uint32_t stringTableAddress = getAddressStringTable();
+	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, positionStringTable, f);
+
+	printf("Offset string table : 0x%x\n\n", stringTableAddress);
 
 	for (int i=0; i < nbSections; i++)
 	{
 		fread(&elf_secHeader, sizeof (elf_secHeader), 1, f);
 
-		afficherHeader(elf_secHeader, f);
+		printf("Table numéro %i :\n", i);
+		afficherHeader(elf_secHeader, stringTableAddress, f);
 	}
 }
 
-uint32_t getAddressStringTable()
+uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f)
 {
-
-}
-
-void afficherHeader(Elf_SecHeader elf_secHeader, FILE* f)
-{
-
-	printf("Indice du nom de la table : 0x%x\n", reverse_endian_32(elf_secHeader.name));
-	
 	const int currentPos = ftell(f);
 
-	showName(reverse_endian_32(elf_secHeader.name), f);
-	
+	fseek(f, tailleHeaderSection * positionStringTable, SEEK_CUR);
+
+	Elf_SecHeader elf_secHeader2;
+
+	fread(&elf_secHeader2, sizeof (elf_secHeader2), 1, f);	
+
 	fseek(f, currentPos, SEEK_SET);
-	
+
+	return reverse_endian_32(elf_secHeader2.offset);
+}
+
+void afficherHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f)
+{
+	printf("	Indice du nom de la table : 0x%x\n", reverse_endian_32(elf_secHeader.name));
+	showName(reverse_endian_32(elf_secHeader.name), stringTableAddress, f);	
 	showType(reverse_endian_32(elf_secHeader.type));
-	printf("Flags : 0x%x\n", reverse_endian_32(elf_secHeader.flags));
-	printf("Adresse : 0x%x\n", reverse_endian_32(elf_secHeader.addr));
-	printf("Offset : 0x%x\n", reverse_endian_32(elf_secHeader.offset));
-	printf("Taille : 0x%x\n", reverse_endian_32(elf_secHeader.size));
-	printf("Link : 0x%x\n", reverse_endian_32(elf_secHeader.link));
-	printf("Info : 0x%x\n", reverse_endian_32(elf_secHeader.info));
-	printf("Adresse alignement : 0x%x\n", reverse_endian_32(elf_secHeader.addrAlign));
-	printf("Ent size : 0x%x\n", reverse_endian_32(elf_secHeader.entSize));
+	printf("	Flags : 0x%x\n", reverse_endian_32(elf_secHeader.flags));
+	printf("	Adresse : 0x%x\n", reverse_endian_32(elf_secHeader.addr));
+	printf("	Offset : 0x%x\n", reverse_endian_32(elf_secHeader.offset));
+	printf("	Taille : 0x%x\n", reverse_endian_32(elf_secHeader.size));
+	printf("	Link : 0x%x\n", reverse_endian_32(elf_secHeader.link));
+	printf("	Info : 0x%x\n", reverse_endian_32(elf_secHeader.info));
+	printf("	Adresse alignement : 0x%x\n", reverse_endian_32(elf_secHeader.addrAlign));
+	printf("	Ent size : 0x%x\n", reverse_endian_32(elf_secHeader.entSize));
 
 	printf("\n");
 }
 
-void showName(uint32_t name, FILE* f)
+void showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f)
 {
-	const uint32_t decalage = 0x250 + name;
+	const int currentPos = ftell(f);
+
+	const uint32_t decalage = stringTableAddress + indexName;
 
 	fseek(f, decalage, SEEK_SET);
 
@@ -73,7 +89,9 @@ void showName(uint32_t name, FILE* f)
 
 	fread(test, sizeof(test), 1, f);
 
-	printf("Nom de la table : %s\n", test);
+	printf("	Nom de la table : %s\n", test);
+
+	fseek(f, currentPos, SEEK_SET);
 }
 
 void showType(uint32_t type)
@@ -155,5 +173,5 @@ void showType(uint32_t type)
 			break;
 	}
 
-	printf("Type : %s\n", name);
+	printf("	Type : %s\n", name);
 }
