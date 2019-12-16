@@ -1,18 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
-
-typedef struct {
-  uint32_t    st_name;   // Elf32_Word
-  uint32_t    st_value;  // Elf32_Addr
-  uint32_t    st_size;   // Elf32_Word
-  unsigned char st_info;
-  unsigned char st_other;
-  uint16_t    st_shndx;  // Elf32_Half
-} Elf32_Sym;
+#include "util.h"
 
 int main(int argc, char const *argv[]) {
 
