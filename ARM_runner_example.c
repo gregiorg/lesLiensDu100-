@@ -33,7 +33,7 @@ void usage(char *name) {
 		"calls to the debug function in the named source file.\n" 
 		, name);
 }
-
+//test
 void sample_run(char *hostname, char *servicename) {
 	uint32_t address = 0x58;
 	// Sample loop written assuming little endian host
