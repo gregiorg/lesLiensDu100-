@@ -11,9 +11,9 @@ uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionSt
 Elf_SecHeaderF returnFinalHeader(Elf_SecHeaderF elf_secHeaderF);
 void afficheFinal(Elf_SecHeaderF * finalHeader, uint32_t nbSections);
 
-int main (int argc, char** argv)
+Elf_SecHeaderF etape2(char* fname)
 {
-	FILE* f = fopen(argv[1], "r");
+	FILE* f = fopen(fname, "r");
 
 	Elf_SecHeader elf_secHeader;
 
@@ -49,16 +49,9 @@ int main (int argc, char** argv)
 		putCurrentHeader(elf_secHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-//	returnFinalHeader(Elf_SecHeaderF finalHeader);
-
-	
-
-	afficheFinal(finalHeader, nbSections);
-}
-
-Elf_SecHeaderF returnFinalHeader(Elf_SecHeaderF finalHeader)
-{
 	return finalHeader;
+
+	// afficheFinal(finalHeader, nbSections);
 }
 
 void afficheFinal(Elf_SecHeaderF *finalHeader, uint32_t nbSections)
@@ -69,7 +62,7 @@ void afficheFinal(Elf_SecHeaderF *finalHeader, uint32_t nbSections)
 		printf("	Indice du nom de la table : 0x%x\n", finalHeader[i].indexName);
 		printf(" 	Nom de la table : %s\n", finalHeader[i].nameStr);
 		printf("	Type int : 0x%x\n", finalHeader[i].typeInt);
-		printf("	Type str : %s\n", finalHeader[i].typeStr);		
+		printf("	Type str : %s\n", finalHeader[i].typeStr);
 		printf("	Flags : 0x%x\n", finalHeader[i].flags);
 		printf("	Adresse : 0x%x\n", finalHeader[i].addr);
 		printf("	Offset : 0x%x\n", finalHeader[i].offset);
@@ -91,7 +84,7 @@ uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionSt
 
 	Elf_SecHeader elf_secHeader2;
 
-	fread(&elf_secHeader2, sizeof (elf_secHeader2), 1, f);	
+	fread(&elf_secHeader2, sizeof (elf_secHeader2), 1, f);
 
 	fseek(f, currentPos, SEEK_SET);
 
@@ -112,7 +105,7 @@ void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, 
 	currentHeader.link = reverse_endian_32(elf_secHeader.link);
 	currentHeader.info = reverse_endian_32(elf_secHeader.info);
 	currentHeader.addrAlign = reverse_endian_32(elf_secHeader.addrAlign);
-	currentHeader.entSize = reverse_endian_32(elf_secHeader.entSize);	
+	currentHeader.entSize = reverse_endian_32(elf_secHeader.entSize);
 
 	currentHeader.nameStr = showName(reverse_endian_32(elf_secHeader.name), stringTableAddress, f);
 	currentHeader.typeStr = showType(reverse_endian_32(elf_secHeader.type));
@@ -121,7 +114,7 @@ void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, 
 
 	/*
 	printf("	Indice du nom de la table : 0x%x\n", reverse_endian_32(elf_secHeader.name));
-	showName(reverse_endian_32(elf_secHeader.name), stringTableAddress, f);	
+	showName(reverse_endian_32(elf_secHeader.name), stringTableAddress, f);
 	showType(reverse_endian_32(elf_secHeader.type));
 	printf("	Flags : 0x%x\n", reverse_endian_32(elf_secHeader.flags));
 	printf("	Adresse : 0x%x\n", reverse_endian_32(elf_secHeader.addr));
