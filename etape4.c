@@ -1,4 +1,15 @@
-#include "etape3.h"
+#include "etape4.h"
+
+int main(int argc, char* argv[]) {
+  FILE* file;
+  if(file = fopen(argv[1], "r")) {
+    etape4(file);
+    fclose(file);
+  } else {
+    print("C'est de la merde!!!!!\n")
+  }
+  return 0;
+}
 
 void afficheTabSym(Elf32Sym** tabSym, int size) {
   for (int i = 0; i < size; i++) {
@@ -10,7 +21,7 @@ void afficheTabSym(Elf32Sym** tabSym, int size) {
   }
 }
 
-int etape4(FILE* f) {
+Elf32Sym** etape4(FILE* f) {
 
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = etape2(f);
@@ -36,5 +47,5 @@ int etape4(FILE* f) {
 
   afficheTabSym(tabSym, elfSecHeader[i].size);
 
-  return 0;
+  return tabSym;
 }
