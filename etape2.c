@@ -27,21 +27,21 @@ ElfSecHeaderF** etape2(char* fname, FILE* f) {
   // afficheFinal(finalHeader, nbSections);
 }
 
-void afficheFinal(ElfSecHeaderF* finalHeader, uint32_t nbSections) {
+void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 	for (int i=0; i < nbSections; i++) {
-		printf("Table numéro %i :\n", finalHeader[i].indexTable);
-		printf("	Indice du nom de la table : 0x%x\n", finalHeader[i].indexName);
-		printf(" 	Nom de la table : %s\n", finalHeader[i].nameStr);
-		printf("	Type int : 0x%x\n", finalHeader[i].typeInt);
-		printf("	Type str : %s\n", finalHeader[i].typeStr);
-		printf("	Flags : 0x%x\n", finalHeader[i].flags);
-		printf("	Adresse : 0x%x\n", finalHeader[i].addr);
-		printf("	Offset : 0x%x\n", finalHeader[i].offset);
-		printf("	Taille : 0x%x\n", finalHeader[i].size);
-		printf("	Link : 0x%x\n", finalHeader[i].link);
-		printf("	Info : 0x%x\n", finalHeader[i].info);
-		printf("	Adresse alignement : 0x%x\n", finalHeader[i].addrAlign);
-		printf("	Ent size : 0x%x\n", finalHeader[i].entSize);
+		printf("Table numéro %i :\n", finalHeader[i]->indexTable);
+		printf("	Indice du nom de la table : 0x%x\n", finalHeader[i]->indexName);
+		printf(" 	Nom de la table : %s\n", finalHeader[i]->nameStr);
+		printf("	Type int : 0x%x\n", finalHeader[i]->typeInt);
+		printf("	Type str : %s\n", finalHeader[i]->typeStr);
+		printf("	Flags : 0x%x\n", finalHeader[i]->flags);
+		printf("	Adresse : 0x%x\n", finalHeader[i]->addr);
+		printf("	Offset : 0x%x\n", finalHeader[i]->offset);
+		printf("	Taille : 0x%x\n", finalHeader[i]->size);
+		printf("	Link : 0x%x\n", finalHeader[i]->link);
+		printf("	Info : 0x%x\n", finalHeader[i]->info);
+		printf("	Adresse alignement : 0x%x\n", finalHeader[i]->addrAlign);
+		printf("	Ent size : 0x%x\n", finalHeader[i]->entSize);
 
 		printf("\n");
 	}
@@ -65,16 +65,16 @@ void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FI
 	ElfSecHeaderF* currentHeader = malloc(sizeof(ElfSecHeaderF));
 
 	currentHeader->indexTable = i;
-	currentHeader->indexName = reverseEndian32(elf_secHeader.name);
-	currentHeader->typeInt = reverseEndian32(elf_secHeader.type);
-	currentHeader->flags = reverseEndian32(elf_secHeader.flags);
-	currentHeader->addr = reverseEndian32(elf_secHeader.addr);
-	currentHeader->offset = reverseEndian32(elf_secHeader.offset);
-	currentHeader->size = reverseEndian32(elf_secHeader.size);
-	currentHeader->link = reverseEndian32(elf_secHeader.link);
-	currentHeader->info = reverseEndian32(elf_secHeader.info);
-	currentHeader->addrAlign = reverseEndian32(elf_secHeader.addrAlign);
-	currentHeader->entSize = reverseEndian32(elf_secHeader.entSize);
+	currentHeader->indexName = reverseEndian32(elfSecHeader.name);
+	currentHeader->typeInt = reverseEndian32(elfSecHeader.type);
+	currentHeader->flags = reverseEndian32(elfSecHeader.flags);
+	currentHeader->addr = reverseEndian32(elfSecHeader.addr);
+	currentHeader->offset = reverseEndian32(elfSecHeader.offset);
+	currentHeader->size = reverseEndian32(elfSecHeader.size);
+	currentHeader->link = reverseEndian32(elfSecHeader.link);
+	currentHeader->info = reverseEndian32(elfSecHeader.info);
+	currentHeader->addrAlign = reverseEndian32(elfSecHeader.addrAlign);
+	currentHeader->entSize = reverseEndian32(elfSecHeader.entSize);
 
 	currentHeader->nameStr = showName(reverseEndian32(elfSecHeader.name), stringTableAddress, f);
 	currentHeader->typeStr = showType(reverseEndian32(elfSecHeader.type));
