@@ -16,24 +16,14 @@ Elf_SecHeaderF etape2(char* fname)
 	FILE* f = fopen(fname, "r");
 
 	Elf_SecHeader elf_secHeader;
+	ElfHeaderF * header = get_elf_header(f);
 
-	//on récupèrera tailleHeader de l'étape 1 (720 = taille du header de exemple 0)
+	uint32_t positionHeaderSection = header->shoff;
+	uint32_t nbSections = header->shnum;
+	uint32_t positionStringTable = header->shstrndx;
+	uint32_t tailleHeaderSection = header->shentsize;
 
-	const uint32_t tailleHeader = 720;
-
-	//on récupèrera nbSections de l'étape 1 (15 = nb sections de exemple 0)
-
-	const uint32_t nbSections = 15;
-
-	//on récupèrera positionStringTable de l'étape 1 (12 = position de la string table de exemple 0)
-
-	const uint32_t positionStringTable = 12;
-
-	//on récupèrera tailleEnteteSection de l'étape 1 (40 = taille des entetes de section de l'exemple 0)
-
-	const uint32_t tailleHeaderSection = 40;
-
-	fseek(f, tailleHeader, SEEK_SET);
+	fseek(f, positionHeaderSection, SEEK_SET);
 
 	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, positionStringTable, f);
 
@@ -44,14 +34,12 @@ Elf_SecHeaderF etape2(char* fname)
 	for (int i=0; i < nbSections; i++)
 	{
 		fread(&elf_secHeader, sizeof (elf_secHeader), 1, f);
-
-//		printf("Table numéro %i :\n", i);
 		putCurrentHeader(elf_secHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-	return finalHeader;
+//	return finalHeader;
 
-	// afficheFinal(finalHeader, nbSections);
+   	afficheFinal(finalHeader, nbSections);
 }
 
 void afficheFinal(Elf_SecHeaderF *finalHeader, uint32_t nbSections)
@@ -111,22 +99,6 @@ void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, 
 	currentHeader.typeStr = showType(reverse_endian_32(elf_secHeader.type));
 
 	finalHeader[i] = currentHeader;
-
-	/*
-	printf("	Indice du nom de la table : 0x%x\n", reverse_endian_32(elf_secHeader.name));
-	showName(reverse_endian_32(elf_secHeader.name), stringTableAddress, f);
-	showType(reverse_endian_32(elf_secHeader.type));
-	printf("	Flags : 0x%x\n", reverse_endian_32(elf_secHeader.flags));
-	printf("	Adresse : 0x%x\n", reverse_endian_32(elf_secHeader.addr));
-	printf("	Offset : 0x%x\n", reverse_endian_32(elf_secHeader.offset));
-	printf("	Taille : 0x%x\n", reverse_endian_32(elf_secHeader.size));
-	printf("	Link : 0x%x\n", reverse_endian_32(elf_secHeader.link));
-	printf("	Info : 0x%x\n", reverse_endian_32(elf_secHeader.info));
-	printf("	Adresse alignement : 0x%x\n", reverse_endian_32(elf_secHeader.addrAlign));
-	printf("	Ent size : 0x%x\n", reverse_endian_32(elf_secHeader.entSize));
-
-	printf("\n");
-	*/
 }
 
 char * showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f)
@@ -137,95 +109,92 @@ char * showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f)
 
 	fseek(f, decalage, SEEK_SET);
 
-	char * test = malloc(50);
+	char * name = malloc(50);
 
-	fread(test, 50, 1, f);
-
-//	printf("	Nom de la table : %s\n", test);
+	fread(name, 50, 1, f);
 
 	fseek(f, currentPos, SEEK_SET);
 
-	return test;
+	return name;
 }
 char * showType(uint32_t type)
 {
-	char * name = malloc(15);
+	char * typeStr = malloc(15);
 
 	switch (type)
 	{
 		case 0:
-			strcpy(name, "NULL");
+			strcpy(typeStr, "NULL");
 			break;
 
 		case 1:
-			strcpy(name, "PROGBITS");
+			strcpy(typeStr, "PROGBITS");
 			break;
 
 		case 2:
-			strcpy(name, "SYMTAB");
+			strcpy(typeStr, "SYMTAB");
 			break;
 
 		case 3:
-			strcpy(name, "STRTAB");
+			strcpy(typeStr, "STRTAB");
 			break;
 
 		case 4:
-			strcpy(name, "RELA");
+			strcpy(typeStr, "RELA");
 			break;
 
 		case 5:
-			strcpy(name, "HASH");
+			strcpy(typeStr, "HASH");
 			break;
 
 		case 6:
-			strcpy(name, "DYNAMIC");
+			strcpy(typeStr, "DYNAMIC");
 			break;
 
 		case 7:
-			strcpy(name, "NOTE");
+			strcpy(typeStr, "NOTE");
 			break;
 
 		case 8:
-			strcpy(name, "NOBITS");
+			strcpy(typeStr, "NOBITS");
 			break;
 
 		case 9:
-			strcpy(name, "REL");
+			strcpy(typeStr, "REL");
 			break;
 
 		case 10:
-			strcpy(name, "SHLIB");
+			strcpy(typeStr, "SHLIB");
 			break;
 
 		case 11:
-			strcpy(name, "DYNSYM");
+			strcpy(typeStr, "DYNSYM");
 			break;
 
 		case 0x70000000:
-			strcpy(name, "LOPROC");
+			strcpy(typeStr, "LOPROC");
 			break;
 
 		case 0x70000003:
-			strcpy(name, "ARM_ATTRIBUTES");
+			strcpy(typeStr, "ARM_ATTRIBUTES");
 			break;
 
 		case 0x7fffffff:
-			strcpy(name, "HIPROC");
+			strcpy(typeStr, "HIPROC");
 			break;
 
 		case 0x80000000:
-			strcpy(name, "LOUSER");
+			strcpy(typeStr, "LOUSER");
 			break;
 
 		case 0xffffffff:
-			strcpy(name, "HIUSER");
+			strcpy(typeStr, "HIUSER");
 			break;
 
 		default:
-			strcpy(name, "ERREUR");
+			strcpy(typeStr, "UNKNOWN SECTION TYPE");
 			break;
 	}
 
-	//printf("	Type : %s\n", name);
-	return name;
+	return typeStr;
 }
