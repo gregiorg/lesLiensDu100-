@@ -18,3 +18,5 @@ pas d'underscore
 passer des FILE* plutot que les char* des noms de fichiers
 
 passer les struct par pointeur plutot que par valeur
+
+pointeur sur type : type* 
