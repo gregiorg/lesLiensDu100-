@@ -1,27 +1,46 @@
 #include "etape3.h"
 
-uint32_t* read_data(char* fname, int nsection) {
+uint32_t* read_data_numsec(char* fname, int nsection) {
+  Elf_SecHeaderF* elf_sec_header = etape2(fname);
   FILE* file = fopen(fname, "r");
-  ElfHeader elf_header;
-  fread(&elf_header, sizeof(elf_header), 1, file);
+  ElfHeaderF* elf_header = get_elf_header(file);
 
-  fseek(file, reverse_endian_32(elf_header.shoff) + nsection*reverse_endian_16(elf_header.shentsize), SEEK_SET);
+  uint32_t* data = NULL;
 
-  Elf_SecHeader elf_sec_header;
-  fread(&elf_sec_header, sizeof(elf_sec_header), 1, file);
+  if(nsection < elf_header->shnum && nsection >= 0) {
+    fseek(file, elf_sec_header[nsection].offset, SEEK_SET);
 
-  fseek(file, reverse_endian_32(elf_sec_header.offset), SEEK_SET);
+    data = malloc(elf_sec_header[nsection].size);
+    fread(data, elf_sec_header[nsection].size, 1, file);
 
-  uint32_t* data = malloc(reverse_endian_32(elf_sec_header.size));
-  fread(data, reverse_endian_32(elf_sec_header.size), 1, file);
-
-  for (int i = 0; i < reverse_endian_32(elf_sec_header.size)/sizeof(uint32_t); i++)
-      printf("%08X\n", reverse_endian_32(data[i]));
+    for (int i = 0; i < elf_sec_header[nsection].size/sizeof(uint32_t); i++)
+        printf("%08X\n", reverse_endian_32(data[i]));
+  }
 
   return data;
 }
 
-uint32_t* read_data(char* fname, char* nsection) {
-  Elf_SecHeaderF elf_sec_header = etape2(fname);
-  
+uint32_t* read_data_nomsec(char* fname, char* nsection) {
+  Elf_SecHeaderF* elf_sec_header = etape2(fname);
+  FILE* file = fopen(fname, "r");
+  ElfHeaderF* elf_header = get_elf_header(file);
+
+  int i = 0;
+  while(i < elf_header->shnum && !strcmp(elf_sec_header[i].nameStr, nsection)) {
+    i++;
+  }
+
+  uint32_t* data = NULL;
+
+  if(i < elf_header->shnum) {
+    fseek(file, elf_sec_header[i].offset, SEEK_SET);
+
+    data = malloc(elf_sec_header[i].size);
+    fread(data, elf_sec_header[i].size, 1, file);
+
+    for (int j = 0; j < elf_sec_header[i].size/sizeof(uint32_t); j++)
+        printf("%08X\n", reverse_endian_32(data[j]));
+  }
+
+  return data;
 }

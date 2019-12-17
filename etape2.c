@@ -11,7 +11,7 @@ uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionSt
 Elf_SecHeaderF returnFinalHeader(Elf_SecHeaderF elf_secHeaderF);
 void afficheFinal(Elf_SecHeaderF * finalHeader, uint32_t nbSections);
 
-Elf_SecHeaderF etape2(char* fname)
+Elf_SecHeaderF* etape2(char* fname)
 {
 	FILE* f = fopen(fname, "r");
 
