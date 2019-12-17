@@ -1,11 +1,13 @@
 #include "etape3.h"
 
-uint32_t* read_data(char* fname, int nsection) {
+uint32_t* read_data_numsec(char* fname, int nsection) {
   Elf_SecHeaderF* elf_sec_header = etape2(fname);
+  FILE* file = fopen(fname, "r");
+  ElfHeaderF* elf_header = get_elf_header(file);
 
   uint32_t* data = NULL;
 
-  if(elf_sec_header[nsection]) {
+  if(nsection < elf_header->shnum && nsection >= 0) {
     fseek(file, elf_sec_header[nsection].offset, SEEK_SET);
 
     data = malloc(elf_sec_header[nsection].size);
@@ -18,17 +20,19 @@ uint32_t* read_data(char* fname, int nsection) {
   return data;
 }
 
-uint32_t* read_data(char* fname, char* nsection) {
+uint32_t* read_data_nomsec(char* fname, char* nsection) {
   Elf_SecHeaderF* elf_sec_header = etape2(fname);
+  FILE* file = fopen(fname, "r");
+  ElfHeaderF* elf_header = get_elf_header(file);
 
   int i = 0;
-  while(elf_sec_header[i] && !strcmp(elf_sec_header[i].nameStr, nsection)) {
+  while(i < elf_header->shnum && !strcmp(elf_sec_header[i].nameStr, nsection)) {
     i++;
   }
 
   uint32_t* data = NULL;
 
-  if(elf_sec_header[i]) {
+  if(i < elf_header->shnum) {
     fseek(file, elf_sec_header[i].offset, SEEK_SET);
 
     data = malloc(elf_sec_header[i].size);
