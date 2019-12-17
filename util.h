@@ -72,6 +72,22 @@ typedef struct {
   uint16_t    st_shndx;  // Elf32_Half
 } Elf32_Sym;
 
+typedef struct {
+	char * nameStr;
+	char * typeStr;
+	unsigned int indexTable;
+	uint32_t indexName;
+	uint32_t typeInt;
+	uint32_t flags;
+	uint32_t addr;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t link;
+	uint32_t info;
+	uint32_t addrAlign;
+	uint32_t entSize;
+} Elf_SecHeaderF;
+
 int is_big_endian();
 
 uint32_t reverse_endian_32(uint32_t val);
