@@ -4,7 +4,7 @@
 #include "util.h"
 #include <string.h>
 
-void afficherHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f, int i, Elf_SecHeaderF * elf_secHeaderF);
+void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f, int i, Elf_SecHeaderF * elf_secHeaderF);
 char * showType(uint32_t type);
 char * showName(uint32_t name, uint32_t stringTableAddress, FILE *f);
 uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
@@ -46,7 +46,7 @@ int main (int argc, char** argv)
 		fread(&elf_secHeader, sizeof (elf_secHeader), 1, f);
 
 //		printf("Table numéro %i :\n", i);
-		afficherHeader(elf_secHeader, stringTableAddress, f, i, finalHeader);
+		putCurrentHeader(elf_secHeader, stringTableAddress, f, i, finalHeader);
 	}
 
 //	returnFinalHeader(Elf_SecHeaderF finalHeader);
@@ -98,7 +98,7 @@ uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionSt
 	return reverse_endian_32(elf_secHeader2.offset);
 }
 
-void afficherHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f, int i, Elf_SecHeaderF *finalHeader)
+void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f, int i, Elf_SecHeaderF *finalHeader)
 {
 	Elf_SecHeaderF currentHeader;
 
