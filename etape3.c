@@ -20,8 +20,8 @@ uint32_t* readDataNumSec(FILE* f, int numSection) {
 }
 
 uint32_t* readDataNomSec(FILE* f, char* nomSection) {
-  ElfSecHeaderF* elfSecHeader = etape2(f);
   ElfHeaderF* elfHeader = getElfHeader(f);
+  ElfSecHeaderF** elfSecHeader = etape2(f);
 
   int i = 0;
   while(i < elfHeader->shnum && !strcmp(elfSecHeader[i]->nameStr, nomSection)) {

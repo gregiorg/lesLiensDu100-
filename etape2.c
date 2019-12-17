@@ -1,6 +1,6 @@
 #include "etape2.h"
 
-ElfSecHeaderF** etape2(char* fname, FILE* f) {
+ElfSecHeaderF** etape2(FILE* f) {
 	ElfSecHeader elfSecHeader;
 	ElfHeaderF* header = getElfHeader(f);
 
