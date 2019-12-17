@@ -1,5 +1,5 @@
-#ifndef ETAPE3_H
-#define ETAPE3_H
+#ifndef __ETAPE3_H__
+#define __ETAPE3_H__
 
 #include "etape2.h"
 
