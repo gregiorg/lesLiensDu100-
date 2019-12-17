@@ -3,7 +3,7 @@
 
 #include "etape3.h"
 
-void afficheTabSym(Elf32Sym** tabSym, int size);
+void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f);
 Elf32Sym** etape4(FILE* f);
 
 #endif

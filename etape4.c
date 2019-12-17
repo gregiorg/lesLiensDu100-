@@ -11,12 +11,14 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-void afficheTabSym(Elf32Sym** tabSym, int size) {
+void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
     printf("symbole n°%d\n", i);
-    printf("nom du symbole : %d\n", tabSym[i]->stName);
-    printf("valeur du symbole : %d\n", tabSym[i]->stValue);
-    printf("taille du symbole : %d\n", tabSym[i]->stSize);
+    printf("nom du symbole : %08X\n", tabSym[i]->stName);
+    printf("vrai nom du symbole : %s\n", showName(tabSym[i]->stName, stringTableAddress, f));
+    printf("valeur du symbole : %08X\n", tabSym[i]->stValue);
+    printf("taille du symbole : %08X\n", tabSym[i]->stSize);
+    printf("ndx du symbole : %d\n", tabSym[i]->stShndx);
     printf("\n");
   }
 }
@@ -26,26 +28,34 @@ Elf32Sym** etape4(FILE* f) {
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = etape2(f);
 
+  uint32_t stringTableAddress = getAddressStringTable(elfHeader->shentsize, elfHeader->shstrndx, f);
+
   int i = 0;
-  while(i < elfHeader->shnum && !strcmp(elfSecHeader[i]->nameStr, ".symtab")) {
+  while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, ".symtab")!=0) {
     i++;
   }
 
   uint32_t* data = readDataNomSec(f, ".symtab");
-  Elf32Sym** tabSym = malloc(elfSecHeader[i]->size);
 
-  for (int i = 0; i < elfSecHeader[i]->size; i+=4) {
-    tabSym[i/4]->stName = data[i];
-    tabSym[i/4]->stValue = data[i+1];
-    tabSym[i/4]->stSize = data[i+2];
+  int nbElm = (elfSecHeader[i]->size) / (elfSecHeader[i]->entSize);
 
-    uint32_t sauv = data[i+3];
-    tabSym[i/4]->stInfo = sauv >> 24;
-    tabSym[i/4]->stOther = (sauv >> 16) & 0x00FF;
-    tabSym[i/4]->stShndx = sauv & 0xFFFF;
+  Elf32Sym** tabSym = malloc(nbElm * sizeof(Elf32Sym*));
+
+  for(int k = 0; k < nbElm; k++) {
+    tabSym[k] = malloc(sizeof(Elf32Sym));
   }
 
-  afficheTabSym(tabSym, elfSecHeader[i]->size);
+  for (int j = 0; j < nbElm; j++) {
+    tabSym[j]->stName = reverseEndian32(data[j*4]);
+    tabSym[j]->stValue = reverseEndian32(data[j*4+1]);
+    tabSym[j]->stSize = reverseEndian32(data[j*4+2]);
+
+    uint32_t sauv = reverseEndian32(data[j*4+3]);
+    tabSym[j]->stInfo = sauv >> 24;
+    tabSym[j]->stOther = (sauv >> 16) & 0x00FF;
+    tabSym[j]->stShndx = sauv & 0xFFFF;
+  }
+  afficheTabSym(tabSym, nbElm, stringTableAddress, f);
 
   return tabSym;
 }

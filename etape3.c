@@ -23,8 +23,9 @@ uint32_t* readDataNomSec(FILE* f, char* nomSection) {
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = etape2(f);
 
+
   int i = 0;
-  while(i < elfHeader->shnum && !strcmp(elfSecHeader[i]->nameStr, nomSection)) {
+  while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, nomSection)!=0) {
     i++;
   }
 
@@ -36,8 +37,8 @@ uint32_t* readDataNomSec(FILE* f, char* nomSection) {
     data = malloc(elfSecHeader[i]->size);
     fread(data, elfSecHeader[i]->size, 1, f);
 
-    for (int j = 0; j < elfSecHeader[i]->size/sizeof(uint32_t); j++)
-        printf("%08X\n", reverseEndian32(data[j]));
+    /*for (int j = 0; j < elfSecHeader[i]->size/sizeof(uint32_t); j++)
+        printf("%08X\n", reverseEndian32(data[j]));*/
   }
 
   return data;
