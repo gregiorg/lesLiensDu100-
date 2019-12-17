@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[]) {
   FILE* file;
-  if(file = fopen(argv[1], "r")) {
+  if((file = fopen(argv[1], "r"))) {
     etape4(file);
     fclose(file);
   } else {

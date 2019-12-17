@@ -103,7 +103,7 @@ typedef struct {
 	uint32_t entSize;
 } ElfSecHeaderF;
 
-int isBigEndian();
+int is_big_endian();
 
 uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
