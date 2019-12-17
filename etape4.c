@@ -2,11 +2,11 @@
 
 int main(int argc, char* argv[]) {
   FILE* file;
-  if(file = fopen(argv[1], "r")) {
+  if((file = fopen(argv[1], "r"))) {
     etape4(file);
     fclose(file);
   } else {
-    print("C'est de la merde!!!!!\n")
+    printf("C'est de la merde!!!!!\n");
   }
   return 0;
 }
@@ -31,7 +31,7 @@ Elf32Sym** etape4(FILE* f) {
     i++;
   }
 
-  uint32_t* data = read_data_nomsec(argv[1], ".symtab");
+  uint32_t* data = readDataNomSec(f, ".symtab");
   Elf32Sym** tabSym = malloc(elfSecHeader[i]->size);
 
   for (int i = 0; i < elfSecHeader[i]->size; i+=4) {
@@ -45,7 +45,7 @@ Elf32Sym** etape4(FILE* f) {
     tabSym[i/4]->stShndx = sauv & 0xFFFF;
   }
 
-  afficheTabSym(tabSym, elfSecHeader[i].size);
+  afficheTabSym(tabSym, elfSecHeader[i]->size);
 
   return tabSym;
 }
