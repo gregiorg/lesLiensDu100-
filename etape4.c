@@ -1,41 +1,51 @@
-#include "etape3.h"
+#include "etape4.h"
 
-void afficheTabSym(Elf32_Sym* tab_sym, int size) {
+int main(int argc, char* argv[]) {
+  FILE* file;
+  if(file = fopen(argv[1], "r")) {
+    etape4(file);
+    fclose(file);
+  } else {
+    print("C'est de la merde!!!!!\n")
+  }
+  return 0;
+}
+
+void afficheTabSym(Elf32Sym** tabSym, int size) {
   for (int i = 0; i < size; i++) {
     printf("symbole n°%d\n", i);
-    printf("nom du symbole : %d\n", tab_sym[i].st_name);
-    printf("valeur du symbole : %d\n", tab_sym[i].st_value);
-    printf("taille du symbole : %d\n", tab_sym[i].st_size);
+    printf("nom du symbole : %d\n", tabSym[i]->stName);
+    printf("valeur du symbole : %d\n", tabSym[i]->stValue);
+    printf("taille du symbole : %d\n", tabSym[i]->stSize);
     printf("\n");
   }
 }
 
-int main(int argc, char *argv[]) {
+Elf32Sym** etape4(FILE* f) {
 
-  Elf_SecHeaderF* elf_sec_header = etape2(argv[1]);
-  FILE* file = fopen(argv[1], "r");
-  ElfHeaderF* elf_header = get_elf_header(file);
+  ElfHeaderF* elfHeader = getElfHeader(f);
+  ElfSecHeaderF** elfSecHeader = etape2(f);
 
   int i = 0;
-  while(i < elf_header->shnum && !strcmp(elf_sec_header[i].nameStr, ".symtab")) {
+  while(i < elfHeader->shnum && !strcmp(elfSecHeader[i]->nameStr, ".symtab")) {
     i++;
   }
 
   uint32_t* data = read_data_nomsec(argv[1], ".symtab");
-  Elf32_Sym* tab_sym = malloc(elf_sec_header[i].size);
+  Elf32Sym** tabSym = malloc(elfSecHeader[i]->size);
 
-  for (int i = 0; i < elf_sec_header[i].size; i+=4) {
-    tab_sym[i/4].st_name = data[i];
-    tab_sym[i/4].st_value = data[i+1];
-    tab_sym[i/4].st_size = data[i+2];
+  for (int i = 0; i < elfSecHeader[i]->size; i+=4) {
+    tabSym[i/4]->stName = data[i];
+    tabSym[i/4]->stValue = data[i+1];
+    tabSym[i/4]->stSize = data[i+2];
 
     uint32_t sauv = data[i+3];
-    tab_sym[i/4].st_info = sauv >> 24;
-    tab_sym[i/4].st_other = (sauv >> 16) & 0x00FF;
-    tab_sym[i/4].st_shndx = sauv & 0xFFFF;
+    tabSym[i/4]->stInfo = sauv >> 24;
+    tabSym[i/4]->stOther = (sauv >> 16) & 0x00FF;
+    tabSym[i/4]->stShndx = sauv & 0xFFFF;
   }
 
-  afficheTabSym(tab_sym, elf_sec_header[i].size);
+  afficheTabSym(tabSym, elfSecHeader[i].size);
 
-  return 0;
+  return tabSym;
 }
