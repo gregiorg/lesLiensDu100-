@@ -5,75 +5,28 @@
 int main(int argc, char** argv) {
     FILE* file = fopen(argv[1], "r");
 
-    ElfHeader elf_header;
-    fread(&elf_header, sizeof (elf_header), 1, file);
+    ElfHeaderF* elf_header_f = get_elf_header(file);
 
     printf("Taille des mots : ");
-    switch (elf_header.indent_class) {
-        case 0x0:
-            printf("invalide");
-            break;
-        case 0x1:
-            printf("32 bits");
-            break;
-        case 0x2:
-            printf("64 bits");
-            break;
-        default:
-            printf("inconnu");
-    }
+    printf("%s\n", elf_header_f->indent_class);
 
-    printf("\nTaille des indiens : ");
-    switch (elf_header.indent_data) {
-        case 0x0:
-            printf("invalide");
-            break;
-        case 0x1:
-            printf("petits");
-            break;
-        case 0x2:
-            printf("gros");
-            break;
-        default:
-            printf("inconnu");
-    }
+    printf("Taille des indiens : ");
+    printf("%s\n", elf_header_f->indent_data);
 
-    printf("\nType de fichier ELF : ");
-    switch (reverse_endian_16(elf_header.type)) {
-        case 0x0:
-            printf("aucun");
-            break;
-        case 0x1:
-            printf("relogeable");
-            break;
-        case 0x2:
-            printf("executable");
-            break;
-        default:
-            printf("inconnu");
-    }
+    printf("Type de fichier ELF : ");
+    printf("%s\n", elf_header_f->type);
 
-    printf("\nPlatforme cible (architecture systeme) : ");
-    switch (reverse_endian_16(elf_header.machine)) {
-        case 0x0:
-            printf("aucun");
-            break;
-        case 0x28:
-            printf("ARM");
-            break;
-        default:
-            printf("inconnu");
-    }
+    printf("Platforme cible (architecture systeme) : ");
+    printf("%s\n", elf_header_f->machine);
 
-    printf("\nTable des sections : ");
-    printf("\n\tPosition : %d octets", reverse_endian_32(elf_header.shoff));
-    printf("\n\tNombre d'entrees : %d", reverse_endian_16(elf_header.shnum));
-    printf("\n\tTaille totale : %d octets", reverse_endian_16(elf_header.shentsize)*reverse_endian_16(elf_header.shnum));
-    printf("\n\tIndex de la table des noms de sections : %d octets", reverse_endian_16(elf_header.shstrndx));
+    printf("Table des sections : \n");
 
-    printf("\nTaille totale de l'entete : %d octets", reverse_endian_16(elf_header.ehsize));
+    printf("\tPosition : %d octets\n", elf_header_f->shoff);
+    printf("\tNombre d'entrees : %d\n", elf_header_f->shnum);
+    printf("\tTaille totale : %d octets\n", elf_header_f->shsize);
+    printf("\tIndex de la table des noms de sections : %d\n", elf_header_f->shstrndx);
 
-    printf("\n");
+    printf("Taille totale de l'entete : %d octets\n", elf_header_f->ehsize);
 
     return 0;
 }

@@ -24,6 +24,7 @@ Contact: Guillaume.Huard@imag.fr
 #define __UTIL_H__
 
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct {
     uint8_t indent_magic_number[4];
@@ -45,6 +46,19 @@ typedef struct {
     uint16_t shnum;
     uint16_t shstrndx;
 } ElfHeader;
+
+typedef struct {
+    char* indent_class;
+    char* indent_data;
+    char* type;
+    char* machine;
+    uint32_t shoff;
+    uint16_t shnum;
+    uint16_t shstrndx;
+    uint16_t shentsize;
+    uint16_t shsize;
+    uint16_t ehsize;
+} ElfHeaderF;
 
 typedef struct {
 	uint32_t name;
@@ -79,6 +93,8 @@ int is_big_endian();
 
 uint32_t reverse_endian_32(uint32_t val);
 uint16_t reverse_endian_16(uint16_t val);
+
+ElfHeaderF* get_elf_header(FILE* file);
 
 #define reverse_2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse_4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|\
