@@ -20,6 +20,7 @@ Contact: Guillaume.Huard@imag.fr
          51 avenue Jean Kuntzmann
          38330 Montbonnot Saint-Martin
 */
+
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
