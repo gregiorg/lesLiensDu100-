@@ -69,4 +69,5 @@ uint16_t reverse_endian_16(uint16_t val);
 						((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
 
 #define min(x,y) ((x)<(y)?(x):(y))
+
 #endif
