@@ -25,6 +25,7 @@ Contact: Guillaume.Huard@imag.fr
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
     uint8_t indent_magic_number[4];

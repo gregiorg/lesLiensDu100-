@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include "util.h"
-#include <string.h>
-
-void putCurrentHeader(Elf_SecHeader elf_secHeader, uint32_t stringTableAddress, FILE* f, int i, Elf_SecHeaderF * elf_secHeaderF);
-char * showType(uint32_t type);
-char * showName(uint32_t name, uint32_t stringTableAddress, FILE *f);
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
-Elf_SecHeaderF returnFinalHeader(Elf_SecHeaderF elf_secHeaderF);
-void afficheFinal(Elf_SecHeaderF * finalHeader, uint32_t nbSections);
+#include "etape2.h"
 
 Elf_SecHeaderF* etape2(char* fname)
 {
@@ -27,7 +16,7 @@ Elf_SecHeaderF* etape2(char* fname)
 
 	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, positionStringTable, f);
 
-	printf("Offset string table : 0x%x\n\n", stringTableAddress);
+	// printf("Offset string table : 0x%x\n\n", stringTableAddress);
 
 	Elf_SecHeaderF * finalHeader = malloc(sizeof(Elf_SecHeaderF) * nbSections);
 
@@ -37,9 +26,9 @@ Elf_SecHeaderF* etape2(char* fname)
 		putCurrentHeader(elf_secHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-//	return finalHeader;
+	return finalHeader;
 
-   	afficheFinal(finalHeader, nbSections);
+  // afficheFinal(finalHeader, nbSections);
 }
 
 void afficheFinal(Elf_SecHeaderF *finalHeader, uint32_t nbSections)

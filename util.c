@@ -22,8 +22,6 @@ Contact: Guillaume.Huard@imag.fr
 */
 
 #include "util.h"
-#include <stdint.h>
-#include <stdlib.h>
 
 int is_big_endian() {
     static uint32_t one = 1;
@@ -56,7 +54,9 @@ ElfHeaderF* get_elf_header(FILE* file) {
     fseek(file, 0, SEEK_SET);
 
     ElfHeader elf_header;
-    fread(&elf_header, sizeof (elf_header), 1, file);
+    if (fread(&elf_header, sizeof (elf_header), 1, file)){
+      //cool
+    }
 
     switch (elf_header.indent_class) {
         case 0x0:
