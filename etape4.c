@@ -1,28 +1,5 @@
 #include "etape4.h"
 
-int main(int argc, char* argv[]) {
-  FILE* file;
-  if((file = fopen(argv[1], "r"))) {
-    etape4(file);
-    fclose(file);
-  } else {
-    printf("C'est de la merde!!!!!\n");
-  }
-  return 0;
-}
-
-void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
-  for (int i = 0; i < size; i++) {
-    printf("symbole n°%d\n", i);
-    printf("nom du symbole : %08X\n", tabSym[i]->stName);
-    printf("vrai nom du symbole : %s\n", showName(tabSym[i]->stName, stringTableAddress, f));
-    printf("valeur du symbole : %08X\n", tabSym[i]->stValue);
-    printf("taille du symbole : %08X\n", tabSym[i]->stSize);
-    printf("ndx du symbole : %d\n", tabSym[i]->stShndx);
-    printf("\n");
-  }
-}
-
 Elf32Sym** etape4(FILE* f) {
 
   ElfHeaderF* elfHeader = getElfHeader(f);
@@ -55,7 +32,19 @@ Elf32Sym** etape4(FILE* f) {
     tabSym[j]->stOther = (sauv >> 16) & 0x00FF;
     tabSym[j]->stShndx = sauv & 0xFFFF;
   }
-  afficheTabSym(tabSym, nbElm, stringTableAddress, f);
+  // afficheTabSym(tabSym, nbElm, stringTableAddress, f);
 
   return tabSym;
+}
+
+void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
+  for (int i = 0; i < size; i++) {
+    printf("symbole n°%d\n", i);
+    printf("nom du symbole : %08X\n", tabSym[i]->stName);
+    printf("vrai nom du symbole : %s\n", showName(tabSym[i]->stName, stringTableAddress, f));
+    printf("valeur du symbole : %08X\n", tabSym[i]->stValue);
+    printf("taille du symbole : %08X\n", tabSym[i]->stSize);
+    printf("ndx du symbole : %d\n", tabSym[i]->stShndx);
+    printf("\n");
+  }
 }
