@@ -59,13 +59,13 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
     switch (elfHeader.indentClass) {
-        case 0x0:
+        case INVALIDE_ARCH:
             elfHeaderF->indentClass = "invalide";
             break;
-        case 0x1:
+        case 32_BITS:
             elfHeaderF->indentClass = "32 bits";
             break;
-        case 0x2:
+        case 64_BITS:
             elfHeaderF->indentClass = "64 bits";
             break;
         default:
@@ -73,27 +73,27 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
     switch (elfHeader.indentData) {
-        case 0x0:
+        case INVALIDE_ENDIAN:
             elfHeaderF->indentData = "invalide";
             break;
-        case 0x1:
+        case LITTLE_ENDIAN:
             elfHeaderF->indentData = "petits";
             break;
-        case 0x2:
+        case BIG_ENDIAN:
             elfHeaderF->indentData = "gros";
             break;
         default:
-            elfHeaderF->indentData = "inonnu";
+            elfHeaderF->indentData = "inconnu";
     }
 
     switch (reverseEndian16(elfHeader.type)) {
-        case 0x0:
+        case NONE:
             elfHeaderF->type = "aucun";
             break;
-        case 0x1:
+        case RELOCATABLE:
             elfHeaderF->type = "relogeable";
             break;
-        case 0x2:
+        case EXECUTABLE:
             elfHeaderF->type = "executable";
             break;
         default:
@@ -101,10 +101,10 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
     switch (reverseEndian16(elfHeader.machine)) {
-        case 0x0:
+        case MACHINE_NONE:
             elfHeaderF->machine = "aucune";
             break;
-        case 0x28:
+        case MACHINE_ARM:
             elfHeaderF->machine = "ARM";
             break;
         default:
@@ -125,14 +125,14 @@ ElfHeaderF* getElfHeader(FILE* file) {
 
 char* getRelocationName(uint32_t relocationCode) {
 	char* name = malloc(200);
-	
+
 	switch (relocationCode) {
 		case R_ARM_ABS32:
 			strcpy(name, "R_ARM_ABS32");
 			break;
 
 		default:
-			strcpy(name, "Unknown type. Please add this type to the util.h enum and to the util.c getRelocationName function");
+			strcpy(name, "Unknown type. Please add this type to the util.h enum and to the util.c getRelocationName function")
 			break;
 	}
 
