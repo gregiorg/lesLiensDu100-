@@ -1,6 +1,6 @@
 #include "etape2.h"
 
-enum={SHT_NULL=0, SHT_PROGBITS=1, SHT_SYMTAB=2, SHT_STRTAB=3, SHT_RELA=4, SHT_HASH=5, SHT_DYNAMIC=6, SHT_NOTE=7, SHT_NOBITS=8, SHT_REL=9, SHT_SHLIB=10, SHT_DYNSYM=11, SHT_LOPROC=0x70000000, SHT_HIPROC=0x7fffffff, SHT_LOUSER=0x80000000, SHT_HIUSER=0xffffffff}
+enum={SHT_NULL=0, SHT_PROGBITS=1, SHT_SYMTAB=2, SHT_STRTAB=3, SHT_RELA=4, SHT_HASH=5, SHT_DYNAMIC=6, SHT_NOTE=7, SHT_NOBITS=8, SHT_REL=9, SHT_SHLIB=10, SHT_DYNSYM=11, SHT_LOPROC=0x70000000, SHT_ARM_ATTRIBUTES=0x70000003, SHT_HIPROC=0x7fffffff, SHT_LOUSER=0x80000000, SHT_HIUSER=0xffffffff}
 
 ElfSecHeaderF** etape2(FILE* f) {
 	ElfSecHeader elfSecHeader;
@@ -103,71 +103,71 @@ char* showType(uint32_t type) {
 
 	switch (type)
 	{
-		case 0:
+		case SHT_NULL:
 			strcpy(typeStr, "NULL");
 			break;
 
-		case 1:
+		case SHT_PROGBITS:
 			strcpy(typeStr, "PROGBITS");
 			break;
 
-		case 2:
+		case SHT_SYMTAB:
 			strcpy(typeStr, "SYMTAB");
 			break;
 
-		case 3:
+		case SHT_STRTAB:
 			strcpy(typeStr, "STRTAB");
 			break;
 
-		case 4:
+		case SHT_RELA:
 			strcpy(typeStr, "RELA");
 			break;
 
-		case 5:
+		case SHT_HASH:
 			strcpy(typeStr, "HASH");
 			break;
 
-		case 6:
+		case SHT_DYNAMIC:
 			strcpy(typeStr, "DYNAMIC");
 			break;
 
-		case 7:
+		case SHT_NOTE:
 			strcpy(typeStr, "NOTE");
 			break;
 
-		case 8:
+		case SHT_NOBITS:
 			strcpy(typeStr, "NOBITS");
 			break;
 
-		case 9:
+		case SHT_REL:
 			strcpy(typeStr, "REL");
 			break;
 
-		case 10:
+		case SHT_SHLIB:
 			strcpy(typeStr, "SHLIB");
 			break;
 
-		case 11:
+		case SHT_DYNSYM:
 			strcpy(typeStr, "DYNSYM");
 			break;
 
-		case 0x70000000:
+		case SHT_LOPROC:
 			strcpy(typeStr, "LOPROC");
 			break;
 
-		case 0x70000003:
+		case SHT_ARM_ATTRIBUTES:
 			strcpy(typeStr, "ARM_ATTRIBUTES");
 			break;
 
-		case 0x7fffffff:
+		case SHT_HIPROC:
 			strcpy(typeStr, "HIPROC");
 			break;
 
-		case 0x80000000:
+		case SHT_ARM_ATTRIBUTES:
 			strcpy(typeStr, "LOUSER");
 			break;
 
-		case 0xffffffff:
+		case SHT_HIUSER:
 			strcpy(typeStr, "HIUSER");
 			break;
 
