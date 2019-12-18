@@ -43,14 +43,14 @@ ElfSecHeaderF** etape2(FILE* f) {
 		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-  	//afficheFinal(finalHeader, nbSections);
+  // afficheFinal(finalHeader, nbSections);
 
 	return finalHeader;
 }
 
 void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 	//On affiche nos headers de section 1 par 1
-	
+
 	for (int i=0; i < nbSections; i++) {
 		printf("Table numéro %i :\n", finalHeader[i]->indexTable);
 		printf("	Indice du nom de la table : 0x%x\n", finalHeader[i]->indexName);
@@ -72,7 +72,7 @@ void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 
 void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FILE* f, int i, ElfSecHeaderF** finalHeader) {
 	//On alloue de la mémoire pour le header courant
-	
+
 	ElfSecHeaderF* currentHeader = malloc(sizeof(ElfSecHeaderF));
 
 	//On remplit le header courant puis on l'ajoute au tableau de header "finalHeader"

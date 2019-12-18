@@ -61,11 +61,9 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-/*
   //il faut extraire les données de chaque section de tab avec l'étape 3
   //les REL ont deux valeurs de 8 chiffres hexas décalage info
   //d'Info ont à:
   //les deux premières chiffres correspondent au type de réimplantation propre a l'architecture (processeur)
   //le reste des 6 chiffres hexas représentent l'index du symbole
   //voir: elf.pdf page 36 et ELF for the ARM architecture page 26
-*/

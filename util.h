@@ -29,6 +29,32 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 #include <string.h>
 
+//If needed, add all the others relocation codes located in the ARM doc page 26 to 30
+
+typedef enum {
+	R_ARM_ABS32 = 2
+} RelocationCodes;
+
+typedef enum {
+	SHT_NULL=0,
+	SHT_PROGBITS=1,
+	SHT_SYMTAB = 2,
+	SHT_STRTAB = 3,
+	SHT_RELA = 4,
+	SHT_HASH = 5,
+	SHT_DYNAMIC = 6,
+	SHT_NOTE = 7,
+	SHT_NOBITS = 8,
+	SHT_REL = 9,
+	SHT_SHLIB = 10,
+	SHT_DYNSYM = 11,
+	SHT_LOPROC = 0x70000000,
+	SHT_ARM_ATTRIBUTES = 0x70000003,
+	SHT_HIPROC = 0x7fffffff,
+	SHT_LOUSER = 0x80000000,
+	SHT_HIUSER = 0xffffffff
+} SectionTypes;
+
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;
@@ -107,12 +133,9 @@ typedef struct {
 
 int is_big_endian();
 
-
 uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
 uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
-
-ElfHeaderF* getElfHeader(FILE* file);
 
 char* getRelocationName(uint32_t relocationCode);
 char* showType(uint32_t type);
