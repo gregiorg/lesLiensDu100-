@@ -4,16 +4,39 @@ ElfSecHeaderF** etape2(FILE* f) {
 	ElfSecHeader elfSecHeader;
 	ElfHeaderF* header = getElfHeader(f);
 
+	/*
+		On récupère la position du début des headers de section,
+		le nombre de sections, l'indice du header de la string
+		table dans la liste des headers de section et la taille
+		des headers de section à partir du ELF header renvoyé
+		par l'étape 1.
+	*/
+
 	const uint32_t positionHeaderSection = header->shoff;
 	const uint32_t nbSections = header->shnum;
-	const uint32_t positionStringTable = header->shstrndx;
+	const uint32_t indexStringTableInSections = header->shstrndx;
 	const uint32_t tailleHeaderSection = header->shentsize;
+
+	//On se positionne au début des headers de section
 
 	fseek(f, positionHeaderSection, SEEK_SET);
 
-	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, positionStringTable, f);
+	//On récupère la position de la string table
+
+	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, indexStringTableInSections, f);
+
+	/*
+		On alloue un tableau de pointeurs sur structure
+		qui contiendra dans chaque case un pointeur sur
+		une structure de header
+	*/
 
 	ElfSecHeaderF** finalHeader = malloc(sizeof(ElfSecHeaderF*) * nbSections);
+
+	/*
+		On lit et ajoute chaque header de section jusqu'au
+		nombre de sections total.
+	*/
 
 	for (int i=0; i < nbSections; i++) {
 		fread(&elfSecHeader, sizeof (elfSecHeader), 1, f);
@@ -26,6 +49,8 @@ ElfSecHeaderF** etape2(FILE* f) {
 }
 
 void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
+	//On affiche nos headers de section 1 par 1
+	
 	for (int i=0; i < nbSections; i++) {
 		printf("Table numéro %i :\n", finalHeader[i]->indexTable);
 		printf("	Indice du nom de la table : 0x%x\n", finalHeader[i]->indexName);
@@ -46,7 +71,11 @@ void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 }
 
 void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FILE* f, int i, ElfSecHeaderF** finalHeader) {
+	//On alloue de la mémoire pour le header courant
+	
 	ElfSecHeaderF* currentHeader = malloc(sizeof(ElfSecHeaderF));
+
+	//On remplit le header courant puis on l'ajoute au tableau de header "finalHeader"
 
 	currentHeader->indexTable = i;
 	currentHeader->indexName = reverseEndian32(elfSecHeader.name);
