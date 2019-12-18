@@ -1,9 +1,9 @@
 #include "etape4.h"
 
-Elf32Sym** etape4(FILE* f) {
+Elf32Sym** getTabSym(FILE* f) {
 
   ElfHeaderF* elfHeader = getElfHeader(f);  // get the header of the elf file
-  ElfSecHeaderF** elfSecHeader = etape2(f); // get all section headers
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f); // get all section headers
 
   uint32_t stringTableAddress = getAddressStringTable(elfHeader->shentsize, elfHeader->shstrndx, f);  // string table for later use
 
@@ -41,7 +41,7 @@ Elf32Sym** etape4(FILE* f) {
   return tabSym;
 }
 
-void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
+void afficherTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
     printf("Symbole n°%d :\n", i);
     printf("	Indice du nom du symbole : %08X\n", tabSym[i]->stName);

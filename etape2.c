@@ -1,6 +1,6 @@
 #include "etape2.h"
 
-ElfSecHeaderF** etape2(FILE* f) {
+ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 	ElfSecHeader elfSecHeader;
 	ElfHeaderF* header = getElfHeader(f);
 
@@ -48,7 +48,7 @@ ElfSecHeaderF** etape2(FILE* f) {
 	return finalHeader;
 }
 
-void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
+void afficherTabSecHeader(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 	//On affiche nos headers de section 1 par 1
 
 	for (int i=0; i < nbSections; i++) {

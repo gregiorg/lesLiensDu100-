@@ -22,7 +22,7 @@ typedef struct {
 
 void etape5(FILE* file) {
     ElfHeaderF* header = getElfHeader(file);
-    ElfSecHeaderF** sectionTable = etape2(file);
+    ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);
 
     for (int i = 0; i < header->shnum; i++) {
         ElfSecHeaderF* sectionHeader = sectionTable[i];

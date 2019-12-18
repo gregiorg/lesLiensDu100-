@@ -3,7 +3,7 @@
 
 #include "etape3.h"
 
-void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f);
-Elf32Sym** etape4(FILE* f);
+void afficherTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f); // Affichage de la table des symboles
+Elf32Sym** getTabSym(FILE* f); // Récupération de la table des symboles d'un fichier ELF déjà ouvert
 
 #endif
