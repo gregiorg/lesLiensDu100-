@@ -11,18 +11,13 @@ uint32_t* readDataNumSec(FILE* f, int numSection) {
 
     data = malloc(elfSecHeader[numSection]->size);
     fread(data, elfSecHeader[numSection]->size, 1, f);
-
-    for (int i = 0; i < elfSecHeader[numSection]->size/sizeof(uint32_t); i++)
-        printf("%08X\n", reverseEndian32(data[i]));
   }
-
   return data;
 }
 
 uint32_t* readDataNomSec(FILE* f, char* nomSection) {
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
-
 
   int i = 0;
   while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, nomSection)!=0) {
@@ -36,10 +31,12 @@ uint32_t* readDataNomSec(FILE* f, char* nomSection) {
 
     data = malloc(elfSecHeader[i]->size);
     fread(data, elfSecHeader[i]->size, 1, f);
-
-    /*for (int j = 0; j < elfSecHeader[i]->size/sizeof(uint32_t); j++)
-        printf("%08X\n", reverseEndian32(data[j]));*/
   }
-
   return data;
+}
+
+void afficherDataSection(uint32_t* data, ElfSecHeaderF** elfSecHeader, int numSection) {
+  for (int i = 0; i < elfSecHeader[numSection]->size/sizeof(uint32_t); i++) {
+      printf("%08X\n", reverseEndian32(data[i]));
+    }
 }
