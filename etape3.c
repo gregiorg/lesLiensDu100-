@@ -2,7 +2,7 @@
 
 uint32_t* readDataNumSec(FILE* f, int numSection) {
   ElfHeaderF* elfHeader = getElfHeader(f);
-  ElfSecHeaderF** elfSecHeader = etape2(f);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
 
   uint32_t* data = NULL;
 
@@ -21,7 +21,7 @@ uint32_t* readDataNumSec(FILE* f, int numSection) {
 
 uint32_t* readDataNomSec(FILE* f, char* nomSection) {
   ElfHeaderF* elfHeader = getElfHeader(f);
-  ElfSecHeaderF** elfSecHeader = etape2(f);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
 
 
   int i = 0;
