@@ -17,7 +17,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
         case BITS_32:
             elfHeaderF->indentClass = "32 bits";
             break;
-        case BITS_16:
+        case BITS_64:
             elfHeaderF->indentClass = "64 bits";
             break;
         default:
@@ -42,7 +42,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
         case NONE:
             elfHeaderF->type = "aucun";
             break;
-        case RECOCATABLE:
+        case REALOCATABLE:
             elfHeaderF->type = "relogeable";
             break;
         case EXECUTABLE:
