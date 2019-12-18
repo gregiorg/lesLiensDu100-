@@ -65,7 +65,7 @@ char* getRelocationName(uint32_t relocationCode) {
 }
 
 char* showType(uint32_t type) {
-	char* typeStr = malloc(15);
+	char* typeStr = malloc(30);
 
 	switch (type)
 	{
@@ -155,7 +155,9 @@ char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f) {
 
 	char* name = malloc(50);
 
-	fread(name, 50, 1, f);
+	if (fread(name, 50, 1, f)){
+  //pass
+  }
 
 	fseek(f, currentPos, SEEK_SET);
 
@@ -169,7 +171,9 @@ uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionSt
 
 	ElfSecHeader elfSecHeader2;
 
-	fread(&elfSecHeader2, sizeof (elfSecHeader2), 1, f);
+	if (fread(&elfSecHeader2, sizeof (elfSecHeader2), 1, f)){
+    //pass
+  }
 
 	fseek(f, currentPos, SEEK_SET);
 
