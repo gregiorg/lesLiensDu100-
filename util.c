@@ -48,84 +48,9 @@ uint16_t reverseEndian16(uint16_t val) {
     return *((uint16_t*) tabOut);
 }
 
-ElfHeaderF* getElfHeader(FILE* file) {
-    ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
-    long int filePos = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    ElfHeader elfHeader;
-    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
-      //cool
-    }
-
-    switch (elfHeader.indentClass) {
-        case 0x0:
-            elfHeaderF->indentClass = "invalide";
-            break;
-        case 0x1:
-            elfHeaderF->indentClass = "32 bits";
-            break;
-        case 0x2:
-            elfHeaderF->indentClass = "64 bits";
-            break;
-        default:
-            elfHeaderF->indentClass = "inconnu";
-    }
-
-    switch (elfHeader.indentData) {
-        case 0x0:
-            elfHeaderF->indentData = "invalide";
-            break;
-        case 0x1:
-            elfHeaderF->indentData = "petits";
-            break;
-        case 0x2:
-            elfHeaderF->indentData = "gros";
-            break;
-        default:
-            elfHeaderF->indentData = "inonnu";
-    }
-
-    switch (reverseEndian16(elfHeader.type)) {
-        case 0x0:
-            elfHeaderF->type = "aucun";
-            break;
-        case 0x1:
-            elfHeaderF->type = "relogeable";
-            break;
-        case 0x2:
-            elfHeaderF->type = "executable";
-            break;
-        default:
-            elfHeaderF->type = "inonnu";
-    }
-
-    switch (reverseEndian16(elfHeader.machine)) {
-        case 0x0:
-            elfHeaderF->machine = "aucune";
-            break;
-        case 0x28:
-            elfHeaderF->machine = "ARM";
-            break;
-        default:
-            elfHeaderF->machine = "inconnu";
-    }
-
-    elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
-    elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
-    elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
-    elfHeaderF->shsize = elfHeaderF->shnum * elfHeaderF->shentsize;
-    elfHeaderF->shstrndx = reverseEndian16(elfHeader.shstrndx);
-
-    elfHeaderF->ehsize = reverseEndian16(elfHeader.ehsize);
-
-    fseek(file, filePos, SEEK_SET);
-    return elfHeaderF;
-}
-
 char* getRelocationName(uint32_t relocationCode) {
 	char* name = malloc(200);
-	
+
 	switch (relocationCode) {
 		case R_ARM_ABS32:
 			strcpy(name, "R_ARM_ABS32");

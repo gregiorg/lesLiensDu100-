@@ -53,7 +53,7 @@ typedef enum {
 	SHT_HIPROC = 0x7fffffff,
 	SHT_LOUSER = 0x80000000,
 	SHT_HIUSER = 0xffffffff
-} SectionTypes; 
+} SectionTypes;
 
 typedef struct {
     uint8_t indentMagicNumber[4];
@@ -133,12 +133,9 @@ typedef struct {
 
 int is_big_endian();
 
-
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);	
+uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
 uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
-
-ElfHeaderF* getElfHeader(FILE* file);
 
 char* getRelocationName(uint32_t relocationCode);
 char* showType(uint32_t type);
