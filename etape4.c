@@ -1,16 +1,5 @@
 #include "etape4.h"
 
-int main(int argc, char* argv[]) {
-  FILE* file;
-  if((file = fopen(argv[1], "r"))) {
-    etape4(file);
-    fclose(file);
-  } else {
-    printf("C'est de la merde!!!!!\n");
-  }
-  return 0;
-}
-
 void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
     printf("Symbole n°%d :\n", i);
