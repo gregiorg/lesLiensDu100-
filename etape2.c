@@ -50,7 +50,7 @@ void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
 	const int currentPos = ftell(f);
 
-	fseek(f, tailleHeaderSection* positionStringTable, SEEK_CUR);
+	fseek(f, tailleHeaderSection * positionStringTable, SEEK_CUR);
 
 	ElfSecHeader elfSecHeader2;
 
