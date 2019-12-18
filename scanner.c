@@ -1,5 +1,5 @@
 
-#line 2 "scanner.c"
+#line 3 "scanner.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -480,8 +480,8 @@ static void add_character_to_error(parser_data_t data, char c) {
         handle_error(data);
     data->buffer[data->len++] = c;
 }
-#line 483 "scanner.c"
 #line 484 "scanner.c"
+#line 485 "scanner.c"
 
 #define INITIAL 0
 
@@ -723,7 +723,7 @@ YY_DECL
 	{
 #line 62 "scanner.l"
 
-#line 726 "scanner.c"
+#line 727 "scanner.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -820,7 +820,7 @@ YY_RULE_SETUP
 #line 78 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 823 "scanner.c"
+#line 824 "scanner.c"
 
 	case YY_END_OF_BUFFER:
 		{

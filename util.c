@@ -57,7 +57,7 @@ char* getRelocationName(uint32_t relocationCode) {
 			break;
 
 		default:
-			strcpy(name, "Unknown type. Please add this type to the util.h enum and to the util.c getRelocationName function");
+			strcpy(name, "Unknown type. Please add this type to the util.h enum and to the util.c getRelocationName function")
 			break;
 	}
 
