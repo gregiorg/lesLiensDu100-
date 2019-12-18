@@ -29,8 +29,6 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 #include <string.h>
 
-//If needed, add all the others relocation codes located in the ARM doc page 26 to 30
-
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;

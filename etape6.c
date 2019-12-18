@@ -18,8 +18,8 @@ int main(int argc, char const *argv[]) {
   ElfSecHeaderF** secHeaderProgbitF1 = extractProgbit(secHeaderF1, elfHeaderF1->shnum, nbProgbitF1);
   ElfSecHeaderF** secHeaderProgbitF2 = extractProgbit(secHeaderF2, elfHeaderF2->shnum, nbProgbitF2);
 
-  afficheFinal(secHeaderProgbitF1, nbProgbitF1);
-  afficheFinal(secHeaderProgbitF2, nbProgbitF2);
+  afficherTabSecHeader(secHeaderProgbitF1, nbProgbitF1);
+  afficherTabSecHeader(secHeaderProgbitF2, nbProgbitF2);
 
   return 0;
 }
