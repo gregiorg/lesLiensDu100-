@@ -24,7 +24,7 @@ Header* headerFromFile(FILE* file) {
     return header;
 }
 
-SecionHeaderTable* sectionHeaderTableFromFile(FILE* file, int offset, Header* header, int nbSections) {
+SecionHeaderTable* sectionHeaderTableFromFile(FILE* file, int offset, Header* header, int nbSections, int shxstr) {
     ElfSecHeader* elfSecHeaders;
     fseek(file, offset, SEEK_SET);
     fread(&elfSecHeaders, sizeof (ElfSecHeader), nbSections, file);
@@ -52,10 +52,10 @@ SecionHeaderTable* sectionHeaderTableFromFile(FILE* file, int offset, Header* he
         fread(sectionHeaderTable->sections[i]->data, reverseEndian32(elfSecHeaders[i].size), 1, file);
     }
 
-    char* sectionHeaderStringTable;
+    char* stringTable = (char*) sectionHeaderTable->sections[shxstr]->data;
 
     for (int i = 0; i < nbSections; i++) {
-        if (sectionHeaderTable
+        sectionHeaderTable->sections[i]->name = stringTable + reverseEndian32(elfSecHeaders[i].name);
     }
 
     return sectionHeaderTable;
