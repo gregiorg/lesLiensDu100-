@@ -1,7 +1,5 @@
 #include "etape2.h"
 
-enum={SHT_NULL=0, SHT_PROGBITS=1, SHT_SYMTAB=2, SHT_STRTAB=3, SHT_RELA=4, SHT_HASH=5, SHT_DYNAMIC=6, SHT_NOTE=7, SHT_NOBITS=8, SHT_REL=9, SHT_SHLIB=10, SHT_DYNSYM=11, SHT_LOPROC=0x70000000, SHT_ARM_ATTRIBUTES=0x70000003, SHT_HIPROC=0x7fffffff, SHT_LOUSER=0x80000000, SHT_HIUSER=0xffffffff}
-
 ElfSecHeaderF** etape2(FILE* f) {
 	ElfSecHeader elfSecHeader;
 	ElfHeaderF* header = getElfHeader(f);
@@ -47,20 +45,6 @@ void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 	}
 }
 
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
-	const int currentPos = ftell(f);
-
-	fseek(f, tailleHeaderSection * positionStringTable, SEEK_CUR);
-
-	ElfSecHeader elfSecHeader2;
-
-	fread(&elfSecHeader2, sizeof (elfSecHeader2), 1, f);
-
-	fseek(f, currentPos, SEEK_SET);
-
-	return reverseEndian32(elfSecHeader2.offset);
-}
-
 void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FILE* f, int i, ElfSecHeaderF** finalHeader) {
 	ElfSecHeaderF* currentHeader = malloc(sizeof(ElfSecHeaderF));
 
@@ -80,101 +64,4 @@ void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FI
 	currentHeader->typeStr = showType(reverseEndian32(elfSecHeader.type));
 
 	finalHeader[i] = currentHeader;
-}
-
-char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f) {
-	const int currentPos = ftell(f);
-
-	const uint32_t decalage = stringTableAddress + indexName;
-
-	fseek(f, decalage, SEEK_SET);
-
-	char* name = malloc(50);
-
-	fread(name, 50, 1, f);
-
-	fseek(f, currentPos, SEEK_SET);
-
-	return name;
-}
-
-char* showType(uint32_t type) {
-	char* typeStr = malloc(15);
-
-	switch (type)
-	{
-		case SHT_NULL:
-			strcpy(typeStr, "NULL");
-			break;
-
-		case SHT_PROGBITS:
-			strcpy(typeStr, "PROGBITS");
-			break;
-
-		case SHT_SYMTAB:
-			strcpy(typeStr, "SYMTAB");
-			break;
-
-		case SHT_STRTAB:
-			strcpy(typeStr, "STRTAB");
-			break;
-
-		case SHT_RELA:
-			strcpy(typeStr, "RELA");
-			break;
-
-		case SHT_HASH:
-			strcpy(typeStr, "HASH");
-			break;
-
-		case SHT_DYNAMIC:
-			strcpy(typeStr, "DYNAMIC");
-			break;
-
-		case SHT_NOTE:
-			strcpy(typeStr, "NOTE");
-			break;
-
-		case SHT_NOBITS:
-			strcpy(typeStr, "NOBITS");
-			break;
-
-		case SHT_REL:
-			strcpy(typeStr, "REL");
-			break;
-
-		case SHT_SHLIB:
-			strcpy(typeStr, "SHLIB");
-			break;
-
-		case SHT_DYNSYM:
-			strcpy(typeStr, "DYNSYM");
-			break;
-
-		case SHT_LOPROC:
-			strcpy(typeStr, "LOPROC");
-			break;
-
-		case SHT_ARM_ATTRIBUTES:
-			strcpy(typeStr, "ARM_ATTRIBUTES");
-			break;
-
-		case SHT_HIPROC:
-			strcpy(typeStr, "HIPROC");
-			break;
-
-		case SHT_ARM_ATTRIBUTES:
-			strcpy(typeStr, "LOUSER");
-			break;
-
-		case SHT_HIUSER:
-			strcpy(typeStr, "HIUSER");
-			break;
-
-		default:
-			strcpy(typeStr, "UNKNOWN SECTION TYPE");
-			break;
-	}
-
-	return typeStr;
 }

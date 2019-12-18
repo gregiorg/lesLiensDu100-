@@ -122,3 +122,131 @@ ElfHeaderF* getElfHeader(FILE* file) {
     fseek(file, filePos, SEEK_SET);
     return elfHeaderF;
 }
+
+char* getRelocationName(uint32_t relocationCode) {
+	char* name = malloc(200);
+	
+	switch (relocationCode) {
+		case R_ARM_ABS32:
+			strcpy(name, "R_ARM_ABS32");
+			break;
+
+		default:
+			strcpy(name, "Unknown type. Please add this type to the util.h enum and to the util.c getRelocationName function")
+			break;
+	}
+
+	return name;
+}
+
+char* showType(uint32_t type) {
+	char* typeStr = malloc(15);
+
+	switch (type)
+	{
+		case 0:
+			strcpy(typeStr, "NULL");
+			break;
+
+		case 1:
+			strcpy(typeStr, "PROGBITS");
+			break;
+
+		case 2:
+			strcpy(typeStr, "SYMTAB");
+			break;
+
+		case 3:
+			strcpy(typeStr, "STRTAB");
+			break;
+
+		case 4:
+			strcpy(typeStr, "RELA");
+			break;
+
+		case 5:
+			strcpy(typeStr, "HASH");
+			break;
+
+		case 6:
+			strcpy(typeStr, "DYNAMIC");
+			break;
+
+		case 7:
+			strcpy(typeStr, "NOTE");
+			break;
+
+		case 8:
+			strcpy(typeStr, "NOBITS");
+			break;
+
+		case 9:
+			strcpy(typeStr, "REL");
+			break;
+
+		case 10:
+			strcpy(typeStr, "SHLIB");
+			break;
+
+		case 11:
+			strcpy(typeStr, "DYNSYM");
+			break;
+
+		case 0x70000000:
+			strcpy(typeStr, "LOPROC");
+			break;
+
+		case 0x70000003:
+			strcpy(typeStr, "ARM_ATTRIBUTES");
+			break;
+
+		case 0x7fffffff:
+			strcpy(typeStr, "HIPROC");
+			break;
+
+		case 0x80000000:
+			strcpy(typeStr, "LOUSER");
+			break;
+
+		case 0xffffffff:
+			strcpy(typeStr, "HIUSER");
+			break;
+
+		default:
+			strcpy(typeStr, "UNKNOWN SECTION TYPE");
+			break;
+	}
+
+	return typeStr;
+}
+
+
+char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f) {
+	const int currentPos = ftell(f);
+
+	const uint32_t decalage = stringTableAddress + indexName;
+
+	fseek(f, decalage, SEEK_SET);
+
+	char* name = malloc(50);
+
+	fread(name, 50, 1, f);
+
+	fseek(f, currentPos, SEEK_SET);
+
+	return name;
+}
+
+uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
+	const int currentPos = ftell(f);
+
+	fseek(f, tailleHeaderSection * positionStringTable, SEEK_CUR);
+
+	ElfSecHeader elfSecHeader2;
+
+	fread(&elfSecHeader2, sizeof (elfSecHeader2), 1, f);
+
+	fseek(f, currentPos, SEEK_SET);
+
+	return reverseEndian32(elfSecHeader2.offset);
+}
