@@ -20,7 +20,7 @@ ElfSecHeaderF** etape2(FILE* f) {
 		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-  	afficheFinal(finalHeader, nbSections);
+  // afficheFinal(finalHeader, nbSections);
 
 	return finalHeader;
 }
