@@ -2,7 +2,7 @@
 #define __ENUMS_H__
 
 //TYPE DE SECTION
-typedef enum = {
+typedef enum {
   SHT_NULL = 0,
   SHT_PROGBITS = 1,
   SHT_SYMTAB = 2,
@@ -29,7 +29,7 @@ typedef enum {
 } RelocationCodes;
 
 //TYPE D'ARCHITECTURE
-typedef enum = {
+typedef enum {
   INVALIDE_ARCH = 0x0,
   32_BITS = 0X1,
   64_BITS = 0x2
@@ -53,4 +53,6 @@ typedef enum {
 typedef enum{
   MACHINE_NONE = 0x0,
   MACHINE_ARM = 0x28
-}
+}MachineTypes;
+
+#endif
