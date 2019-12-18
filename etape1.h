@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "util.h" 
+#include "util.h"
 
-ElfHeaderF* getElfHeader(FILE* file);
-void afficherHeader(ElfHeaderF* elfHeaderF);
+ElfHeaderF* getElfHeader(FILE* file); // Récupération de l'en-tête d'un fichier ELF déjà ouvert
+void afficherHeader(ElfHeaderF* elfHeaderF); // Affichage de l'en-tête passé en paramètre
 
 #endif

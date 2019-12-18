@@ -29,31 +29,23 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 #include <string.h>
 
-//If needed, add all the others relocation codes located in the ARM doc page 26 to 30
+#include "enums.h"
 
-typedef enum {
-	R_ARM_ABS32 = 2
-} RelocationCodes;
+#define ELF32_R_SYM(info)    ((info)>>8)
+#define ELF32_R_TYPE(info)   ((unsigned char)(info))
 
-typedef enum {
-	SHT_NULL=0,
-	SHT_PROGBITS=1,
-	SHT_SYMTAB = 2,
-	SHT_STRTAB = 3,
-	SHT_RELA = 4,
-	SHT_HASH = 5,
-	SHT_DYNAMIC = 6,
-	SHT_NOTE = 7,
-	SHT_NOBITS = 8,
-	SHT_REL = 9,
-	SHT_SHLIB = 10,
-	SHT_DYNSYM = 11,
-	SHT_LOPROC = 0x70000000,
-	SHT_ARM_ATTRIBUTES = 0x70000003,
-	SHT_HIPROC = 0x7fffffff,
-	SHT_LOUSER = 0x80000000,
-	SHT_HIUSER = 0xffffffff
-} SectionTypes;
+#define SH_REL 9
+
+typedef struct {
+    uint32_t offset;
+    uint32_t info;
+} RealocationEntry;
+
+typedef struct {
+    uint32_t offset;
+    char SYM;
+    char TYPE;
+} RealocationEntryF;
 
 typedef struct {
     uint8_t indentMagicNumber[4];

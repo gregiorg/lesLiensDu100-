@@ -11,13 +11,13 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
     switch (elfHeader.indentClass) {
-        case 0x0:
+        case INVALIDE_ARCH:
             elfHeaderF->indentClass = "invalide";
             break;
-        case 0x1:
+        case BITS_32:
             elfHeaderF->indentClass = "32 bits";
             break;
-        case 0x2:
+        case BITS_64:
             elfHeaderF->indentClass = "64 bits";
             break;
         default:
@@ -25,38 +25,38 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
     switch (elfHeader.indentData) {
-        case 0x0:
+        case INVALIDE_END:
             elfHeaderF->indentData = "invalide";
             break;
-        case 0x1:
+        case LITTLE_END:
             elfHeaderF->indentData = "petits";
             break;
-        case 0x2:
+        case BIG_END:
             elfHeaderF->indentData = "gros";
             break;
         default:
-            elfHeaderF->indentData = "inonnu";
+            elfHeaderF->indentData = "inconnu";
     }
 
     switch (reverseEndian16(elfHeader.type)) {
-        case 0x0:
+        case NONE:
             elfHeaderF->type = "aucun";
             break;
-        case 0x1:
+        case REALOCATABLE:
             elfHeaderF->type = "relogeable";
             break;
-        case 0x2:
+        case EXECUTABLE:
             elfHeaderF->type = "executable";
             break;
         default:
-            elfHeaderF->type = "inonnu";
+            elfHeaderF->type = "inconnu";
     }
 
     switch (reverseEndian16(elfHeader.machine)) {
-        case 0x0:
+        case MACHINE_NONE:
             elfHeaderF->machine = "aucune";
             break;
-        case 0x28:
+        case MACHINE_ARM:
             elfHeaderF->machine = "ARM";
             break;
         default:
