@@ -45,7 +45,7 @@ typedef enum {
 //TYPE DE FICHIER
 typedef enum {
   NONE = 0x0,
-  RELOCATABLE = 0x1,
+  REALOCATABLE = 0x1,
   EXECUTABLE = 0x2
 }FileTypes;
 
