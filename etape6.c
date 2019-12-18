@@ -9,8 +9,8 @@ int main(int argc, char const *argv[]) {
   ElfHeaderF* elfHeaderF1 = getElfHeader(f1);
   ElfHeaderF* elfHeaderF2 = getElfHeader(f2);
 
-  ElfSecHeaderF** secHeaderF1 = etape2(f1);
-  ElfSecHeaderF** secHeaderF2 = etape2(f2);
+  ElfSecHeaderF** secHeaderF1 = getTabElfSecHeader(f1);
+  ElfSecHeaderF** secHeaderF2 = getTabElfSecHeader(f2);
 
   int nbProgbitF1 = countNbSecProgbits(secHeaderF1, elfHeaderF1->shnum);
   int nbProgbitF2 = countNbSecProgbits(secHeaderF2, elfHeaderF2->shnum);
