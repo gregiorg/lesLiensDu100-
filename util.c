@@ -28,97 +28,97 @@ int is_big_endian() {
     return ((* (uint8_t *) &one) == 0);
 }
 
-uint32_t reverse_endian_32(uint32_t val) {
-    uint8_t* tab_in = (uint8_t*) &val;
-    uint8_t tab_out[sizeof (uint32_t)];
+uint32_t reverseEndian32(uint32_t val) {
+    uint8_t* tabIn = (uint8_t*) &val;
+    uint8_t tabOut[sizeof (uint32_t)];
 
     for (int i = 0; i < sizeof (uint32_t); i++)
-        tab_out[i] = tab_in[sizeof (uint32_t) - 1 - i];
+        tabOut[i] = tabIn[sizeof (uint32_t) - 1 - i];
 
-    return *((uint32_t*) tab_out);
+    return *((uint32_t*) tabOut);
 }
 
-uint16_t reverse_endian_16(uint16_t val) {
-    uint8_t* tab_in = (uint8_t*) &val;
-    uint8_t tab_out[sizeof (uint16_t)];
+uint16_t reverseEndian16(uint16_t val) {
+    uint8_t* tabIn = (uint8_t*) &val;
+    uint8_t tabOut[sizeof (uint16_t)];
 
     for (int i = 0; i < sizeof (uint16_t); i++)
-        tab_out[i] = tab_in[sizeof (uint16_t) - 1 - i];
+        tabOut[i] = tabIn[sizeof (uint16_t) - 1 - i];
 
-    return *((uint16_t*) tab_out);
+    return *((uint16_t*) tabOut);
 }
 
-ElfHeaderF* get_elf_header(FILE* file) {
-    ElfHeaderF* elf_header_f = malloc(sizeof(ElfHeaderF));
-    long int file_pos = ftell(file);
+ElfHeaderF* getElfHeader(FILE* file) {
+    ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
+    long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    ElfHeader elf_header;
-    if (fread(&elf_header, sizeof (elf_header), 1, file)){
+    ElfHeader elfHeader;
+    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
       //cool
     }
 
-    switch (elf_header.indent_class) {
+    switch (elfHeader.indentClass) {
         case 0x0:
-            elf_header_f->indent_class = "invalide";
+            elfHeaderF->indentClass = "invalide";
             break;
         case 0x1:
-            elf_header_f->indent_class = "32 bits";
+            elfHeaderF->indentClass = "32 bits";
             break;
         case 0x2:
-            elf_header_f->indent_class = "64 bits";
+            elfHeaderF->indentClass = "64 bits";
             break;
         default:
-            elf_header_f->indent_class = "inconnu";
+            elfHeaderF->indentClass = "inconnu";
     }
 
-    switch (elf_header.indent_data) {
+    switch (elfHeader.indentData) {
         case 0x0:
-            elf_header_f->indent_data = "invalide";
+            elfHeaderF->indentData = "invalide";
             break;
         case 0x1:
-            elf_header_f->indent_data = "petits";
+            elfHeaderF->indentData = "petits";
             break;
         case 0x2:
-            elf_header_f->indent_data = "gros";
+            elfHeaderF->indentData = "gros";
             break;
         default:
-            elf_header_f->indent_data = "inonnu";
+            elfHeaderF->indentData = "inonnu";
     }
 
-    switch (reverse_endian_16(elf_header.type)) {
+    switch (reverseEndian16(elfHeader.type)) {
         case 0x0:
-            elf_header_f->type = "aucun";
+            elfHeaderF->type = "aucun";
             break;
         case 0x1:
-            elf_header_f->type = "relogeable";
+            elfHeaderF->type = "relogeable";
             break;
         case 0x2:
-            elf_header_f->type = "executable";
+            elfHeaderF->type = "executable";
             break;
         default:
-            elf_header_f->type = "inonnu";
+            elfHeaderF->type = "inonnu";
     }
 
-    switch (reverse_endian_16(elf_header.machine)) {
+    switch (reverseEndian16(elfHeader.machine)) {
         case 0x0:
-            elf_header_f->machine = "aucune";
+            elfHeaderF->machine = "aucune";
             break;
         case 0x28:
-            elf_header_f->machine = "ARM";
+            elfHeaderF->machine = "ARM";
             break;
         default:
-            elf_header_f->machine = "inconnu";
+            elfHeaderF->machine = "inconnu";
     }
 
-    elf_header_f->shoff = reverse_endian_32(elf_header.shoff);
-    elf_header_f->shnum = reverse_endian_16(elf_header.shnum);
-    elf_header_f->shentsize = reverse_endian_16(elf_header.shentsize);
-    elf_header_f->shsize = elf_header_f->shnum * elf_header_f->shentsize;
-    elf_header_f->shstrndx = reverse_endian_16(elf_header.shstrndx);
+    elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
+    elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
+    elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
+    elfHeaderF->shsize = elfHeaderF->shnum * elfHeaderF->shentsize;
+    elfHeaderF->shstrndx = reverseEndian16(elfHeader.shstrndx);
 
-    elf_header_f->ehsize = reverse_endian_16(elf_header.ehsize);
+    elfHeaderF->ehsize = reverseEndian16(elfHeader.ehsize);
 
-    fseek(file, file_pos, SEEK_SET);
-    return elf_header_f;
+    fseek(file, filePos, SEEK_SET);
+    return elfHeaderF;
 }

@@ -1,45 +1,44 @@
 #include "etape3.h"
 
-uint32_t* read_data_numsec(char* fname, int nsection) {
-  Elf_SecHeaderF* elf_sec_header = etape2(fname);
-  FILE* file = fopen(fname, "r");
-  ElfHeaderF* elf_header = get_elf_header(file);
+uint32_t* readDataNumSec(FILE* f, int numSection) {
+  ElfHeaderF* elfHeader = getElfHeader(f);
+  ElfSecHeaderF** elfSecHeader = etape2(f);
 
   uint32_t* data = NULL;
 
-  if(nsection < elf_header->shnum && nsection >= 0) {
-    fseek(file, elf_sec_header[nsection].offset, SEEK_SET);
+  if(numSection < elfHeader->shnum && numSection >= 0) {
+    fseek(f, elfSecHeader[numSection]->offset, SEEK_SET);
 
-    data = malloc(elf_sec_header[nsection].size);
-    fread(data, elf_sec_header[nsection].size, 1, file);
+    data = malloc(elfSecHeader[numSection]->size);
+    fread(data, elfSecHeader[numSection]->size, 1, f);
 
-    for (int i = 0; i < elf_sec_header[nsection].size/sizeof(uint32_t); i++)
-        printf("%08X\n", reverse_endian_32(data[i]));
+    for (int i = 0; i < elfSecHeader[numSection]->size/sizeof(uint32_t); i++)
+        printf("%08X\n", reverseEndian32(data[i]));
   }
 
   return data;
 }
 
-uint32_t* read_data_nomsec(char* fname, char* nsection) {
-  Elf_SecHeaderF* elf_sec_header = etape2(fname);
-  FILE* file = fopen(fname, "r");
-  ElfHeaderF* elf_header = get_elf_header(file);
+uint32_t* readDataNomSec(FILE* f, char* nomSection) {
+  ElfHeaderF* elfHeader = getElfHeader(f);
+  ElfSecHeaderF** elfSecHeader = etape2(f);
+
 
   int i = 0;
-  while(i < elf_header->shnum && !strcmp(elf_sec_header[i].nameStr, nsection)) {
+  while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, nomSection)!=0) {
     i++;
   }
 
   uint32_t* data = NULL;
 
-  if(i < elf_header->shnum) {
-    fseek(file, elf_sec_header[i].offset, SEEK_SET);
+  if(i < elfHeader->shnum) {
+    fseek(f, elfSecHeader[i]->offset, SEEK_SET);
 
-    data = malloc(elf_sec_header[i].size);
-    fread(data, elf_sec_header[i].size, 1, file);
+    data = malloc(elfSecHeader[i]->size);
+    fread(data, elfSecHeader[i]->size, 1, f);
 
-    for (int j = 0; j < elf_sec_header[i].size/sizeof(uint32_t); j++)
-        printf("%08X\n", reverse_endian_32(data[j]));
+    /*for (int j = 0; j < elfSecHeader[i]->size/sizeof(uint32_t); j++)
+        printf("%08X\n", reverseEndian32(data[j]));*/
   }
 
   return data;

@@ -20,6 +20,7 @@ Contact: Guillaume.Huard@imag.fr
          51 avenue Jean Kuntzmann
          38330 Montbonnot Saint-Martin
 */
+
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
@@ -28,11 +29,11 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 
 typedef struct {
-    uint8_t indent_magic_number[4];
-    uint8_t indent_class;
-    uint8_t indent_data;
-    uint8_t indent_version;
-    uint8_t indent_padding[9];
+    uint8_t indentMagicNumber[4];
+    uint8_t indentClass;
+    uint8_t indentData;
+    uint8_t indentVersion;
+    uint8_t indentPadding[9];
     uint16_t type;
     uint16_t machine;
     uint32_t version;
@@ -49,8 +50,8 @@ typedef struct {
 } ElfHeader;
 
 typedef struct {
-    char* indent_class;
-    char* indent_data;
+    char* indentClass;
+    char* indentData;
     char* type;
     char* machine;
     uint32_t shoff;
@@ -72,20 +73,7 @@ typedef struct {
 	uint32_t info;
 	uint32_t addrAlign;
 	uint32_t entSize;
-} Elf_SecHeader;
-
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
-
-typedef struct {
-  uint32_t    st_name;   // Elf32_Word
-  uint32_t    st_value;  // Elf32_Addr
-  uint32_t    st_size;   // Elf32_Word
-  unsigned char st_info;
-  unsigned char st_other;
-  uint16_t    st_shndx;  // Elf32_Half
-} Elf32_Sym;
+} ElfSecHeader;
 
 typedef struct {
 	char * nameStr;
@@ -101,18 +89,30 @@ typedef struct {
 	uint32_t info;
 	uint32_t addrAlign;
 	uint32_t entSize;
-} Elf_SecHeaderF;
+} ElfSecHeaderF;
+
+typedef struct {
+  uint32_t    stName;   // Elf32_Word
+  uint32_t    stValue;  // Elf32_Addr
+  uint32_t    stSize;   // Elf32_Word
+  unsigned char stInfo;
+  unsigned char stOther;
+  uint16_t    stShndx;  // Elf32_Half
+} Elf32Sym;
+
+#define ELF32_ST_BIND(i)   ((i)>>4)
+#define ELF32_ST_TYPE(i)   ((i)&0xf)
+#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
 int is_big_endian();
 
-uint32_t reverse_endian_32(uint32_t val);
-uint16_t reverse_endian_16(uint16_t val);
+uint32_t reverseEndian32(uint32_t val);
+uint16_t reverseEndian16(uint16_t val);
 
-ElfHeaderF* get_elf_header(FILE* file);
+ElfHeaderF* getElfHeader(FILE* file);
 
-#define reverse_2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
-#define reverse_4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|\
-						((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
+#define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
+#define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
 
 #define min(x,y) ((x)<(y)?(x):(y))
 

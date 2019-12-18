@@ -1,9 +1,9 @@
-#ifndef ETAPE3_H
-#define ETAPE3_H
+#ifndef __ETAPE3_H__
+#define __ETAPE3_H__
 
 #include "etape2.h"
 
-uint32_t* read_data_numsec(char* fname, int nsection);
-uint32_t* read_data_nomsec(char* fname, char* nsection);
+uint32_t* readDataNumSec(FILE* f, int numSection);
+uint32_t* readDataNomSec(FILE* f, char* nomSection);
 
 #endif
