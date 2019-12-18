@@ -43,12 +43,12 @@ Elf32Sym** etape4(FILE* f) {
 
 void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
-    printf("symbole n°%d\n", i);
-    printf("nom du symbole : %08X\n", tabSym[i]->stName);
-    printf("vrai nom du symbole : %s\n", showName(tabSym[i]->stName, stringTableAddress, f));
-    printf("valeur du symbole : %08X\n", tabSym[i]->stValue);
-    printf("taille du symbole : %08X\n", tabSym[i]->stSize);
-    printf("ndx du symbole : %d\n", tabSym[i]->stShndx);
+    printf("Symbole n°%d :\n", i);
+    printf("	Indice du nom du symbole : %08X\n", tabSym[i]->stName);
+    printf("	Nom du symbole : %s\n", showName(tabSym[i]->stName, stringTableAddress, f));
+    printf("	Valeur du symbole : %08X\n", tabSym[i]->stValue);
+    printf("	Taille du symbole : %08X\n", tabSym[i]->stSize);
+    printf("	NDX du symbole : %d\n", tabSym[i]->stShndx);
     printf("\n");
   }
 }
