@@ -79,19 +79,6 @@ typedef struct {
 	uint32_t entSize;
 } ElfSecHeader;
 
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
-
-typedef struct {
-  uint32_t    stName;   // Elf32_Word
-  uint32_t    stValue;  // Elf32_Addr
-  uint32_t    stSize;   // Elf32_Word
-  unsigned char stInfo;
-  unsigned char stOther;
-  uint16_t    stShndx;  // Elf32_Half
-} Elf32Sym;
-
 typedef struct {
 	char * nameStr;
 	char * typeStr;
@@ -108,6 +95,19 @@ typedef struct {
 	uint32_t entSize;
 } ElfSecHeaderF;
 
+typedef struct {
+  uint32_t    stName;   // Elf32_Word
+  uint32_t    stValue;  // Elf32_Addr
+  uint32_t    stSize;   // Elf32_Word
+  unsigned char stInfo;
+  unsigned char stOther;
+  uint16_t    stShndx;  // Elf32_Half
+} Elf32Sym;
+
+#define ELF32_ST_BIND(i)   ((i)>>4)
+#define ELF32_ST_TYPE(i)   ((i)&0xf)
+#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
+
 int is_big_endian();
 
 uint32_t reverseEndian32(uint32_t val);
@@ -118,8 +118,7 @@ ElfHeaderF* getElfHeader(FILE* file);
 char* getRelocationName(uint32_t relocationCode);
 
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
-#define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|\
-						((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
+#define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
 
 #define min(x,y) ((x)<(y)?(x):(y))
 
