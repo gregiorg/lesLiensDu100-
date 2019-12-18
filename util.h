@@ -27,6 +27,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //If needed, add all the others relocation codes located in the ARM doc page 26 to 30
 
