@@ -13,8 +13,6 @@ ElfSecHeaderF** etape2(FILE* f) {
 
 	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, positionStringTable, f);
 
-	// printf("Offset string table : 0x%x\n\n", stringTableAddress);
-
 	ElfSecHeaderF** finalHeader = malloc(sizeof(ElfSecHeaderF*) * nbSections);
 
 	for (int i=0; i < nbSections; i++) {
@@ -22,9 +20,9 @@ ElfSecHeaderF** etape2(FILE* f) {
 		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-	return finalHeader;
+  	afficheFinal(finalHeader, nbSections);
 
-  // afficheFinal(finalHeader, nbSections);
+	return finalHeader;
 }
 
 void afficheFinal(ElfSecHeaderF** finalHeader, uint32_t nbSections) {

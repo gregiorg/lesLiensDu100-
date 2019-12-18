@@ -1,5 +1,6 @@
 #include "etape4.h"
 
+<<<<<<< HEAD
 void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
     printf("Symbole n°%d :\n", i);
@@ -12,6 +13,8 @@ void afficheTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FIL
   }
 }
 
+=======
+>>>>>>> 092f16c8dd4dd201fa9d1f53612f00ff7fafd633
 Elf32Sym** etape4(FILE* f) {
 
   ElfHeaderF* elfHeader = getElfHeader(f);
@@ -44,7 +47,7 @@ Elf32Sym** etape4(FILE* f) {
     tabSym[j]->stOther = (sauv >> 16) & 0x00FF;
     tabSym[j]->stShndx = sauv & 0xFFFF;
   }
-  afficheTabSym(tabSym, nbElm, stringTableAddress, f);
+  // afficheTabSym(tabSym, nbElm, stringTableAddress, f);
 
   return tabSym;
 }
