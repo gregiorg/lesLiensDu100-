@@ -31,15 +31,15 @@ typedef enum {
 //TYPE D'ARCHITECTURE
 typedef enum {
   INVALIDE_ARCH = 0x0,
-  32_BITS = 0X1,
-  64_BITS = 0x2
+  BITS_32 = 0x1,
+  BITS_64 = 0x2
 } ArchitectureTypes;
 
 //TYPE DE BOUTISME
 typedef enum {
-  INVALIDE_ENDIAN = 0x0,
-  LITTLE_ENDIAN = 0x1,
-  BIG_ENDIAN = 0x2
+  INVALIDE_END = 0x0,
+  LITTLE_END = 0x1,
+  BIG_END = 0x2
 }Endianness;
 
 //TYPE DE FICHIER
