@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "util.h" 
 
 ElfHeaderF* getElfHeader(FILE* file);
 void afficherHeader(ElfHeaderF* elfHeaderF);
