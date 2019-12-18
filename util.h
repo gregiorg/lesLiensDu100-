@@ -28,6 +28,10 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 
+//If needed, add all the others relocation codes located in the ARM doc page 26 to 30
+
+enum relocationCodes = {R_ARM_ABS32 = 2};
+
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;
@@ -110,6 +114,8 @@ uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
 
 ElfHeaderF* getElfHeader(FILE* file);
+
+char* getRelocationName(uint32_t relocationCode);
 
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|\
