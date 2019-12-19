@@ -43,7 +43,7 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-  // afficheFinal(finalHeader, nbSections);
+    afficherTabSecHeader(finalHeader, nbSections);
 
 	return finalHeader;
 }
