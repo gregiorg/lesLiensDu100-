@@ -1,9 +1,9 @@
 #include "etape2.h"
 
-ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
-	long int filePos = ftell(f);
+ElfSecHeaderF** getTabElfSecHeader(FILE* file) {
+	long int filePos = ftell(file);
 	ElfSecHeader elfSecHeader;
-	ElfHeaderF* header = getElfHeader(f);
+	ElfHeaderF* header = getElfHeader(file);
 
 	/*
 		On récupère la position du début des headers de section,
@@ -20,7 +20,7 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 
 	//On se positionne au début des headers de section
 
-	fseek(f, positionHeaderSection, SEEK_SET);
+	fseek(file, positionHeaderSection, SEEK_SET);
 
 	//On récupère la position de la string table
 
@@ -40,14 +40,23 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 	*/
 
 	for (int i=0; i < nbSections; i++) {
-		fread(&elfSecHeader, sizeof (elfSecHeader), 1, f);
-		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
+		size_t codeRet = fread(&elfSecHeader, sizeof (elfSecHeader), 1, file);
+		if(codeRet != 1) {
+				if (feof(file)){
+					printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+					exit(EXIT_FAILURE);
+				} else if (ferror(file)) {
+					perror("Erreur de lecture du fichier");
+					exit(EXIT_FAILURE);
+				}
+		}
+		putCurrentHeader(elfSecHeader, stringTableAddress, file, i, finalHeader);
 	}
 
 
     //afficherTabSecHeader(finalHeader, nbSections);
 
-	fseek(f, filePos, SEEK_SET);
+	fseek(file, filePos, SEEK_SET);
 	return finalHeader;
 }
 
@@ -73,7 +82,7 @@ void afficherTabSecHeader(ElfSecHeaderF** finalHeader, uint32_t nbSections) {
 	}
 }
 
-void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FILE* f, int i, ElfSecHeaderF** finalHeader) {
+void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FILE* file, int i, ElfSecHeaderF** finalHeader) {
 	//On alloue de la mémoire pour le header courant
 
 	ElfSecHeaderF* currentHeader = malloc(sizeof(ElfSecHeaderF));
@@ -92,7 +101,7 @@ void putCurrentHeader(ElfSecHeader elfSecHeader, uint32_t stringTableAddress, FI
 	currentHeader->addrAlign = reverseEndian32(elfSecHeader.addrAlign);
 	currentHeader->entSize = reverseEndian32(elfSecHeader.entSize);
 
-	currentHeader->nameStr = showName(reverseEndian32(elfSecHeader.name), stringTableAddress, f);
+	currentHeader->nameStr = showName(reverseEndian32(elfSecHeader.name), stringTableAddress, file);
 	currentHeader->typeStr = showType(reverseEndian32(elfSecHeader.type));
 
 	finalHeader[i] = currentHeader;

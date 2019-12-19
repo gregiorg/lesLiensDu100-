@@ -19,7 +19,16 @@ RealocationEntryF** getRealocationTable(FILE* file) {
             }
 
             fseek(file, sectionHeader->offset, SEEK_SET);
-            fread(realocationTable, sizeof(RealocationEntry), nbrEntry, file);
+            size_t codeRet = fread(realocationTable, sizeof(RealocationEntry), nbrEntry, file);
+            if(codeRet != 1) {
+                if (feof(file)){
+                  printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+                  exit(EXIT_FAILURE);
+                } else if (ferror(file)) {
+                  perror("Erreur de lecture du fichier");
+                  exit(EXIT_FAILURE);
+                }
+            }
 
             realocationTableF = malloc(sizeof(RealocationEntryF*) * nbrEntry);
             for(int l = 0; l < nbrEntry; i++) {
