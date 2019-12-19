@@ -1,6 +1,9 @@
+//---------------AFFICHAGE DES TABLES DE REIMPLANTATION-------------------------
 #include "etape5.h"
 
 RealocationEntryF** getRealocationTable(FILE* file) {
+    // long int filePos = ftell(file);
+
     ElfHeaderF* header = getElfHeader(file);
     ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);
     RealocationEntryF** realocationTableF = NULL;
@@ -9,20 +12,29 @@ RealocationEntryF** getRealocationTable(FILE* file) {
         ElfSecHeaderF* sectionHeader = sectionTable[i];
 
         if (sectionHeader->typeInt == SH_REL) {
-            printf("RealocationTable : %08X\n", sectionHeader->offset);
+            // printf("RealocationTable : %08X\n", sectionHeader->offset);
 
             int nbrEntry = sectionHeader->size / sectionHeader->entSize;
 
             RealocationEntry** realocationTable = malloc(sizeof(RealocationEntry*) * nbrEntry);
-            for(int k = 0; k < nbrEntry; i++) {
+            for(int k = 0; k < nbrEntry; k++) {
               realocationTable[k] = malloc(sizeof(RealocationEntry));
             }
 
             fseek(file, sectionHeader->offset, SEEK_SET);
-            fread(realocationTable, sizeof(RealocationEntry), nbrEntry, file);
+            size_t codeRet = fread(realocationTable, sizeof(RealocationEntry), nbrEntry, file);
+            if(codeRet != 1) {
+                if (feof(file)){
+                  printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+                  exit(EXIT_FAILURE);
+                } else if (ferror(file)) {
+                  perror("Erreur de lecture du fichier");
+                  exit(EXIT_FAILURE);
+                }
+            }
 
             realocationTableF = malloc(sizeof(RealocationEntryF*) * nbrEntry);
-            for(int l = 0; l < nbrEntry; i++) {
+            for(int l = 0; l < nbrEntry; l++) {
               realocationTableF[l] = malloc(sizeof(RealocationEntryF));
             }
 
@@ -33,6 +45,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
             }
         }
     }
+    // fseek(file, filePos, SEEK_SET);
     return realocationTableF;
 }
   //il faut extraire les données de chaque section de tab avec l'étape 3
@@ -42,6 +55,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
   //le reste des 6 chiffres hexas représentent l'index du symbole
   //voir: elf.pdf page 36 et ELF for the ARM architecture page 26
 
+//Affichage de la table
 void afficherRealocationTab(RealocationEntryF** realocationTableF, int nbrEntry) {
   for (int j = 0; j < nbrEntry; j++) {
       printf("\toffset : %08X\n", realocationTableF[j]->offset);

@@ -1,15 +1,26 @@
+//------------------AFFICHAGE DE L'ENTETE D'UN FICHIER ELF-------------
 #include "etape1.h"
 
+//Calcul de l'entete d'un fichier  ELF
 ElfHeaderF* getElfHeader(FILE* file) {
     ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
     long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    ElfHeader elfHeader;
-    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
-      //cool
-    }
 
+    ElfHeader elfHeader;
+    size_t codeRet = fread(&elfHeader, sizeof (elfHeader), 1, file);
+    if(codeRet != 1) {
+        if (feof(file)){
+          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+          exit(EXIT_FAILURE);
+        } else if (ferror(file)) {
+          perror("Erreur de lecture du fichier");
+          exit(EXIT_FAILURE);
+        }
+    }
+//------------MAGIC NUMBERS-----------------
+//Architecture
     switch (elfHeader.indentClass) {
         case INVALIDE_ARCH:
             elfHeaderF->indentClass = "invalide";
@@ -24,6 +35,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->indentClass = "inconnu";
     }
 
+//type de boutisme
     switch (elfHeader.indentData) {
         case INVALIDE_END:
             elfHeaderF->indentData = "invalide";
@@ -38,6 +50,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->indentData = "inconnu";
     }
 
+//Type de fichier
     switch (reverseEndian16(elfHeader.type)) {
         case NONE:
             elfHeaderF->type = "aucun";
@@ -52,6 +65,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->type = "inconnu";
     }
 
+//Type de machine
     switch (reverseEndian16(elfHeader.machine)) {
         case MACHINE_NONE:
             elfHeaderF->machine = "aucune";
@@ -63,6 +77,8 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->machine = "inconnu";
     }
 
+//-----------------FIN MAGIC NUMBERS----------------------------------
+//données
     elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
     elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
     elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
@@ -75,6 +91,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
     return elfHeaderF;
 }
 
+//Fonction d'affichage
 void afficherHeader(ElfHeaderF* elfHeaderF) {
     printf("Taille des mots : %s\n", elfHeaderF->indentClass);
     printf("Taille des indiens : %s\n", elfHeaderF->indentData);
