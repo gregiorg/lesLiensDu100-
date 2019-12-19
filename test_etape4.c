@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
   }
   int nbElm = (elfSecHeader[i]->size) / (elfSecHeader[i]->entSize);
   uint32_t stringTableAddress = getAddressStringTable(elfHeader->shentsize, elfHeader->shstrndx, f);
+  printf("debug : 0x%x\n", stringTableAddress);
 
   Elf32Sym** tabSym = getTabSym(f);
   afficherTabSym(tabSym, nbElm, stringTableAddress, f);
