@@ -1,6 +1,7 @@
 #include "etape3.h"
 
 uint32_t* readDataNumSec(FILE* f, int numSection) {
+  long int filePos = ftell(f);
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
 
@@ -12,10 +13,12 @@ uint32_t* readDataNumSec(FILE* f, int numSection) {
     data = malloc(elfSecHeader[numSection]->size);
     fread(data, elfSecHeader[numSection]->size, 1, f);
   }
+  fseek(f, filePos, SEEK_SET);
   return data;
 }
 
 uint32_t* readDataNomSec(FILE* f, char* nomSection) {
+  long int filePos = ftell(f);
   ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
 
@@ -32,6 +35,7 @@ uint32_t* readDataNomSec(FILE* f, char* nomSection) {
     data = malloc(elfSecHeader[i]->size);
     fread(data, elfSecHeader[i]->size, 1, f);
   }
+  fseek(f, filePos, SEEK_SET);
   return data;
 }
 

@@ -4,7 +4,7 @@ int main(int argc, char* argv[]) {
 
   FILE* f = fopen(argv[1], "r");
 
-  ElfHeaderF* elfHeader = getElfHeader(f); // TODO : sortir de la fonction
+  ElfHeaderF* elfHeader = getElfHeader(f);
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
   int i = 0;
   while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, ".symtab")!=0) {

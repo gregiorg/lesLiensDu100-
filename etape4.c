@@ -1,7 +1,7 @@
 #include "etape4.h"
 
 Elf32Sym** getTabSym(FILE* f) {
-
+  long int filePos = ftell(f);
   ElfHeaderF* elfHeader = getElfHeader(f);  // get the header of the elf file
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f); // get all section headers
 
@@ -37,7 +37,7 @@ Elf32Sym** getTabSym(FILE* f) {
     // ^see in util.h the way the struct is constructed^
   }
   // afficheTabSym(tabSym, nbElm, stringTableAddress, f);
-
+  fseek(f, filePos, SEEK_SET);
   return tabSym;
 }
 
