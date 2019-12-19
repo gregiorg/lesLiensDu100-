@@ -4,7 +4,26 @@
 #include <stdio.h>
 #include "util.h"
 
+typedef struct SymboleTableEntry SymboleTableEntry;
+typedef struct SectionHeader SectionHeader;
+
+struct SymboleTableEntry {
+    char* name;
+    uint32_t value;
+    uint32_t size;
+    char bind;
+    char type;
+    char other;
+    SectionHeader* sectionHeader;
+};
+
 typedef struct {
+    SymboleTableEntry* sym;
+    char type;
+} RelocationTableEntry;
+
+
+struct SectionHeader {
 	unsigned int indexTable;
 	char* name;
 	uint32_t type;
@@ -15,8 +34,13 @@ typedef struct {
 	uint32_t addrAlign;
 	uint32_t entSize;
 	uint32_t size;
-    void* data;
-} SectionHeader;
+    void* rawData;
+	union {
+		char* stringTable;
+		SymboleTableEntry** symboleTable;
+		RelocationTableEntry** relocationTable;
+	} data;
+};
 
 typedef struct {
     uint8_t indentClass;
@@ -33,6 +57,10 @@ typedef struct {
 
 Header* headerFromFile(FILE* file);
 void headerWriteToFile(Header* header, FILE* file);
+void typeRawDataIfNeeded(SectionHeader*, Header*);
+SymboleTableEntry* getSymboleTableEntryAddress(Header*, uint32_t);
+char* getSymbolTableEntryName(Header* header, uint32_t);
+SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
 
 //void headerPrint(Header*);
 //void headerWriteToFile(Header*, FILE* file);
@@ -49,20 +77,4 @@ void headerWriteToFile(Header* header, FILE* file);
 //int sectionHeaderGetSize(SectionHeader*);
 //RelocationTable* sectionHeaderGetRelocationTable(SectionHeader*);
 //SymboleTable* sectionHeaderGetSymboleTable(SectionHeader*);
-
-typedef struct {
-    char* name;
-    uint32_t value;
-    uint32_t size;
-    char bind;
-    char type;
-    char other;
-    SectionHeader* sectionHeader;
-} SymboleTableEntry;
-
-typedef struct {
-    SymboleTableEntry* sym;
-    char type;
-} RelocationTableEntry;
-
 #endif

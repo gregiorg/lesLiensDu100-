@@ -1,6 +1,8 @@
 #include "etape5.h"
 
 RealocationEntryF** getRealocationTable(FILE* file) {
+    // long int filePos = ftell(file);
+
     ElfHeaderF* header = getElfHeader(file);
     ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);
     RealocationEntryF** realocationTableF = NULL;
@@ -9,12 +11,12 @@ RealocationEntryF** getRealocationTable(FILE* file) {
         ElfSecHeaderF* sectionHeader = sectionTable[i];
 
         if (sectionHeader->typeInt == SH_REL) {
-            printf("RealocationTable : %08X\n", sectionHeader->offset);
+            // printf("RealocationTable : %08X\n", sectionHeader->offset);
 
             int nbrEntry = sectionHeader->size / sectionHeader->entSize;
 
             RealocationEntry** realocationTable = malloc(sizeof(RealocationEntry*) * nbrEntry);
-            for(int k = 0; k < nbrEntry; i++) {
+            for(int k = 0; k < nbrEntry; k++) {
               realocationTable[k] = malloc(sizeof(RealocationEntry));
             }
 
@@ -31,7 +33,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
             }
 
             realocationTableF = malloc(sizeof(RealocationEntryF*) * nbrEntry);
-            for(int l = 0; l < nbrEntry; i++) {
+            for(int l = 0; l < nbrEntry; l++) {
               realocationTableF[l] = malloc(sizeof(RealocationEntryF));
             }
 
@@ -42,6 +44,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
             }
         }
     }
+    // fseek(file, filePos, SEEK_SET);
     return realocationTableF;
 }
   //il faut extraire les données de chaque section de tab avec l'étape 3
