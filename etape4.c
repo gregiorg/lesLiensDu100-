@@ -8,7 +8,7 @@ Elf32Sym** getTabSym(FILE* f) {
   int a = 0;
   while(a < elfHeader->shnum && strcmp(elfSecHeader[a]->nameStr, ".strtab")!=0) {
     a++;
-  }
+  }  // finding the string tables offset for the following line
 
   uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, elfSecHeader[a]->offset, f);  // string table addr for later use
 
@@ -41,7 +41,7 @@ Elf32Sym** getTabSym(FILE* f) {
     tabSym[j]->stShndx = sauv & 0xFFFF;
     // ^see in util.h the way the struct is constructed^
   }
-  afficherTabSym(tabSym, nbElm, stringTableAddress, f);
+  // afficherTabSym(tabSym, nbElm, stringTableAddress, f);
   fseek(f, filePos, SEEK_SET);
   return tabSym;
 }
