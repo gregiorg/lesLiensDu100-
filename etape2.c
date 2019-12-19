@@ -24,7 +24,7 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 
 	//On récupère la position de la string table
 
-	const uint32_t stringTableAddress = getAddressStringTable(tailleHeaderSection, indexStringTableInSections, f);
+	const uint32_t stringTableAddress = getAddressStringTable(positionHeaderSection, tailleHeaderSection, indexStringTableInSections, f);
 
 	/*
 		On alloue un tableau de pointeurs sur structure

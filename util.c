@@ -164,10 +164,10 @@ char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f) {
 	return name;
 }
 
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
+uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
 	const int currentPos = ftell(f);
 
-	fseek(f, tailleHeaderSection * positionStringTable, SEEK_CUR);
+	fseek(f, (tailleHeaderSection * positionStringTable) + positionHeaderSection, SEEK_SET);
 
 	ElfSecHeader elfSecHeader2;
 
