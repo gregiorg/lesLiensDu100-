@@ -1,6 +1,7 @@
 #include "etape2.h"
 
 ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
+	long int filePos = ftell(f);
 	ElfSecHeader elfSecHeader;
 	ElfHeaderF* header = getElfHeader(f);
 
@@ -43,8 +44,10 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* f) {
 		putCurrentHeader(elfSecHeader, stringTableAddress, f, i, finalHeader);
 	}
 
-    afficherTabSecHeader(finalHeader, nbSections);
 
+    //afficherTabSecHeader(finalHeader, nbSections);
+
+	fseek(f, filePos, SEEK_SET);
 	return finalHeader;
 }
 
