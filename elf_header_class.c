@@ -65,6 +65,7 @@ Header* headerFromFile(FILE* file) {
 }
 
 void headerWriteToFile(Header* header, FILE* file) {
+	//creation du elfHeader
 	ElfHeader elfHeader;
 
 	elfHeader.indentMagicNumber[0] = 0x7F;
@@ -80,8 +81,28 @@ void headerWriteToFile(Header* header, FILE* file) {
     elfHeader.entry = reverseEndian32(header->entry);
     elfHeader.flags = reverseEndian32(header->flags);
 	elfHeader.shnum = reverseEndian16(header->nbSections);
-	elfHeader.shoff = 1000;
+	elfHeader.ehsize = reverseEndian16(sizeof(*header));
 
+	//on laisse de la place dans le fichier pour le elfheader
+	fseek(file, elfHeader.ehSize, SEEK_SET);
+
+	//creation de la elfSectionHeaderTable
+	ElfSecHeader* elfSectionHeaderTable = malloc(sizeof(ElfSecHeader) * header->nbSections);
+
+	//ecriture des sections dans le fichier et memorisation des offsets
+	for (int i = 0; i < header->nbSections; i++) {
+		long int offset = ftell(file);
+		sectionWriteToFile(header->sections[i], file);
+		elfSectionHeaderTable[i].offset = reverseEndian32(offset);
+		//rajouter tous les autres elements de ElfSecHeader
+	}
+
+	//ecriture de la elfSectionHeaderTable
+	long int shoff = ftell(file);
+	fwrite(elfSectionHeaderTable, sizeof(elfSectionHeaderTable), 1, file);
+	elfHeader.shoff = reverseEndian32(shoff);
+
+	//eciture du elfHeader
 	fseek(file, 0, SEEK_SET);
 	fwrite(&elfHeader, sizeof(ElfHeader), 1, file);
 }
