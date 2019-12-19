@@ -1,3 +1,4 @@
+
 #include "etape1.h"
 
 ElfHeaderF* getElfHeader(FILE* file) {
@@ -5,9 +6,17 @@ ElfHeaderF* getElfHeader(FILE* file) {
     long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
+
     ElfHeader elfHeader;
-    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
-      //cool
+    size_t codeRet = fread(&elfHeader, sizeof (elfHeader), 1, file);
+    if(codeRet != 1) {
+        if (feof(file)){
+          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+          exit(EXIT_FAILURE);
+        } else if (ferror(file)) {
+          perror("Erreur de lecture du fichier");
+          exit(EXIT_FAILURE);
+        }
     }
 
     switch (elfHeader.indentClass) {

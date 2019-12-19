@@ -1,23 +1,32 @@
 #include "etape3.h"
 
-uint32_t* readDataNumSec(FILE* f, int numSection) {
-  ElfHeaderF* elfHeader = getElfHeader(f);
-  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
+uint32_t* readDataNumSec(FILE* file, int numSection) {
+  ElfHeaderF* elfHeader = getElfHeader(file);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(file);
 
   uint32_t* data = NULL;
 
   if(numSection < elfHeader->shnum && numSection >= 0) {
-    fseek(f, elfSecHeader[numSection]->offset, SEEK_SET);
+    fseek(file, elfSecHeader[numSection]->offset, SEEK_SET);
 
     data = malloc(elfSecHeader[numSection]->size);
-    fread(data, elfSecHeader[numSection]->size, 1, f);
+    size_t codeRet = fread(data, elfSecHeader[numSection]->size, 1, file);
+    if(codeRet != 1) {
+        if (feof(file)){
+          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+          exit(EXIT_FAILURE);
+        } else if (ferror(file)) {
+          perror("Erreur de lecture du fichier");
+          exit(EXIT_FAILURE);
+        }
+    }
   }
   return data;
 }
 
-uint32_t* readDataNomSec(FILE* f, char* nomSection) {
-  ElfHeaderF* elfHeader = getElfHeader(f);
-  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
+uint32_t* readDataNomSec(FILE* file, char* nomSection) {
+  ElfHeaderF* elfHeader = getElfHeader(file);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(file);
 
   int i = 0;
   while(i < elfHeader->shnum && strcmp(elfSecHeader[i]->nameStr, nomSection)!=0) {
@@ -27,10 +36,19 @@ uint32_t* readDataNomSec(FILE* f, char* nomSection) {
   uint32_t* data = NULL;
 
   if(i < elfHeader->shnum) {
-    fseek(f, elfSecHeader[i]->offset, SEEK_SET);
+    fseek(file, elfSecHeader[i]->offset, SEEK_SET);
 
     data = malloc(elfSecHeader[i]->size);
-    fread(data, elfSecHeader[i]->size, 1, f);
+    size_t codeRet = fread(data, elfSecHeader[i]->size, 1, file);
+    if(codeRet != 1) {
+        if (feof(file)){
+          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+          exit(EXIT_FAILURE);
+        } else if (ferror(file)) {
+          perror("Erreur de lecture du fichier");
+          exit(EXIT_FAILURE);
+        }
+    }
   }
   return data;
 }
