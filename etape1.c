@@ -1,59 +1,91 @@
-#include <stdio.h>
-#include <stdint.h>
+#include "etape1.h"
 
-typedef struct {
-    uint8_t indent[16];
-    uint16_t type;
-    uint16_t machine;
-    uint16_t version;
-    uint16_t entry;
-    uint16_t phoff;
-    uint16_t shoff;
-    uint16_t flags;
-    uint16_t ehsize;
-    uint16_t phentsize;
-    uint16_t phnum;
-    uint16_t shentsize;
-    uint16_t shnum;
-    uint16_t shstrndx;
-} ElfHeader;
+ElfHeaderF* getElfHeader(FILE* file) {
+    ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
+    long int filePos = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
-uint16_t reverse_endian_16(uint16_t val) {
-    uint8_t* tab_in = (uint8_t*) &val;
-    uint8_t tab_out[2];
-
-    for (int i = 0; i < 2; i++)
-        tab_out[i] = tab_in[1-i];
-
-    return *((uint16_t*) tab_out);
-}
-
-int main(int arcg, char** argv) {
-    FILE* file = fopen(argv[1], "r");
-
-    ElfHeader elf_header;
-    fread(&elf_header, sizeof (elf_header), 1, file);
-
-    printf("Mot magique : ");
-    for (int i = 0; i < 16; i++) printf("%X ", elf_header.indent[i]);
-
-    printf("\nType : ");
-
-    switch (reverse_endian_16(elf_header.type)) {
-        case 0:
-            printf("aucun");
-            break;
-        case 1:
-            printf("relogeable");
-            break;
-        case 2:
-            printf("executable");
-            break;
-        default:
-            printf("inconnu");
+    ElfHeader elfHeader;
+    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
+      //cool
     }
 
-    printf("\n");
+    switch (elfHeader.indentClass) {
+        case INVALIDE_ARCH:
+            elfHeaderF->indentClass = "invalide";
+            break;
+        case BITS_32:
+            elfHeaderF->indentClass = "32 bits";
+            break;
+        case BITS_64:
+            elfHeaderF->indentClass = "64 bits";
+            break;
+        default:
+            elfHeaderF->indentClass = "inconnu";
+    }
 
-    return 0;
+    switch (elfHeader.indentData) {
+        case INVALIDE_END:
+            elfHeaderF->indentData = "invalide";
+            break;
+        case LITTLE_END:
+            elfHeaderF->indentData = "petits";
+            break;
+        case BIG_END:
+            elfHeaderF->indentData = "gros";
+            break;
+        default:
+            elfHeaderF->indentData = "inconnu";
+    }
+
+    switch (reverseEndian16(elfHeader.type)) {
+        case NONE:
+            elfHeaderF->type = "aucun";
+            break;
+        case REALOCATABLE:
+            elfHeaderF->type = "relogeable";
+            break;
+        case EXECUTABLE:
+            elfHeaderF->type = "executable";
+            break;
+        default:
+            elfHeaderF->type = "inconnu";
+    }
+
+    switch (reverseEndian16(elfHeader.machine)) {
+        case MACHINE_NONE:
+            elfHeaderF->machine = "aucune";
+            break;
+        case MACHINE_ARM:
+            elfHeaderF->machine = "ARM";
+            break;
+        default:
+            elfHeaderF->machine = "inconnu";
+    }
+
+    elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
+    elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
+    elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
+    elfHeaderF->shsize = elfHeaderF->shnum * elfHeaderF->shentsize;
+    elfHeaderF->shstrndx = reverseEndian16(elfHeader.shstrndx);
+
+    elfHeaderF->ehsize = reverseEndian16(elfHeader.ehsize);
+
+    fseek(file, filePos, SEEK_SET);
+    return elfHeaderF;
+}
+
+void afficherHeader(ElfHeaderF* elfHeaderF) {
+    printf("Taille des mots : %s\n", elfHeaderF->indentClass);
+    printf("Taille des indiens : %s\n", elfHeaderF->indentData);
+    printf("Type de fichier ELF : %s\n", elfHeaderF->type);
+    printf("Platforme cible (architecture systeme) : %s\n", elfHeaderF->machine);
+
+    printf("Table des sections : \n");
+    printf("\tPosition : %d octets\n", elfHeaderF->shoff);
+    printf("\tNombre d'entrees : %d\n", elfHeaderF->shnum);
+    printf("\tTaille totale : %d octets\n", elfHeaderF->shsize);
+    printf("\tIndex de la table des noms de sections : %d\n", elfHeaderF->shstrndx);
+
+    printf("Taille totale de l'entete : %d octets\n", elfHeaderF->ehsize);
 }
