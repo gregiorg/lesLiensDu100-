@@ -10,7 +10,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
     // compute the total number of rel entries
     int nbrRelEnt = 0;
     for (int i = 0; i < header->shnum; i++) {
-      if (sectionTable[i]->typeInt == SH_REL) {
+      if (sectionTable[i]->typeInt == SHT_REL) {
         nbrRelEnt += sectionTable[i]->size / sectionTable[i]->entSize;
       }
     }

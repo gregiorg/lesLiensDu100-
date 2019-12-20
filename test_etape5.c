@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
   int nbrRelEnt = 0;
   for (int i = 0; i < header->shnum; i++) {
-    if (sectionTable[i]->typeInt == SH_REL) {
+    if (sectionTable[i]->typeInt == SHT_REL) {
       nbrRelEnt += sectionTable[i]->size / sectionTable[i]->entSize;
     }
   }
