@@ -146,36 +146,64 @@ char* showType(uint32_t type) {
 }
 
 
-char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f) {
-	const int currentPos = ftell(f);
+char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* file) {
+	const int currentPos = ftell(file);
 
 	const uint32_t decalage = stringTableAddress + indexName;
 
-	fseek(f, decalage, SEEK_SET);
+	fseek(file, decalage, SEEK_SET);
 
 	char* name = malloc(50);
 
-	if (fread(name, 50, 1, f)){
-  //pass
-  }
+  freadChar(name, 50, 1, file);
 
-	fseek(f, currentPos, SEEK_SET);
+	fseek(file, currentPos, SEEK_SET);
 
 	return name;
 }
 
-uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f) {
-	const int currentPos = ftell(f);
+uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* file) {
+	const int currentPos = ftell(file);
 
-	fseek(f, (tailleHeaderSection * positionStringTable) + positionHeaderSection, SEEK_SET);
+	fseek(file, (tailleHeaderSection * positionStringTable) + positionHeaderSection, SEEK_SET);
 
 	ElfSecHeader elfSecHeader2;
 
-	if (fread(&elfSecHeader2, sizeof (elfSecHeader2), 1, f)){
-    //pass
-  }
+  freadElfSecHEader(&elfSecHeader2, sizeof (elfSecHeader2), 1, file);
 
-	fseek(f, currentPos, SEEK_SET);
+	fseek(file, currentPos, SEEK_SET);
 
 	return reverseEndian32(elfSecHeader2.offset);
+}
+
+void freadElfHEader(ElfHeader* elfHeader, size_t size, size_t nmemb, FILE* file){
+  size_t codeRet = fread(elfHeader, size, nmemb, file);
+  gestionErr( codeRet, nmemb, file);
+}
+
+void freadElfSecHEader(ElfSecHeader* elfSecHeader, size_t size, size_t nmemb, FILE* file){
+  size_t codeRet = fread(elfSecHeader, size, nmemb, file);
+  gestionErr(codeRet, nmemb, file);
+}
+
+void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file){
+  size_t codeRet = fread(data, size, nmemb, file);
+  gestionErr(codeRet, nmemb, file);
+}
+
+void freadChar(char* name, size_t size, size_t nmemb, FILE* file){
+  size_t codeRet = fread(name, size, nmemb, file);
+  gestionErr(codeRet, nmemb, file);
+}
+
+void gestionErr(size_t codeRet, size_t nmemb, FILE* file){
+  if(codeRet != nmemb) {
+      if (feof(file)){
+        printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+        exit(EXIT_FAILURE);
+      } else if (ferror(file)) {
+        perror("Erreur de lecture du fichier");
+        exit(EXIT_FAILURE);
+      }
+  }
 }
