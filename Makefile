@@ -16,10 +16,10 @@ all: $(OBJECTS)
 test_etape5: test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 	$(CC) $(CFLAGS) -o test_etape5 test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 
-test_etape5.o:
+test_etape5.o: test_etape5.c
 	$(CC) $(CFLAGS) -c test_etape5.c
 
-etape5.o:
+etape5.o: etape5.c etape5.h
 	$(CC) $(CFLAGS) -c etape5.c
 
 test_etape4: test_etape4.o etape4.o etape3.o etape2.o etape1.o util.o
