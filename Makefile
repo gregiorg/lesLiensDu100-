@@ -62,4 +62,4 @@ util.o:
 	$(CC) $(CFLAGS) -c util.c
 
 clean:
-	rm etape?.o util.o etape?
+	rm etape?.o util.o test_etape?
