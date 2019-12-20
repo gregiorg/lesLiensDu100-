@@ -7,6 +7,7 @@ a.out
 *.in
 *.m4
 *.cache
+*.autosave
 .*
 etape?
 Examples_loader/*
