@@ -134,6 +134,18 @@ char* getRelocationName(uint32_t relocationCode);
 char* showType(uint32_t type);
 char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f);
 
+
+void freadElfHEader(ElfHeader* elfHeader, size_t size, size_t nmemb, FILE* file);
+
+void freadElfSecHEader(ElfSecHeader* elfSecHeader, size_t size, size_t nmemb, FILE* file);
+
+void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file);
+
+void gestionErr(size_t codeRet, size_t nmemb, FILE* file);
+void freadChar(char* name, size_t size, size_t nmemb, FILE* file);
+
+
+
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
 

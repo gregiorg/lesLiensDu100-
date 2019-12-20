@@ -3,22 +3,14 @@
 
 //Calcul de l'entete d'un fichier  ELF
 ElfHeaderF* getElfHeader(FILE* file) {
+
     ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
     long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-
     ElfHeader elfHeader;
-    size_t codeRet = fread(&elfHeader, sizeof (elfHeader), 1, file);
-    if(codeRet != 1) {
-        if (feof(file)){
-          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-          exit(EXIT_FAILURE);
-        } else if (ferror(file)) {
-          perror("Erreur de lecture du fichier");
-          exit(EXIT_FAILURE);
-        }
-    }
+    freadElfHEader(&elfHeader, sizeof (elfHeader), 1, file);
+    
 //------------MAGIC NUMBERS-----------------
 //Architecture
     switch (elfHeader.indentClass) {
