@@ -8,12 +8,12 @@ ElfHeaderF* getElfHeader(FILE* file) {
     long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    ElfHeader elfHeader;
-    freadElfHEader(&elfHeader, sizeof (elfHeader), 1, file);
+    ElfHeader* elfHeader = malloc(sizeof(ElfHeader));
+    freadElfHEader(elfHeader, sizeof(ElfHeader), 1, file);
 
 //------------MAGIC NUMBERS-----------------
 //Architecture
-    switch (elfHeader.indentClass) {
+    switch (elfHeader->indentClass) {
         case INVALIDE_ARCH:
             elfHeaderF->indentClass = "invalide";
             break;
@@ -28,7 +28,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
 //type de boutisme
-    switch (elfHeader.indentData) {
+    switch (elfHeader->indentData) {
         case INVALIDE_END:
             elfHeaderF->indentData = "invalide";
             break;
@@ -43,7 +43,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
     }
 
 //Type de fichier
-    switch (reverseEndian16(elfHeader.type)) {
+    switch (reverseEndian16(elfHeader->type)) {
         case NONE:
             elfHeaderF->type = "aucun";
             break;
@@ -57,6 +57,18 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->type = "inconnu";
     }
 
+    //Type de machine
+        switch (reverseEndian16(elfHeader->machine)) {
+            case MACHINE_NONE:
+                elfHeaderF->machine = "none";
+                break;
+            case MACHINE_ARM:
+                elfHeaderF->machine = "ARM";
+                break;
+            default:
+                elfHeaderF->machine = "inconnu";
+        }
+
     elfHeaderF->shoff = reverseEndian32(elfHeader->shoff);
     elfHeaderF->shnum = reverseEndian16(elfHeader->shnum);
     elfHeaderF->shstrndx = reverseEndian16(elfHeader->shstrndx);
@@ -65,11 +77,11 @@ ElfHeaderF* getElfHeader(FILE* file) {
     elfHeaderF->ehsize = reverseEndian16(elfHeader->ehsize);
 
     fseek(file, filePos, SEEK_SET);
-    return elfHeader;
+    return elfHeaderF;
 }
 
 //Fonction d'affichage
-void afficherHeader(Elf32_Ehdr* elfHeader) {
+void afficherHeader(ElfHeaderF* elfHeaderF) {
     printf("Taille des mots : %s\n", elfHeaderF->indentClass);
     printf("Taille des indiens : %s\n", elfHeaderF->indentData);
     printf("Type de fichier ELF : %s\n", elfHeaderF->type);
