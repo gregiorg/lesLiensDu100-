@@ -196,6 +196,12 @@ void freadChar(char* name, size_t size, size_t nmemb, FILE* file){
   gestionErr(codeRet, nmemb, file);
 }
 
+void freadRealocationTable(RealocationEntry** realocationTable, size_t size, size_t nmemb, FILE* file){
+  size_t codeRet = fread(*realocationTable, size, nmemb, file);
+  gestionErr(codeRet, nmemb, file);
+}
+
+
 void gestionErr(size_t codeRet, size_t nmemb, FILE* file){
   if(codeRet != nmemb) {
       if (feof(file)){
