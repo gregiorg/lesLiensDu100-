@@ -10,7 +10,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
 
     ElfHeader elfHeader;
     freadElfHEader(&elfHeader, sizeof (elfHeader), 1, file);
-    
+
 //------------MAGIC NUMBERS-----------------
 //Architecture
     switch (elfHeader.indentClass) {
@@ -57,34 +57,19 @@ ElfHeaderF* getElfHeader(FILE* file) {
             elfHeaderF->type = "inconnu";
     }
 
-//Type de machine
-    switch (reverseEndian16(elfHeader.machine)) {
-        case MACHINE_NONE:
-            elfHeaderF->machine = "aucune";
-            break;
-        case MACHINE_ARM:
-            elfHeaderF->machine = "ARM";
-            break;
-        default:
-            elfHeaderF->machine = "inconnu";
-    }
-
-//-----------------FIN MAGIC NUMBERS----------------------------------
-//données
-    elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
-    elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
-    elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
-    elfHeaderF->shsize = elfHeaderF->shnum * elfHeaderF->shentsize;
-    elfHeaderF->shstrndx = reverseEndian16(elfHeader.shstrndx);
-
-    elfHeaderF->ehsize = reverseEndian16(elfHeader.ehsize);
+    elfHeaderF->shoff = reverseEndian32(elfHeader->shoff);
+    elfHeaderF->shnum = reverseEndian16(elfHeader->shnum);
+    elfHeaderF->shstrndx = reverseEndian16(elfHeader->shstrndx);
+    elfHeaderF->shentsize = reverseEndian16(elfHeader->shentsize);
+    elfHeaderF->shsize = elfHeaderF->shentsize*elfHeaderF->shnum;
+    elfHeaderF->ehsize = reverseEndian16(elfHeader->ehsize);
 
     fseek(file, filePos, SEEK_SET);
-    return elfHeaderF;
+    return elfHeader;
 }
 
 //Fonction d'affichage
-void afficherHeader(ElfHeaderF* elfHeaderF) {
+void afficherHeader(Elf32_Ehdr* elfHeader) {
     printf("Taille des mots : %s\n", elfHeaderF->indentClass);
     printf("Taille des indiens : %s\n", elfHeaderF->indentData);
     printf("Type de fichier ELF : %s\n", elfHeaderF->type);

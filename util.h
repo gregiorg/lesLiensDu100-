@@ -28,8 +28,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "enums.h"
+#include <elf.h>
 
 #define ELF32_R_SYM(info)    ((info)>>8)
 #define ELF32_R_TYPE(info)   ((unsigned char)(info))
@@ -143,9 +142,6 @@ void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file);
 void gestionErr(size_t codeRet, size_t nmemb, FILE* file);
 void freadChar(char* name, size_t size, size_t nmemb, FILE* file);
 void freadRealocationTable(RealocationEntry** realocationTable, size_t size, size_t nmemb, FILE* file);
-
-
-
 
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
