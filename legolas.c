@@ -147,13 +147,56 @@ Header* headerFromFile(FILE* file) {
 	return header;
 }
 
+void headerAddSection(Header* header, SectionHeader* sectionHeader) {
+    header->shnum++;
+    header->sectionHeaderTable = realloc(header->sectionHeaderTable, header->shnum * sizeof(SectionHeader*));
+    header->sectionHeaderTable[header->shnum-1] = sectionHeader;
+}
+
+int headerGetIndexOfSectionHeader(Header* header, SectionHeader* section) {
+    int i = 0;
+
+    while (i < header->shnum && header->sectionHeaderTable[i] != section) {
+        i++;
+    }
+
+    if (i >= header->shnum) {
+        i = -1;
+    }
+
+    return i;
+}
+
+int stringTableAddString(SectionHeader* sectionHeader, char* string) {
+    int i;
+
+    if (sectionHeader->type == SHT_STRTAB) {
+        i = sectionHeader->size;
+        strcpy(&(sectionHeader->data.stringTable[i]), string);
+        sectionHeader->size += strlen(string);
+    } else {
+        printf("Error : stringTableAddString called on a non SHT_STRTAB sectionHeader\n");
+        i = -1;
+    }
+
+    return i;
+}
+
+int stringTableGetStringIndex(SectionHeader* sectionHeader, char* string) {
+    int i = 0;
+    int found = 0;
+
+    while (i < sectionHeader->size && strcmp(&(sectionHeader->data.stringTable[i]), string) != 0) {
+        i += strlen(&(sectionHeader->data.stringTable[i]));
+    }
+
 void legolasWriteToFile(Header* header, FILE* file) {
     //creation de la table des chaines
     SectionHeader* stringTableSectionHeader = malloc(sizeof(SectionHeader));
     stringTableSectionHeader->name = ".str_table";
     stringTableSectionHeader->type = SHT_STRTAB;
     stringTableSectionHeader->size = 0;
-    headerAddSection(stringTableSectionHeader);
+    headerAddSection(header, stringTableSectionHeader);
 
 	//creation du header
     Elf32_Ehdr fileHeader;
@@ -187,7 +230,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
         SectionHeader* sectionHeader = header->sectionHeaderTable[i];
         Elf32_Shdr* fileSectionHeader = &(fileSectionHeaderTable[i]);
 
-        int name = StringTableAddString(stringTableSectionHeader, sectionHeader->name)
+        int name = stringTableAddString(stringTableSectionHeader, sectionHeader->name)
         fileSectionHeader->sh_name = reverseEndian32(name);
     }
 
