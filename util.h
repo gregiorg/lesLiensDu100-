@@ -30,11 +30,6 @@ Contact: Guillaume.Huard@imag.fr
 #include <string.h>
 #include <elf.h>
 
-#define ELF32_R_SYM(info)    ((info)>>8)
-#define ELF32_R_TYPE(info)   ((unsigned char)(info))
-
-#define SH_REL 9
-
 typedef struct {
     uint32_t offset;
     uint32_t info;
@@ -117,10 +112,6 @@ typedef struct {
   unsigned char stOther;
   uint16_t    stShndx;  // Elf32_Half
 } Elf32Sym;
-
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
 int is_big_endian();
 
