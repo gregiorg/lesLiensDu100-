@@ -9,7 +9,7 @@ ElfHeaderF* getElfHeader(FILE* file) {
     fseek(file, 0, SEEK_SET);
 
     ElfHeader* elfHeader = malloc(sizeof(ElfHeader));
-    freadElfHEader(elfHeader, sizeof(ElfHeader), 1, file);
+    freadElfHEader(elfHeader, sizeof(*elfHeader), 1, file);
 
 //------------MAGIC NUMBERS-----------------
 //Architecture

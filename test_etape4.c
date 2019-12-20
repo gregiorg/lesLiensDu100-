@@ -12,11 +12,12 @@ int main(int argc, char* argv[]) {
   }
   int nbElm = (elfSecHeader[i]->size) / (elfSecHeader[i]->entSize);
 
-  int a = 0;
-  while(a < elfHeader->shnum && strcmp(elfSecHeader[a]->nameStr, ".strtab")!=0) {
-    a++;
+  int indexOfStrTab = 0;
+  while(indexOfStrTab < elfHeader->shnum && strcmp(elfSecHeader[indexOfStrTab]->nameStr, ".strtab")!=0) {
+    indexOfStrTab++;
   }
-  uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, elfSecHeader[a]->offset, f);
+  printf("appel qui nous interese\n");
+  uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, indexOfStrTab, f);
 
   Elf32Sym** tabSym = getTabSym(f);
   afficherTabSym(tabSym, nbElm, stringTableAddress, f);

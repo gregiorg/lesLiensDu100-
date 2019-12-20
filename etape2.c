@@ -40,7 +40,7 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* file) {
 	*/
 
 	for (int i=0; i < nbSections; i++) {
-		freadElfSecHEader(elfSecHeader, sizeof (ElfSecHeader), 1, file);
+		freadElfSecHEader(elfSecHeader, sizeof (*elfSecHeader), 1, file);
 
 		// size_t codeRet = fread(&elfSecHeader, sizeof (elfSecHeader), 1, file);
 		// if(codeRet != 1) {
