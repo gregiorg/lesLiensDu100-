@@ -47,6 +47,7 @@ typedef struct {
     char TYPE;
 } RealocationEntryF;
 
+#pragma pack (1)
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;

@@ -24,7 +24,7 @@ typedef struct {
 
 
 struct SectionHeader {
-	unsigned int indexTable;
+	uint8_t indexTable;
 	char* name;
 	uint32_t type;
 	uint32_t flags;
@@ -57,7 +57,8 @@ typedef struct {
 
 Header* headerFromFile(FILE* file);
 void headerWriteToFile(Header* header, FILE* file);
-void typeRawDataIfNeeded(SectionHeader*, Header*);
+void typeFirstRawDataPartIfNeeded(SectionHeader*, Header*);
+void typeLastRawDataPartIfNeeded(SectionHeader*, Header*);
 SymboleTableEntry* getSymboleTableEntryAddress(Header*, uint32_t);
 char* getSymbolTableEntryName(Header* header, uint32_t);
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
