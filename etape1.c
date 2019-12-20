@@ -2,13 +2,11 @@
 #include "etape1.h"
 
 //Calcul de l'entete d'un fichier  ELF
-ElfHeaderF* getElfHeader(FILE* file) {
-    ElfHeaderF* elfHeaderF = malloc(sizeof(ElfHeaderF));
+Elf32_Ehdr* getElfHeader(FILE* file) {
     long int filePos = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-
-    ElfHeader elfHeader;
+    Elf32_Ehdr* elfHeader = malloc(sizeof(Elf32_Ehdr));
     size_t codeRet = fread(&elfHeader, sizeof (elfHeader), 1, file);
     if(codeRet != 1) {
         if (feof(file)){
@@ -19,80 +17,84 @@ ElfHeaderF* getElfHeader(FILE* file) {
           exit(EXIT_FAILURE);
         }
     }
-//------------MAGIC NUMBERS-----------------
-//Architecture
-    switch (elfHeader.indentClass) {
-        case INVALIDE_ARCH:
-            elfHeaderF->indentClass = "invalide";
-            break;
-        case BITS_32:
-            elfHeaderF->indentClass = "32 bits";
-            break;
-        case BITS_64:
-            elfHeaderF->indentClass = "64 bits";
-            break;
-        default:
-            elfHeaderF->indentClass = "inconnu";
-    }
 
-//type de boutisme
-    switch (elfHeader.indentData) {
-        case INVALIDE_END:
-            elfHeaderF->indentData = "invalide";
-            break;
-        case LITTLE_END:
-            elfHeaderF->indentData = "petits";
-            break;
-        case BIG_END:
-            elfHeaderF->indentData = "gros";
-            break;
-        default:
-            elfHeaderF->indentData = "inconnu";
-    }
-
-//Type de fichier
-    switch (reverseEndian16(elfHeader.type)) {
-        case NONE:
-            elfHeaderF->type = "aucun";
-            break;
-        case REALOCATABLE:
-            elfHeaderF->type = "relogeable";
-            break;
-        case EXECUTABLE:
-            elfHeaderF->type = "executable";
-            break;
-        default:
-            elfHeaderF->type = "inconnu";
-    }
-
-//Type de machine
-    switch (reverseEndian16(elfHeader.machine)) {
-        case MACHINE_NONE:
-            elfHeaderF->machine = "aucune";
-            break;
-        case MACHINE_ARM:
-            elfHeaderF->machine = "ARM";
-            break;
-        default:
-            elfHeaderF->machine = "inconnu";
-    }
-
-//-----------------FIN MAGIC NUMBERS----------------------------------
-//données
-    elfHeaderF->shoff = reverseEndian32(elfHeader.shoff);
-    elfHeaderF->shnum = reverseEndian16(elfHeader.shnum);
-    elfHeaderF->shentsize = reverseEndian16(elfHeader.shentsize);
-    elfHeaderF->shsize = elfHeaderF->shnum * elfHeaderF->shentsize;
-    elfHeaderF->shstrndx = reverseEndian16(elfHeader.shstrndx);
-
-    elfHeaderF->ehsize = reverseEndian16(elfHeader.ehsize);
+    elfHeader->e_type = reverseEndian16(elfHeader->e_type);
+    elfHeader->e_machine = reverseEndian16(elfHeader->e_machine);
+    elfHeader->e_version = reverseEndian32(elfHeader->e_version);
+    elfHeader->e_entry = reverseEndian32(elfHeader->e_entry);
+    elfHeader->e_phoff = reverseEndian32(elfHeader->e_phoff);
+    elfHeader->e_shoff = reverseEndian32(elfHeader->e_shoff);
+    elfHeader->e_flags = reverseEndian32(elfHeader->e_flags);
+    elfHeader->e_ehsize = reverseEndian16(elfHeader->e_ehsize);
+    elfHeader->e_phentsize = reverseEndian16(elfHeader->e_phentsize);
+    elfHeader->e_phnum = reverseEndian16(elfHeader->e_phnum);
+    elfHeader->e_shentsize = reverseEndian16(elfHeader->e_shentsize);
+    elfHeader->e_shnum = reverseEndian16(elfHeader->e_shnum);
+    elfHeader->e_shstrndx = reverseEndian16(elfHeader->e_shstrndx);
 
     fseek(file, filePos, SEEK_SET);
-    return elfHeaderF;
+    return elfHeader;
 }
 
 //Fonction d'affichage
-void afficherHeader(ElfHeaderF* elfHeaderF) {
+void afficherHeader(Elf32_Ehdr* elfHeader) {
+  //------------MAGIC NUMBERS-----------------
+  //Architecture
+      switch (elfHeader.indentClass) {
+          case INVALIDE_ARCH:
+              elfHeaderF->indentClass = "invalide";
+              break;
+          case BITS_32:
+              elfHeaderF->indentClass = "32 bits";
+              break;
+          case BITS_64:
+              elfHeaderF->indentClass = "64 bits";
+              break;
+          default:
+              elfHeaderF->indentClass = "inconnu";
+      }
+
+  //type de boutisme
+      switch (elfHeader.indentData) {
+          case INVALIDE_END:
+              elfHeaderF->indentData = "invalide";
+              break;
+          case LITTLE_END:
+              elfHeaderF->indentData = "petits";
+              break;
+          case BIG_END:
+              elfHeaderF->indentData = "gros";
+              break;
+          default:
+              elfHeaderF->indentData = "inconnu";
+      }
+
+  //Type de fichier
+      switch (reverseEndian16(elfHeader.type)) {
+          case NONE:
+              elfHeaderF->type = "aucun";
+              break;
+          case REALOCATABLE:
+              elfHeaderF->type = "relogeable";
+              break;
+          case EXECUTABLE:
+              elfHeaderF->type = "executable";
+              break;
+          default:
+              elfHeaderF->type = "inconnu";
+      }
+
+  //Type de machine
+      switch (reverseEndian16(elfHeader.machine)) {
+          case MACHINE_NONE:
+              elfHeaderF->machine = "aucune";
+              break;
+          case MACHINE_ARM:
+              elfHeaderF->machine = "ARM";
+              break;
+          default:
+              elfHeaderF->machine = "inconnu";
+      }
     printf("Taille des mots : %s\n", elfHeaderF->indentClass);
     printf("Taille des indiens : %s\n", elfHeaderF->indentData);
     printf("Type de fichier ELF : %s\n", elfHeaderF->type);

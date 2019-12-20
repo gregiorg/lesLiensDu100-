@@ -28,8 +28,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "enums.h"
+#include <elf.h>
 
 #define ELF32_R_SYM(info)    ((info)>>8)
 #define ELF32_R_TYPE(info)   ((unsigned char)(info))
