@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   while(indexOfStrTab < elfHeader->shnum && strcmp(elfSecHeader[indexOfStrTab]->nameStr, ".strtab")!=0) {
     indexOfStrTab++;
   }
-  printf("appel qui nous interese\n");
+  
   uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, indexOfStrTab, f);
 
   Elf32Sym** tabSym = getTabSym(f);
