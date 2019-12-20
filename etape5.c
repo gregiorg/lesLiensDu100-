@@ -63,5 +63,4 @@ void afficherRealocationTab(RealocationEntryF** realocationTableF, int nbrEntry)
       printf("\ttype : %02X\n", realocationTableF[j]->TYPE);
       printf("\n");
   }
-  printf("\n");
 }
