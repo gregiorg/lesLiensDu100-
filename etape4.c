@@ -11,7 +11,7 @@ Elf32Sym** getTabSym(FILE* f) {
     a++;
   }  // finding the string tables offset for the following line
 
-  uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, elfSecHeader[a]->offset, f);  // string table addr for later use
+  // uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, elfSecHeader[a]->offset, f);  // string table addr for later use
 
   // Find the symboles table section headers index; stored in i
   int i = 0;
