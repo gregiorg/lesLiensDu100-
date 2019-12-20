@@ -29,7 +29,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 #include <string.h>
 // #include <elf.h>
-#include "enums.h"
+//#include "enums.h"
 
 typedef struct {
     uint32_t offset;

@@ -59,6 +59,7 @@ void legolasWriteToFile(Header* header, FILE* file);
 
 void headerAddSection(Header*, SectionHeader*);
 int headerGetIndexOfSectionHeader(Header*, SectionHeader*);
+void headerRemoveSectionHeader(Header*, SectionHeader*);
 
 char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
