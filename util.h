@@ -125,7 +125,7 @@ typedef struct {
 
 int is_big_endian();
 
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
+uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
 uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
 
