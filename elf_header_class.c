@@ -1,4 +1,5 @@
 #include "elf_header_class.h"
+#include <elf.h>
 
 void setHeader(ElfHeader elfHeader, Header* header) {
 	header->indentClass = elfHeader.indentClass;
@@ -30,12 +31,12 @@ void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* 
 	fseek(file, reverseEndian32(currentElfSecHeader.offset), SEEK_SET);
 	fread(currentSectionHeader->rawData, currentSectionHeader->size, 1, file);
 
-	typeRawDataIfNeeded(currentSectionHeader, header);	
+	typeFirstRawDataPartIfNeeded(currentSectionHeader, header);	
 
 	header->sections[i] = currentSectionHeader;
 }
 
-void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
+void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 	
 	switch(currentSectionHeader->type) {
 		case SHT_STRTAB: {
@@ -49,16 +50,13 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 			currentSectionHeader->data.relocationTable = malloc (sizeof(void*) * nbRelocationTableEntry);
 
 			for (int i=0; i < nbRelocationTableEntry; i++) {
-				RelocationTableEntry* currentRelocationTableEntry = currentSectionHeader->data.relocationTable[i];
+				RelocationTableEntry* currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
 				
-				currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
-	
-				RealocationEntry* relocationEntry;
+				RealocationEntry* relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
 
-				relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
-
-				currentRelocationTableEntry->type = ELF32_R_TYPE(relocationEntry->info);
-				currentRelocationTableEntry->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(relocationEntry->info));	
+				currentRelocationTableEntry->type = ELF32_R_TYPE(reverseEndian32(relocationEntry->info));
+				
+				currentSectionHeader->data.relocationTable[i] = currentRelocationTableEntry;
 			}		
 
 			break;
@@ -70,21 +68,47 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 			currentSectionHeader->data.symboleTable = malloc (sizeof(void*) * nbSymbolTableEntry);
 
 			for (int i=0; i < nbSymbolTableEntry; i++) {
-				SymboleTableEntry* currentSymbolTableEntry = currentSectionHeader->data.symboleTable[i];
+				SymboleTableEntry* currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
 				
-				currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
-	
-				Elf32Sym* elf32Sym;
-
-				elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+				Elf32Sym* elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
 
 				currentSymbolTableEntry->value = elf32Sym->stValue;
 				currentSymbolTableEntry->size = elf32Sym->stSize;
 				currentSymbolTableEntry->other = elf32Sym->stOther;
 				currentSymbolTableEntry->bind = ELF32_ST_BIND(elf32Sym->stInfo);
 				currentSymbolTableEntry->type = ELF32_ST_TYPE(elf32Sym->stInfo);
-				currentSymbolTableEntry->sectionHeader = getSectionHeaderAddress(header, elf32Sym->stShndx);
-				currentSymbolTableEntry->name = getSymbolTableEntryName(header, elf32Sym->stName);
+			
+				currentSectionHeader->data.symboleTable[i] = currentSymbolTableEntry;
+			}		
+
+			break;
+		}
+	}
+}
+
+void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
+	
+	switch(currentSectionHeader->type) {
+		case SHT_REL: {
+			uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+
+			for (int i=0; i < nbRelocationTableEntry; i++) {
+				RealocationEntry* relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+				currentSectionHeader->data.relocationTable[i]->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(reverseEndian32(relocationEntry->info)));	
+			}		
+
+			break;
+		}
+
+		case SHT_SYMTAB: {
+			uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+
+			for (int i=0; i < nbSymbolTableEntry; i++) {
+				Elf32Sym* elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+				currentSectionHeader->data.symboleTable[i]->sectionHeader = getSectionHeaderAddress(header, reverseEndian16(elf32Sym->stShndx));
+				currentSectionHeader->data.symboleTable[i]->name = getSymbolTableEntryName(header, reverseEndian32(elf32Sym->stName));
 			}		
 
 			break;
@@ -95,7 +119,7 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
 	unsigned int indexStringTable = 0;
 
-	while(indexStringTable < header->nbSections && strcmp(header->sections[indexStringTable]->name, ".strtab") != 0) {
+	while(indexStringTable < header->nbSections && (strcmp(header->sections[indexStringTable]->name, ".strtab") != 0)) {
     	indexStringTable++;
 	}
 
@@ -109,7 +133,7 @@ SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 		i++;
 	}
 
-	return header->sections[i]->data.symboleTable[i];
+	return header->sections[i]->data.symboleTable[info];
 }
 
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
@@ -119,7 +143,7 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
 Header* headerFromFile(FILE* file) {
     ElfHeader elfHeader;
     fseek(file, 0, SEEK_SET);
-    fread(&elfHeader, sizeof(elfHeader), 1, file);
+    fread(&elfHeader, sizeof(ElfHeader), 1, file);
 
     Header* header = malloc(sizeof(Header));
 
@@ -129,6 +153,8 @@ Header* headerFromFile(FILE* file) {
     fseek(file, reverseEndian32(elfHeader.shoff), SEEK_SET);
     fread(elfSecHeaders, sizeof(ElfSecHeader), header->nbSections, file);
 
+	printf("Nb sections : %i\n\n", header->nbSections);
+		
     header->sections = malloc(sizeof(void*) * header->nbSections);
 
     for (int i = 0; i < header->nbSections; i++) {
@@ -142,50 +168,11 @@ Header* headerFromFile(FILE* file) {
 		SectionHeader* currentSectionHeader = header->sections[i];
 		ElfSecHeader currentElfSecHeader = elfSecHeaders[i];
         currentSectionHeader->name = stringTable + reverseEndian32(currentElfSecHeader.name);
-    }
-
-	return header;
-}
-
-void headerWriteToFile(Header* header, FILE* file) {
-	//creation du elfHeader
-	ElfHeader elfHeader;
-
-	elfHeader.indentMagicNumber[0] = 0x7F;
-	elfHeader.indentMagicNumber[1] = 'E';
-	elfHeader.indentMagicNumber[2] = 'L';
-	elfHeader.indentMagicNumber[3] = 'F';
-	elfHeader.indentClass = header->indentClass;
-    elfHeader.indentData = header->indentData ;
-    elfHeader.indentVersion = header->indentVersion;
-    elfHeader.type = reverseEndian16(header->type);
-    elfHeader.machine = reverseEndian16(header->machine);
-    elfHeader.version = reverseEndian32(header->version);
-    elfHeader.entry = reverseEndian32(header->entry);
-    elfHeader.flags = reverseEndian32(header->flags);
-	elfHeader.shnum = reverseEndian16(header->nbSections);
-	elfHeader.ehsize = reverseEndian16(sizeof(*header));
-
-	//on laisse de la place dans le fichier pour le elfheader
-	fseek(file, elfHeader.ehSize, SEEK_SET);
-
-	//creation de la elfSectionHeaderTable
-	ElfSecHeader* elfSectionHeaderTable = malloc(sizeof(ElfSecHeader) * header->nbSections);
-
-	//ecriture des sections dans le fichier et memorisation des offsets
-	for (int i = 0; i < header->nbSections; i++) {
-		long int offset = ftell(file);
-		sectionWriteToFile(header->sections[i], file);
-		elfSectionHeaderTable[i].offset = reverseEndian32(offset);
-		//rajouter tous les autres elements de ElfSecHeader
 	}
 
-	//ecriture de la elfSectionHeaderTable
-	long int shoff = ftell(file);
-	fwrite(elfSectionHeaderTable, sizeof(elfSectionHeaderTable), 1, file);
-	elfHeader.shoff = reverseEndian32(shoff);
+	for (int i=0; i < header->nbSections; i++) {
+		typeLastRawDataPartIfNeeded(header->sections[i], header);
+	}
 
-	//eciture du elfHeader
-	fseek(file, 0, SEEK_SET);
-	fwrite(&elfHeader, sizeof(ElfHeader), 1, file);
+	return header;
 }

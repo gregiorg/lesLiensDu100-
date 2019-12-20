@@ -58,10 +58,10 @@ RealocationEntryF** getRealocationTable(FILE* file) {
 //Affichage de la table
 void afficherRealocationTab(RealocationEntryF** realocationTableF, int nbrEntry) {
   for (int j = 0; j < nbrEntry; j++) {
-      printf("\toffset : %08X\n", realocationTableF[j]->offset);
-      printf("\tsymbole index : %02X\n", realocationTableF[j]->SYM);
-      printf("\ttype : %02X\n", realocationTableF[j]->TYPE);
-      printf("\n");
+    printf("Entrée de la table de realocation n°%d\n", j);
+    printf("\tOffset : %08X\n", realocationTableF[j]->offset);
+    printf("\tIndex du symbole : %02X\n", realocationTableF[j]->SYM);
+    printf("\tType : %02X\n", realocationTableF[j]->TYPE);
+    printf("\n");
   }
-  printf("\n");
 }

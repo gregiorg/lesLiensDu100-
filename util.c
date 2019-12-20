@@ -165,20 +165,20 @@ char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* file) {
 uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* file) {
 	const int currentPos = ftell(file);
 
-	fseek(file, (tailleHeaderSection * positionStringTable) + positionHeaderSection, SEEK_SET);
+	fseek(file, positionHeaderSection + (tailleHeaderSection * positionStringTable), SEEK_SET);
 
-	ElfSecHeader elfSecHeader2;
+	ElfSecHeader* elfSecHeader2 = malloc(sizeof(ElfSecHeader));
 
-  freadElfSecHEader(&elfSecHeader2, sizeof (elfSecHeader2), 1, file);
+  freadElfSecHEader(elfSecHeader2, sizeof(*elfSecHeader2), 1, file);
 
 	fseek(file, currentPos, SEEK_SET);
 
-	return reverseEndian32(elfSecHeader2.offset);
+	return reverseEndian32(elfSecHeader2->offset);
 }
 
 void freadElfHEader(ElfHeader* elfHeader, size_t size, size_t nmemb, FILE* file){
   size_t codeRet = fread(elfHeader, size, nmemb, file);
-  gestionErr( codeRet, nmemb, file);
+  gestionErr(codeRet, nmemb, file);
 }
 
 void freadElfSecHEader(ElfSecHeader* elfSecHeader, size_t size, size_t nmemb, FILE* file){

@@ -28,7 +28,8 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <elf.h>
+// #include <elf.h>
+#include "enums.h"
 
 typedef struct {
     uint32_t offset;
@@ -41,6 +42,7 @@ typedef struct {
     char TYPE;
 } RealocationEntryF;
 
+#pragma pack (1)
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;
