@@ -1,15 +1,25 @@
 #include "etape2.h"
+#include <errno.h>
+
+extern int errno;
 
 int main(int argc, char* argv[]) {
 
-  FILE* f = fopen(argv[1], "r");
+  FILE* file = fopen(argv[1], "r");
 
-  ElfHeaderF* elfHeader = getElfHeader(f);
-  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f);
+  if (file == NULL) {
+		fprintf(stderr, "Value of errno: %d\n", errno);
+		fprintf(stderr, "Error opening the file: %s\n", strerror( errno ));
+		perror("Error printed by perror");
+		exit(EXIT_FAILURE);
+	}
+
+  ElfHeaderF* elfHeader = getElfHeader(file);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(file);
 
   afficherTabSecHeader(elfSecHeader, elfHeader->shnum);
 
-  fclose(f);
+  fclose(file);
 
   return 0;
 }

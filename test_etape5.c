@@ -1,23 +1,33 @@
 #include "etape5.h"
+#include <errno.h>
+
+extern int errno;
 
 int main(int argc, char* argv[]) {
 
   FILE* file = fopen(argv[1], "r");
-
-  RealocationEntryF** realocTable = getRealocationTable(file); // TODO : find the infinite loop
+  if (file == NULL) {
+		fprintf(stderr, "Value of errno: %d\n", errno);
+		fprintf(stderr, "Error opening the file: %s\n", strerror( errno ));
+		perror("Error printed by perror");
+		exit(EXIT_FAILURE);
+	}
 
   ElfHeaderF* header = getElfHeader(file);
   ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);
 
-  int nbrRel = 0;
+  int nbrRelEnt = 0;
   for (int i = 0; i < header->shnum; i++) {
-    ElfSecHeaderF* sectionHeader = sectionTable[i];
-    if (sectionHeader->typeInt == SH_REL) {
-      nbrRel++;
+    if (sectionTable[i]->typeInt == SH_REL) {
+      nbrRelEnt += sectionTable[i]->size / sectionTable[i]->entSize;
     }
   }
 
-  afficherRealocationTab(realocTable, nbrRel);
+  RealocationEntryF** realocTable = getRealocationTable(file);
+
+  afficherRealocationTab(realocTable, nbrRelEnt);
+
+  fclose(file);
 
   return 0;
 }

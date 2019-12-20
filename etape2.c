@@ -1,4 +1,3 @@
-//-------------------AFFICHAGE DE L'ENTETE DES SECTIONS-------------------------
 #include "etape2.h"
 
 ElfSecHeaderF** getTabElfSecHeader(FILE* file) {
@@ -41,16 +40,18 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* file) {
 	*/
 
 	for (int i=0; i < nbSections; i++) {
-		size_t codeRet = fread(&elfSecHeader, sizeof (elfSecHeader), 1, file);
-		if(codeRet != 1) {
-				if (feof(file)){
-					printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-					exit(EXIT_FAILURE);
-				} else if (ferror(file)) {
-					perror("Erreur de lecture du fichier");
-					exit(EXIT_FAILURE);
-				}
-		}
+		freadElfSecHEader(&elfSecHeader, sizeof (elfSecHeader), 1, file);
+
+		// size_t codeRet = fread(&elfSecHeader, sizeof (elfSecHeader), 1, file);
+		// if(codeRet != 1) {
+		// 		if (feof(file)){
+		// 			printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+		// 			exit(EXIT_FAILURE);
+		// 		} else if (ferror(file)) {
+		// 			perror("Erreur de lecture du fichier");
+		// 			exit(EXIT_FAILURE);
+		// 		}
+		// }
 		putCurrentHeader(elfSecHeader, stringTableAddress, file, i, finalHeader);
 	}
 
