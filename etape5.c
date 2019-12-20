@@ -37,16 +37,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
         fseek(file, sectionTable[i]->offset, SEEK_SET);  // put the cursor to the current sections data
 
         // read the rel entries in the current section
-        size_t codeRet = fread(*realocationTable, sizeof(RealocationEntry), nbrRelInSection, file);
-        if(codeRet != 1) {
-            if (feof(file)){
-              printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-              exit(EXIT_FAILURE);
-            } else if (ferror(file)) {
-              perror("Erreur de lecture du fichier");
-              exit(EXIT_FAILURE);
-            }
-        }
+        freadRealocationTable(realocationTable, sizeof(RealocationEntry), nbrRelInSection, file);
 
         // converting data
         for (int i = 0; i < nbrRelInSection; i++) {

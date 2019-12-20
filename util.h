@@ -143,6 +143,8 @@ void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file);
 
 void gestionErr(size_t codeRet, size_t nmemb, FILE* file);
 void freadChar(char* name, size_t size, size_t nmemb, FILE* file);
+void freadRealocationTable(RealocationEntry** realocationTable, size_t size, size_t nmemb, FILE* file);
+
 
 
 
