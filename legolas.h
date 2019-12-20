@@ -30,8 +30,9 @@ struct SectionHeader {
 	uint32_t link;
 	uint32_t info;
 	uint32_t addrAlign;
+	uint32_t size;
 	union {
-        void* raw;
+		void* raw;
 		char* stringTable;
 		SymboleTableEntry** symboleTable;
 		RelocationTableEntry** relocationTable;
@@ -53,22 +54,25 @@ typedef struct {
     SectionHeader** sectionHeaderTable;
 } Header;
 
-Header* legolasFromFile(FILE* file);
+//Header* legolasReadFromFile(FILE* file);
 void legolasWriteToFile(Header* header, FILE* file);
 
-int headerGetIndexOfSectionHeader(Header*, SectionHeader*);
 void headerAddSection(Header*, SectionHeader*);
+int headerGetIndexOfSectionHeader(Header*, SectionHeader*);
 
-uint32_t sectionHeaderGetSize(SectionHeader*);
-uint32_t sectionHeaderGetEntSize(SectionHeader*);
 char* sectionHeaderGetData(SectionHeader*);
+uint32_t sectionHeaderGetEntSize(SectionHeader*);
 
-int stringTableAddStrint(SectionHeader*, char*);
+void stringTableAddString(SectionHeader*, char*);
+int stringTableGetIndex(SectionHeader*, char*);
+char* stringTableGetString(SectionHeader*, int);
 
+/*
 void typeRawDataIfNeeded(SectionHeader*, Header*);
 SymboleTableEntry* getSymboleTableEntryAddress(Header*, uint32_t);
 char* getSymbolTableEntryName(Header* header, uint32_t);
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
+*/
 
 //void headerPrint(Header*);
 //void headerWriteToFile(Header*, FILE* file);

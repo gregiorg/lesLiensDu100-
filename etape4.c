@@ -49,7 +49,6 @@ Elf32Sym** getTabSym(FILE* f) {
 
 //Affichage
 void afficherTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
-  printf("debug : %x\n", stringTableAddress);
   for (int i = 0; i < size; i++) {
     printf("Symbole n°%d :\n", i);
     printf("	Indice du nom du symbole : %08X\n", tabSym[i]->stName);
