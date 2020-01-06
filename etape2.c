@@ -41,21 +41,8 @@ ElfSecHeaderF** getTabElfSecHeader(FILE* file) {
 
 	for (int i=0; i < nbSections; i++) {
 		freadElfSecHEader(elfSecHeader, sizeof (*elfSecHeader), 1, file);
-
-		// size_t codeRet = fread(&elfSecHeader, sizeof (elfSecHeader), 1, file);
-		// if(codeRet != 1) {
-		// 		if (feof(file)){
-		// 			printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-		// 			exit(EXIT_FAILURE);
-		// 		} else if (ferror(file)) {
-		// 			perror("Erreur de lecture du fichier");
-		// 			exit(EXIT_FAILURE);
-		// 		}
-		// }
 		putCurrentHeader(elfSecHeader, stringTableAddress, file, i, finalHeader);
 	}
-
-
     //afficherTabSecHeader(finalHeader, nbSections);
 
 	fseek(file, filePos, SEEK_SET);
