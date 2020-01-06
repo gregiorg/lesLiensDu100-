@@ -1,4 +1,5 @@
 #include "elf_header_class.h"
+#include <stdlib.h>
 #include <elf.h>
 #include <stdlib.h>
 

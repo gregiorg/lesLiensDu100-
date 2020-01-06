@@ -22,14 +22,14 @@ etape7.o: etape7.c
 # test_etape6: test_etape6.o etape6.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 # 	$(CC) $(CFLAGS) -o test_etape6 test_etape6.o etape6.o etape5. etape4.o etape3.o etape2.o etape1.o util.o
 
-# test_etape6.o:
-# 	$(CC) $(CFLAGS) -c test_etape6.c
+etape6: etape6.o legolas.o util.o
+	$(CC) $(CFALGS) -o etape6 etape6.o legolas.o util.o
 
-# etape6: etape6.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
-#	$(CC) $(CFALGS) -o etape6 etape6.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
+etape6.o: etape6.c etape6.h legolas.h
+	$(CC) $(CFLAGS) -c etape6.c
 
-# etape6.o: etape6.c etape6.h etape5.c etape5.h etape4.c etape4.h etape3.c etape3.h etape2.c etape2.h etape1.c etape1.h util.c util.h
-#	$(CC) $(CFLAGS) -c etape6.c
+legolas.o: legolas.c legolas.h util.h
+	$(CC) $(CFLAGS) -c legolas.c
 
 test_etape5: test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 	$(CC) $(CFLAGS) -o test_etape5 test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
