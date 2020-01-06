@@ -6,8 +6,22 @@ ElfHeaderF* getElfHeader(FILE* file) {
     fseek(file, 0, SEEK_SET);
 
     ElfHeader elfHeader;
-    if (fread(&elfHeader, sizeof (elfHeader), 1, file)){
-      //cool
+    size_t ret_code = fread(&elfHeader, sizeof (elfHeader), 1, file); // reads an array of doubles
+    printf("OUT %ld \n", ret_code);
+    printf("OUT sizeof (elfHeader) %ld \n", sizeof (elfHeader));
+
+    if(ret_code == sizeof (elfHeader)) {
+      printf("if %ld \n", ret_code);
+      puts("Array read successfully, contents: ");
+    } else { // error handling
+      printf("else HELLO %ld \n", ret_code);
+        if (feof(file)){
+          printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
+          exit(EXIT_FAILURE);
+        } else if (ferror(file)) {
+          perror("Erreur de lecture du fichier");
+          exit(EXIT_FAILURE);
+        }
     }
 
     switch (elfHeader.indentClass) {
