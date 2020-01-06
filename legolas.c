@@ -5,121 +5,198 @@
 #include "util.h"
 #include "legolas.h"
 
-/*
-void setHeader(ElfHeader elfHeader, Header* header) {
-	header->indentClass = elfHeader.indentClass;
-    header->indentData = elfHeader.indentData;
-    header->indentVersion = elfHeader.indentVersion;
-    header->type = reverseEndian16(elfHeader.type);
-    header->machine = reverseEndian16(elfHeader.machine);
-    header->version = reverseEndian32(elfHeader.version);
-    header->entry = reverseEndian32(elfHeader.entry);
-    header->flags = reverseEndian32(elfHeader.flags);
-	header->nbSections = reverseEndian16(elfHeader.shnum);
+void setHeader(Elf32_Ehdr* fileHeader, Header* header) {
+    header->indentClass = fileHeader->e_ident[EI_CLASS];
+    header->indentData  = fileHeader->e_ident[EI_DATA];
+    header->indentVersion = fileHeader->e_ident[EI_VERSION];
+    header->indentOSABI = fileHeader->e_ident[EI_OSABI];
+    header->indentABIVersion = fileHeader->e_ident[EI_ABIVERSION];
+    header->type = reverseEndian16(fileHeader->e_type);
+    header->machine = reverseEndian16(fileHeader->e_machine);
+    header->version = reverseEndian32(fileHeader->e_version);
+    header->entry = reverseEndian32(fileHeader->e_entry);
+    header->flags = reverseEndian32(fileHeader->e_flags);
+    header->shnum = reverseEndian16(fileHeader->e_shnum);
 }
 
-void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* file) {
-	SectionHeader* currentSectionHeader = malloc(sizeof(SectionHeader));
-	ElfSecHeader currentElfSecHeader = elfSecHeaders[i];
+void setSectionHeader(Header* header, Elf32_Shdr* fileSectionHeaderTable, int i, FILE* file) {
+	header->sectionHeaderTable[i] = malloc(sizeof(SectionHeader));
 
-	currentSectionHeader->indexTable = i;
-	currentSectionHeader->type = reverseEndian32(currentElfSecHeader.type);
-	currentSectionHeader->flags = reverseEndian32(currentElfSecHeader.flags);
-	currentSectionHeader->addr = reverseEndian32(currentElfSecHeader.addr);
-	currentSectionHeader->link = reverseEndian32(currentElfSecHeader.link);
-	currentSectionHeader->info = reverseEndian32(currentElfSecHeader.info);
-	currentSectionHeader->addrAlign = reverseEndian32(currentElfSecHeader.addrAlign);
-	currentSectionHeader->entSize = reverseEndian32(currentElfSecHeader.entSize);
-	currentSectionHeader->size = reverseEndian32(currentElfSecHeader.size);
+	SectionHeader* sectionHeader = header->sectionHeaderTable[i];
+	Elf32_Shdr* fileSectionHeader = &(fileSectionHeaderTable[i]);
 
-	currentSectionHeader->rawData = malloc(currentSectionHeader->size);
-	fseek(file, reverseEndian32(currentElfSecHeader.offset), SEEK_SET);
-	fread(currentSectionHeader->rawData, currentSectionHeader->size, 1, file);
+	sectionHeader->type = reverseEndian32(fileSectionHeader->sh_type);
+	sectionHeader->flags = reverseEndian32(fileSectionHeader->sh_flags);
+	sectionHeader->addr = reverseEndian32(fileSectionHeader->sh_addr);
+	sectionHeader->link = reverseEndian32(fileSectionHeader->sh_link);
+	sectionHeader->info = reverseEndian32(fileSectionHeader->sh_info);
+	sectionHeader->addrAlign = reverseEndian32(fileSectionHeader->sh_addralign);
+	sectionHeader->size = reverseEndian32(fileSectionHeader->sh_size);
+    sectionHeader->entSize = reverseEndian32(fileSectionHeader->sh_entsize);
+	sectionHeader->rawData = malloc(sectionHeader->size);
 
-	typeRawDataIfNeeded(currentSectionHeader, header);	
+    if (sectionHeader->entSize == 0) {
+        sectionHeader->nbEntry = 0;
+    } else {
+        sectionHeader->nbEntry = sectionHeader->size / sectionHeader->entSize;
+    }
 
-	header->sections[i] = currentSectionHeader;
+	fseek(file, reverseEndian32(fileSectionHeader->sh_offset), SEEK_SET);
+    fread(sectionHeader->rawData, sectionHeader->size, 1, file);
+
+    typeFirstRawDataPartIfNeeded(sectionHeader, header);
 }
 
-void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
-	
-	switch(currentSectionHeader->type) {
-		case SHT_STRTAB: {
-			currentSectionHeader->data.stringTable = (char*) currentSectionHeader->rawData;
-			break;
-		}
+void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
+    //On switch sur le type de section pour savoir si on doit ou non la traiter
 
-		case SHT_REL: {
-			uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+    switch(currentSectionHeader->type) {
+        case SHT_STRTAB: {
+            /*               
+                Dans le cas d'une string table, on fait juste pointer la stringTable de la
+                section courante sur la rawData castée en (char*).
+            */
 
-			currentSectionHeader->data.relocationTable = malloc (sizeof(void*) * nbRelocationTableEntry);
+            currentSectionHeader->data.stringTable = (char*) currentSectionHeader->rawData;
+            break;
+        }
 
-			for (int i=0; i < nbRelocationTableEntry; i++) {
-				RelocationTableEntry* currentRelocationTableEntry = currentSectionHeader->data.relocationTable[i];
-				
-				currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
-	
-				RealocationEntry* relocationEntry;
+        case SHT_REL: {
+            //On compte le nombre d'entrées de la table de relocation courante
 
-				relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+            uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
 
-				currentRelocationTableEntry->type = ELF32_R_TYPE(relocationEntry->info);
-				currentRelocationTableEntry->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(relocationEntry->info));	
-			}		
+            //On malloc notre tableau de pointeurs sur relocation entry 
 
-			break; } 
-		case SHT_SYMTAB: {
-			uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+            currentSectionHeader->data.relocationTable = malloc (sizeof(void*) * nbRelocationTableEntry);
 
-			currentSectionHeader->data.symboleTable = malloc (sizeof(void*) * nbSymbolTableEntry);
+            //Pour chaque relocation entry, on remplit le plus d'informations possibles
 
-			for (int i=0; i < nbSymbolTableEntry; i++) {
-				SymboleTableEntry* currentSymbolTableEntry = currentSectionHeader->data.symboleTable[i];
-				
-				currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
-	
-				Elf32Sym* elf32Sym;
+            for (int i=0; i < nbRelocationTableEntry; i++) {
+                //On malloc notre relocation entry courante de la taille d'une RelocationTableEntry
 
-				elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+                RelocationTableEntry* currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
 
-				currentSymbolTableEntry->value = elf32Sym->stValue;
-				currentSymbolTableEntry->size = elf32Sym->stSize;
-				currentSymbolTableEntry->other = elf32Sym->stOther;
-				currentSymbolTableEntry->bind = ELF32_ST_BIND(elf32Sym->stInfo);
-				currentSymbolTableEntry->type = ELF32_ST_TYPE(elf32Sym->stInfo);
-				currentSymbolTableEntry->sectionHeader = getSectionHeaderAddress(header, elf32Sym->stShndx);
-				currentSymbolTableEntry->name = getSymbolTableEntryName(header, elf32Sym->stName);
-			}		
+                //On fait pointer une RealocationEntry sur le début de la rawData concernée
 
-			break;
-		}
-	}
+                RealocationEntry* relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+                //On ajoute le type de relocation entry a notre relocation entry courante
+
+                currentRelocationTableEntry->type = ELF32_R_TYPE(reverseEndian32(relocationEntry->info));
+
+                //On remplit la i-ème case de notre tableau avec la relocation entry courante
+
+                currentSectionHeader->data.relocationTable[i] = currentRelocationTableEntry;
+            }
+
+            break;
+        }
+
+        case SHT_SYMTAB: {
+            //On compte le nombre d'entrées de la table de symboles courante
+            uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+            
+            //On malloc notre tableau de pointeurs sur symbol entry
+
+            currentSectionHeader->data.symboleTable = malloc (sizeof(void*) * nbSymbolTableEntry);
+
+            //Pour chaque symbol entry, on remplit le plus d'informations possibles
+
+            for (int i=0; i < nbSymbolTableEntry; i++) {
+                //On malloc notre symbol entry courante de la taille d'une SymbolTableEntry
+
+                SymboleTableEntry* currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
+
+                //On fait pointer une Elf32Sym sur le début de la rawData concernée
+
+                Elf32Sym* elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+                //On ajoute toutes les informations possibles à notre symbol entry courante
+
+                currentSymbolTableEntry->value = elf32Sym->stValue;
+                currentSymbolTableEntry->size = elf32Sym->stSize;
+                currentSymbolTableEntry->other = elf32Sym->stOther;
+                currentSymbolTableEntry->bind = ELF32_ST_BIND(elf32Sym->stInfo);
+                currentSymbolTableEntry->type = ELF32_ST_TYPE(elf32Sym->stInfo);
+
+                //On remplit la i-ème case de notre tableau avec la symbol entry courante
+
+                currentSectionHeader->data.symboleTable[i] = currentSymbolTableEntry;
+            }
+
+            break;
+        }
+    }
 }
 
 char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
-	unsigned int indexStringTable = 0;
+    int indexStringTable = 0;
 
-	while(indexStringTable < header->nbSections && strcmp(header->sections[indexStringTable]->name, ".strtab") != 0) {
-    	indexStringTable++;
-	}
+    /*
+        Tant que le nom de la section qu'on analyse est différent de ".strtab" (i.e. le nom
+        de la string table des symboles), on incrément notre indice.
+        En sortie de while, indexStringTable = indice de la string table des symboles.
+    */
 
-	return ((header->sections[indexStringTable]->data.stringTable) + indexName);
+    while(indexStringTable < header->shnum && (strcmp(header->sectionHeaderTable[indexStringTable]->name, ".strtab") != 0)) {
+        indexStringTable++;
+    }
+
+    /*
+        On vérifie qu'on soit bien en présence d'une string table pour symboles.
+        Si ce n'est pas le cas, on quitte le programme avec une erreur.
+    */
+
+    if (strcmp(header->sectionHeaderTable[indexStringTable]->name, ".strtab") != 0) {
+        printf("The string table for symbols was not found. Please make sure that your ELF file is not corrupted.");
+        exit(1);
+    }
+
+    return ((header->sectionHeaderTable[indexStringTable]->data.stringTable) + indexName);
 }
 
 SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
-	unsigned int i = 0;
-	
-	while (header->sections[i]->type != SHT_SYMTAB) {
-		i++;
-	}
+    unsigned int i = 0;
 
-	return header->sections[i]->data.symboleTable[i];
+    /*
+        Tant que le type de section est différent du type "symbol table", on incrémente i.
+        En sortie de while, i = indice de la symbol table.
+    */
+
+    while (i < header->shnum && header->sectionHeaderTable[i]->type != SHT_SYMTAB) {
+        i++;
+    }
+
+    /*
+        On vérifie qu'on soit bien en présence d'une symbol table.
+        Si ce n'est pas le cas, on quitte le programme avec une erreur.
+    */
+
+    if (header->sectionHeaderTable[i]->type != SHT_SYMTAB) {
+        printf("The symbol table was not found. Please make sure that your ELF file is not corrupted.");
+        exit(1);
+    }
+
+    return header->sectionHeaderTable[i]->data.symboleTable[info];
 }
 
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
-	return header->sections[shndx];	
+    /*
+        Si l'indice transmis est supérieur au nombre de sections total,
+        on quitte le programme avec une erreur.
+    */
+
+    if (shndx > header->shnum - 1) {
+        printf("L'indice transmis est supérieur au nombre de sections total");
+        exit(1);
+    }
+
+    //Sinon, on renvoie l'adresse du section header souhaité
+
+    return header->sectionHeaderTable[shndx];
 }
-*/
+
 
 Header* legolasReadFromFile(FILE* file) {
 	//lecture du header
@@ -128,17 +205,9 @@ Header* legolasReadFromFile(FILE* file) {
     fread(&fileHeader, sizeof(fileHeader), 1, file);
 
     Header* header = malloc(sizeof(Header));
-    header->indentClass = fileHeader.e_ident[EI_CLASS];
-    header->indentData  = fileHeader.e_ident[EI_DATA];
-    header->indentVersion = fileHeader.e_ident[EI_VERSION];
-    header->indentOSABI = fileHeader.e_ident[EI_OSABI];
-    header->indentABIVersion = fileHeader.e_ident[EI_ABIVERSION];
-    header->type = reverseEndian16(fileHeader.e_type);
-    header->machine = reverseEndian16(fileHeader.e_machine);
-    header->version = reverseEndian32(fileHeader.e_version);
-    header->entry = reverseEndian32(fileHeader.e_entry);
-    header->flags = reverseEndian32(fileHeader.e_flags);
-    header->shnum = reverseEndian16(fileHeader.e_shnum);
+
+    setHeader(&fileHeader, header);
+
     header->sectionHeaderTable = malloc(sizeof(SectionHeader*) * header->shnum);
 
 	//lecture de la table de sections
@@ -148,22 +217,7 @@ Header* legolasReadFromFile(FILE* file) {
     fread(fileSectionHeaderTable, fileSectionHeaderTableSize, 1, file);
 
     for (int i = 0; i < header->shnum; i++) {
-	    header->sectionHeaderTable[i] = malloc(sizeof(SectionHeader));
-
-	    SectionHeader* sectionHeader = header->sectionHeaderTable[i];
-	    Elf32_Shdr* fileSectionHeader = &(fileSectionHeaderTable[i]);
-
-	    sectionHeader->type = reverseEndian32(fileSectionHeader->sh_type);
-	    sectionHeader->flags = reverseEndian32(fileSectionHeader->sh_flags);
-	    sectionHeader->addr = reverseEndian32(fileSectionHeader->sh_addr);
-	    sectionHeader->link = reverseEndian32(fileSectionHeader->sh_link);
-	    sectionHeader->info = reverseEndian32(fileSectionHeader->sh_info);
-	    sectionHeader->addrAlign = reverseEndian32(fileSectionHeader->sh_addralign);
-	    sectionHeader->size = reverseEndian32(fileSectionHeader->sh_size);
-		sectionHeader->data.raw = malloc(sectionHeader->size);
-
-		fseek(file, reverseEndian32(fileSectionHeader->sh_offset), SEEK_SET);
-	    fread(sectionHeader->data.raw, sectionHeader->size, 1, file);
+        setSectionHeader(header, fileSectionHeaderTable, i, file);
     }
 
 	//remplissage noms de header de section
@@ -179,10 +233,111 @@ Header* legolasReadFromFile(FILE* file) {
         strcpy(sectionHeader->name, name);
     }
 
+    for (int i=0; i < header->shnum; i++) {
+        typeLastRawDataPartIfNeeded(header->sectionHeaderTable[i], header);
+    }
+
 	//suppression de la trable des chaines
 	headerRemoveSectionHeader(header, stringTableSectionHeader);
 
 	return header;
+}
+
+void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
+    //On switch sur le type de section pour savoir si on doit ou non la traiter
+
+    switch(currentSectionHeader->type) {
+        case SHT_REL: {
+            //On compte le nombre d'entrées de notre table de relocation courante
+
+            uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+
+            //On ajoute les informations manquantes à chaque relocation entry
+
+            for (int i=0; i < nbRelocationTableEntry; i++) {
+                //On fait pointer une RealocationEntry sur le début de la rawData concernée
+
+                RealocationEntry* relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+                //On fait pointer le champ "sym" de notre relocation entry courante sur la bonne symbol entry
+
+                currentSectionHeader->data.relocationTable[i]->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(reverseEndian32(relocationEntry->info)));
+            }
+
+            break;
+        }
+
+        case SHT_SYMTAB: {
+            //On compte le nombre d'entrées de notre table de relocation courante
+
+            uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
+
+            //On ajoute les informations manquantes à chaque symbol entry
+
+            for (int i=0; i < nbSymbolTableEntry; i++) {
+                //On fait pointer une Elf32Sym sur le début de la rawData concernée
+
+                Elf32Sym* elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
+
+                /*
+                    On fait pointer le champ "sectionHeader" de notre symbol entry courante sur le bon
+                    section header.
+                */
+
+                currentSectionHeader->data.symboleTable[i]->sectionHeader = getSectionHeaderAddress(header, reverseEndian16(elf32Sym->stShndx));
+
+                /*
+                    On fait pointer le champ "name" de notre symbol entry courante sur l'adresse de
+                    son nom dans la string table
+                */
+
+                currentSectionHeader->data.symboleTable[i]->name = getSymbolTableEntryName(header, reverseEndian32(elf32Sym->stName));
+            }
+
+            break;
+        }
+    }
+}
+
+void symbolTableAddEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry) {
+    if (symbolTableEntry->bind == STB_LOCAL) {
+        sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+        sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+        sectionHeader->nbEntry++;
+    }
+    else if (symbolTableEntry->bind == STB_GLOBAL) {
+        for (int i=0; i < sectionHeader->nbEntry; i++) {
+            SymboleTableEntry* currentSymbolTableEntry = sectionHeader->symboleTable[i];
+
+            if (strcmp(symbolTableEntry->name, currentSymbolTableEntry->name) == 0) {
+                if (currentSymbolTableEntry->type != SHT_UNDEF && symbolTableEntry->type != SHT_UNDEF) {
+                    printf("Error : 2 different symbol table entry have the same name. The link edition cant pursue, and will stop.");
+                    exit(1);
+                }
+                else if (currentSymbolTableEntry->type == SHT_UNDEF && symbolTableEntry->type != SHT_UNDEF) {
+                    //On doit enlever l'élément du section header actuel et le remplacer par le nouveau
+                
+                    symboleTableRemoveEntry(sectionHeader, symboleTableEntry);
+
+                    sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+                    sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+                    sectionHeader->nbEntry++;
+                }
+                else if (currentSymbolTableEntry->type != SHT_UNDEF && symbolTableEntry-> == SHT_UNDEF) {
+                    //On ne doit rien faire car le bon élément est déjà dans la table, on ignore celui lu
+                }
+                else if (currentSymbolTableEntry->type == SHT_UNDEF && symbolTableEntry-> == SHT_UNDEF) {
+                    //On ne fait rien car une seule occurence est nécessaire et on en a déjà une
+                }
+            }
+            else {
+                 //On rajoute l'élément si le nom de l'élément actuel n'est pas dans la liste
+                 sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+                 sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+                 sectionHeader->nbEntry++;
+            }
+        }
+    }
 }
 
 void headerAddSection(Header* header, SectionHeader* sectionHeader) {
@@ -213,11 +368,33 @@ void headerRemoveSectionHeader(Header* header, SectionHeader* sectionHeader) {
 		free(sectionHeader);
 }
 
+int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
+    int i = 0;
+
+    while (i < sectionHeader->nbEntry && sectionHeader->symboleTable[i] != symboleTableEntry) {
+        i++;
+    }
+
+    if (i >= sectionHeader->nbEntry) {
+        printf("Error : symbol table entry %p not found in the symbol table", symboleTableEntry);
+        i = -1;
+    }
+
+    return i;
+}
+
+void symbolTableRemoveEntry(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
+    int i = symbolTableGetEntryIndex(sectionHeader, symboleTableEntry);
+    sectionHeader->symboleTable[i] = sectionHeader->symboleTable[sectionHeader->nbEntry-1];
+    sectionHeader->nbEntry--;
+    free(symboleTableEntry);
+}
+
 void stringTableAddString(SectionHeader* sectionHeader, char* string) {
     if (sectionHeader->type == SHT_STRTAB) {
 		int newIndex = sectionHeader->size;
 		sectionHeader->size += strlen(string) + 1;
-		sectionHeader->data.raw = realloc(sectionHeader->data.raw, sectionHeader->size);
+		sectionHeader->data.stringTable = realloc(sectionHeader->data.stringTable, sectionHeader->size);
         strcpy(&(sectionHeader->data.stringTable[newIndex]), string);
 		//sectionHeader->data.stringTable[sectionHeader->size - 1] = 0;
     } else {
@@ -258,7 +435,11 @@ int stringTableGetIndex(SectionHeader* sectionHeader, char* string) {
 }
 
 char* sectionHeaderGetData(SectionHeader* sectionHeader) {
-		return (char*) sectionHeader->data.raw;
+    if (sectionHeader->type == SHT_STRTAB) {
+        return sectionHeader->data.stringTable;
+    } else {
+		return (char*) sectionHeader->rawData;
+    }
 }
 
 uint32_t sectionHeaderGetEntSize(SectionHeader* sectionHeader) {
@@ -268,11 +449,11 @@ uint32_t sectionHeaderGetEntSize(SectionHeader* sectionHeader) {
 void legolasWriteToFile(Header* header, FILE* file) {
     //creation de la table des chaines
     SectionHeader* stringTableSectionHeader = malloc(sizeof(SectionHeader));
-    stringTableSectionHeader->name = ".strtab";
+    stringTableSectionHeader->name = ".shstrtab";
     stringTableSectionHeader->type = SHT_STRTAB;
     stringTableSectionHeader->size = 0;
-	//stringTableSectionHeader->data.raw = malloc(1);
-	//stringTableSectionHeader->data.stringTable[0] = 0;
+	stringTableSectionHeader->data.stringTable = malloc(1);
+	stringTableSectionHeader->data.stringTable[0] = 0;
     headerAddSection(header, stringTableSectionHeader);
 
     //remplissage de la table des chaines
@@ -299,7 +480,11 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fileHeader.e_flags = reverseEndian32(header->flags);
     fileHeader.e_ehsize = reverseEndian16(sizeof(fileHeader));
     fileHeader.e_shnum = reverseEndian16(header->shnum);
+	fileHeader.e_shentsize = reverseEndian16(sizeof(Elf32_Shdr));
     fileHeader.e_shstrndx = reverseEndian16(headerGetIndexOfSectionHeader(header, stringTableSectionHeader));
+    fileHeader.e_phoff = 0;
+    fileHeader.e_phentsize = 0;
+    fileHeader.e_phnum = 0;
 
     //on laisse de la place dans le fichier pour le header
     fseek(file, sizeof(fileHeader), SEEK_SET);
@@ -323,7 +508,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	    fileSectionHeader->sh_size = reverseEndian32(sectionHeader->size);
 	    fileSectionHeader->sh_entsize = reverseEndian32(sectionHeaderGetEntSize(sectionHeader));
 	    fileSectionHeader->sh_offset = reverseEndian32(ftell(file));
-	    fwrite(sectionHeaderGetData(sectionHeader), fileSectionHeader->sh_size, 1, file);
+	    fwrite(sectionHeaderGetData(sectionHeader), sectionHeader->size, 1, file);
     }
 
     //ecriture de la table des sections
@@ -333,21 +518,4 @@ void legolasWriteToFile(Header* header, FILE* file) {
     //eciture du header
     fseek(file, 0, SEEK_SET);
     fwrite(&fileHeader, sizeof(fileHeader), 1, file);
-}
-
-int main(int argc, char** argv) {
-	FILE* file1 = fopen(argv[1], "r");
-	FILE* file2 = fopen(argv[2], "w");
-
-	if (file1 == NULL || file2 == NULL) {
-		return 1;
-	}
-
-	Header* header = legolasReadFromFile(file1);
-	legolasWriteToFile(header, file2);
-	
-	fclose(file1);
-	fclose(file2);
-
-	return 0;
 }

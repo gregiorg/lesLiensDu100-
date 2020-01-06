@@ -14,17 +14,6 @@ uint32_t* readDataNumSec(FILE* file, int numSection) {
 
     data = malloc(elfSecHeader[numSection]->size);
     freadData(data, elfSecHeader[numSection]->size, 1, file);
-
-    // size_t codeRet = fread(data, elfSecHeader[numSection]->size, 1, file);
-    // if(codeRet != 1) {
-    //     if (feof(file)){
-    //       printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-    //       exit(EXIT_FAILURE);
-    //     } else if (ferror(file)) {
-    //       perror("Erreur de lecture du fichier");
-    //       exit(EXIT_FAILURE);
-    //     }
-    // }
   }
   fseek(file, filePos, SEEK_SET);
   return data;
@@ -48,17 +37,6 @@ uint32_t* readDataNomSec(FILE* file, char* nomSection) {
 
     data = malloc(elfSecHeader[i]->size);
     freadData(data, elfSecHeader[i]->size, 1, file);
-
-    // size_t codeRet = fread(data, elfSecHeader[i]->size, 1, file);
-    // if(codeRet != 1) {
-    //     if (feof(file)){
-    //       printf("Erreur de lecture du fichier: fin de fichier inattendue\n");
-    //       exit(EXIT_FAILURE);
-    //     } else if (ferror(file)) {
-    //       perror("Erreur de lecture du fichier");
-    //       exit(EXIT_FAILURE);
-    //     }
-    // }
   }
   fseek(file, filePos, SEEK_SET);
   return data;

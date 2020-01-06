@@ -14,3 +14,4 @@ build-aux/*
 test_etape?
 configure
 scanner.*
+elf_header_class
