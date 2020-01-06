@@ -339,24 +339,6 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fwrite(&fileHeader, sizeof(fileHeader), 1, file);
 }
 
-<<<<<<< HEAD
-// int main(int argc, char** argv) {
-// 	FILE* file1 = fopen(argv[1], "r");
-// 	FILE* file2 = fopen(argv[2], "w");
-//
-// 	if (file1 == NULL || file2 == NULL) {
-// 		return 1;
-// 	}
-//
-// 	Header* header = legolasReadFromFile(file1);
-// 	legolasWriteToFile(header, file2);
-//
-// 	fclose(file1);
-// 	fclose(file2);
-//
-// 	return 0;
-// }
-=======
 /*
 int main(int argc, char** argv) {
 	FILE* file1 = fopen(argv[1], "r");
@@ -368,11 +350,10 @@ int main(int argc, char** argv) {
 
 	Header* header = legolasReadFromFile(file1);
 	legolasWriteToFile(header, file2);
-	
+
 	fclose(file1);
 	fclose(file2);
 
 	return 0;
 }
 */
->>>>>>> bd95f79f5c8cb3d28a84030d64af1a01229accae
