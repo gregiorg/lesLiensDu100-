@@ -1,9 +1,10 @@
-#include "etape1.h"
+#include "etape2.h"
 #include <errno.h>
 
 extern int errno;
 
 int main(int argc, char* argv[]) {
+
   FILE* file = fopen(argv[1], "r");
 
   if (file == NULL) {
@@ -12,10 +13,11 @@ int main(int argc, char* argv[]) {
 		perror("Error printed by perror");
 		exit(EXIT_FAILURE);
 	}
+
   ElfHeaderF* elfHeader = getElfHeader(file);
+  ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(file);
 
-
-  afficherHeader(elfHeader);
+  afficherTabSecHeader(elfSecHeader, elfHeader->shnum);
 
   fclose(file);
 

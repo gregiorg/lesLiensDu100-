@@ -1,11 +1,17 @@
+//----------------AFFICHAGE DE LA TABLE DES SYMBOLES----------------------------
 #include "etape4.h"
 
 Elf32Sym** getTabSym(FILE* f) {
-
+  long int filePos = ftell(f);
   ElfHeaderF* elfHeader = getElfHeader(f);  // get the header of the elf file
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(f); // get all section headers
 
-  uint32_t stringTableAddress = getAddressStringTable(elfHeader->shentsize, elfHeader->shstrndx, f);  // string table for later use
+  int a = 0;
+  while(a < elfHeader->shnum && strcmp(elfSecHeader[a]->nameStr, ".strtab")!=0) {
+    a++;
+  }  // finding the string tables offset for the following line
+
+  // uint32_t stringTableAddress = getAddressStringTable(elfHeader->shoff, elfHeader->shentsize, elfSecHeader[a]->offset, f);  // string table addr for later use
 
   // Find the symboles table section headers index; stored in i
   int i = 0;
@@ -36,11 +42,12 @@ Elf32Sym** getTabSym(FILE* f) {
     tabSym[j]->stShndx = sauv & 0xFFFF;
     // ^see in util.h the way the struct is constructed^
   }
-  // afficheTabSym(tabSym, nbElm, stringTableAddress, f);
-
+  // afficherTabSym(tabSym, nbElm, stringTableAddress, f);
+  fseek(f, filePos, SEEK_SET);
   return tabSym;
 }
 
+//Affichage
 void afficherTabSym(Elf32Sym** tabSym, int size, uint32_t stringTableAddress, FILE* f) {
   for (int i = 0; i < size; i++) {
     printf("Symbole n°%d :\n", i);

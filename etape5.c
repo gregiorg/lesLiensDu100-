@@ -1,51 +1,67 @@
+//---------------AFFICHAGE DES TABLES DE REIMPLANTATION-------------------------
 #include "etape5.h"
 
 RealocationEntryF** getRealocationTable(FILE* file) {
-    ElfHeaderF* header = getElfHeader(file);
-    ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);
-    RealocationEntryF** realocationTableF = NULL;
+    long int filePos = ftell(file);
 
+    ElfHeaderF* header = getElfHeader(file);  // get the files header
+    ElfSecHeaderF** sectionTable = getTabElfSecHeader(file);  // get the files section tailleHeaderSection
+
+    // compute the total number of rel entries
+    int nbrRelEnt = 0;
     for (int i = 0; i < header->shnum; i++) {
-        ElfSecHeaderF* sectionHeader = sectionTable[i];
-
-        if (sectionHeader->typeInt == SH_REL) {
-            printf("RealocationTable : %08X\n", sectionHeader->offset);
-
-            int nbrEntry = sectionHeader->size / sectionHeader->entSize;
-
-            RealocationEntry** realocationTable = malloc(sizeof(RealocationEntry*) * nbrEntry);
-            for(int k = 0; k < nbrEntry; i++) {
-              realocationTable[k] = malloc(sizeof(RealocationEntry));
-            }
-
-            fseek(file, sectionHeader->offset, SEEK_SET);
-            fread(realocationTable, sizeof(RealocationEntry), nbrEntry, file);
-
-            realocationTableF = malloc(sizeof(RealocationEntryF*) * nbrEntry);
-            for(int l = 0; l < nbrEntry; i++) {
-              realocationTableF[l] = malloc(sizeof(RealocationEntryF));
-            }
-
-            for (int j = 0; j < nbrEntry; j++) {
-                realocationTableF[j]->offset = reverseEndian32(realocationTable[j]->offset);
-                realocationTableF[j]->SYM = ELF32_R_SYM(reverseEndian32(realocationTable[j]->info));
-                realocationTableF[j]->TYPE = ELF32_R_TYPE(reverseEndian32(realocationTable[j]->info));
-            }
-        }
+      if (sectionTable[i]->typeInt == SHT_REL) {
+        nbrRelEnt += sectionTable[i]->size / sectionTable[i]->entSize;
+      }
     }
+
+    // alocate memory space for all the rel entries
+    RealocationEntryF** realocationTableF = malloc(sizeof(RealocationEntryF*) * nbrRelEnt);
+    for (int i = 0; i < nbrRelEnt; i++) {
+      realocationTableF[i] = malloc(sizeof(RealocationEntryF));
+    }
+
+    // extract rel entries
+    int relIndex = 0;
+    for (int i = 0; i < header->shnum; i++) {
+      if (sectionTable[i]->typeInt == SHT_REL) {
+
+        int nbrRelInSection = sectionTable[i]->size / sectionTable[i]->entSize;  // compute number of rel entries in the section
+
+        // allocate memory space for the temporary rel entry table
+        RealocationEntry** realocationTable = malloc(sizeof(RealocationEntry*) * nbrRelInSection);
+        for (int i = 0; i < nbrRelInSection; i++) {
+          realocationTable[i] = malloc(sizeof(RealocationEntry));
+        }
+
+        fseek(file, sectionTable[i]->offset, SEEK_SET);  // put the cursor to the current sections data
+
+        // read the rel entries in the current section
+        freadRealocationTable(realocationTable, sizeof(RealocationEntry), nbrRelInSection, file);
+
+        // converting data
+        for (int i = 0; i < nbrRelInSection; i++) {
+            realocationTableF[i + relIndex]->offset = reverseEndian32(realocationTable[i]->offset);
+            realocationTableF[i + relIndex]->SYM = ELF32_R_SYM(reverseEndian32(realocationTable[i]->info));
+            realocationTableF[i + relIndex]->TYPE = ELF32_R_TYPE(reverseEndian32(realocationTable[i]->info));
+        }
+
+        // incrementing the total index
+        relIndex += nbrRelInSection;
+      }
+    }
+
+    fseek(file, filePos, SEEK_SET);
     return realocationTableF;
 }
-  //il faut extraire les données de chaque section de tab avec l'étape 3
-  //les REL ont deux valeurs de 8 chiffres hexas décalage info
-  //d'Info ont à:
-  //les deux premières chiffres correspondent au type de réimplantation propre a l'architecture (processeur)
-  //le reste des 6 chiffres hexas représentent l'index du symbole
-  //voir: elf.pdf page 36 et ELF for the ARM architecture page 26
 
+//Affichage de la table
 void afficherRealocationTab(RealocationEntryF** realocationTableF, int nbrEntry) {
   for (int j = 0; j < nbrEntry; j++) {
-      printf("\toffset : %08X\n", realocationTableF[j]->offset);
-      printf("\tsymbole index : %02X\n", realocationTableF[j]->SYM);
-      printf("\ttype : %02X\n", realocationTableF[j]->TYPE);
+    printf("Entrée de la table de realocation n°%d\n", j);
+    printf("\tOffset : %08X\n", realocationTableF[j]->offset);
+    printf("\tIndex du symbole : %02X\n", realocationTableF[j]->SYM);
+    printf("\tType : %02X\n", realocationTableF[j]->TYPE);
+    printf("\n");
   }
 }

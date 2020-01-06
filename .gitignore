@@ -1,4 +1,3 @@
-Makefile
 ARM_runner_example
 a.out
 *.log
@@ -7,8 +6,11 @@ a.out
 *.in
 *.m4
 *.cache
+*.autosave
 .*
 etape?
 Examples_loader/*
 build-aux/*
 test_etape?
+configure
+scanner.*

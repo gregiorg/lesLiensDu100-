@@ -28,13 +28,8 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <elf.h>
 #include "enums.h"
-
-#define ELF32_R_SYM(info)    ((info)>>8)
-#define ELF32_R_TYPE(info)   ((unsigned char)(info))
-
-#define SH_REL 9
 
 typedef struct {
     uint32_t offset;
@@ -47,6 +42,7 @@ typedef struct {
     char TYPE;
 } RealocationEntryF;
 
+#pragma pack (1)
 typedef struct {
     uint8_t indentMagicNumber[4];
     uint8_t indentClass;
@@ -119,13 +115,13 @@ typedef struct {
   uint16_t    stShndx;  // Elf32_Half
 } Elf32Sym;
 
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
+// #define ELF32_ST_BIND(i)   ((i)>>4)
+// #define ELF32_ST_TYPE(i)   ((i)&0xf)
+// #define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
 int is_big_endian();
 
-uint32_t getAddressStringTable(uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
+uint32_t getAddressStringTable(uint32_t positionHeaderSection, uint32_t tailleHeaderSection, uint32_t positionStringTable, FILE* f);
 uint32_t reverseEndian32(uint32_t val);
 uint16_t reverseEndian16(uint16_t val);
 
@@ -133,9 +129,19 @@ char* getRelocationName(uint32_t relocationCode);
 char* showType(uint32_t type);
 char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* f);
 
+
+void freadElfHEader(ElfHeader* elfHeader, size_t size, size_t nmemb, FILE* file);
+
+void freadElfSecHEader(ElfSecHeader* elfSecHeader, size_t size, size_t nmemb, FILE* file);
+
+void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file);
+
+void gestionErr(size_t codeRet, size_t nmemb, FILE* file);
+void freadChar(char* name, size_t size, size_t nmemb, FILE* file);
+void freadRealocationTable(RealocationEntry** realocationTable, size_t size, size_t nmemb, FILE* file);
+
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
-
 #define min(x,y) ((x)<(y)?(x):(y))
 
 #endif
