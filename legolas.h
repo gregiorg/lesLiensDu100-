@@ -32,6 +32,7 @@ struct SectionHeader {
 	uint32_t addrAlign;
 	uint32_t size;
     uint32_t entSize;
+    uint32_t nbEntry;
     void* rawData;
     union {
 		char* stringTable;
@@ -71,6 +72,7 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
 char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
 
+void symbolTableAddEntry(SectionHeader*, SymboleTableEntry*);
 void stringTableAddString(SectionHeader*, char*);
 int stringTableGetIndex(SectionHeader*, char*);
 char* stringTableGetString(SectionHeader*, int);

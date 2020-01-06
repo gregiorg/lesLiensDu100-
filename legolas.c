@@ -35,6 +35,12 @@ void setSectionHeader(Header* header, Elf32_Shdr* fileSectionHeaderTable, int i,
     sectionHeader->entSize = reverseEndian32(fileSectionHeader->sh_entsize);
 	sectionHeader->rawData = malloc(sectionHeader->size);
 
+    if (sectionHeader->entSize == 0) {
+        sectionHeader->nbEntry = 0;
+    } else {
+        sectionHeader->nbEntry = sectionHeader->size / sectionHeader->entSize;
+    }
+
 	fseek(file, reverseEndian32(fileSectionHeader->sh_offset), SEEK_SET);
     fread(sectionHeader->rawData, sectionHeader->size, 1, file);
 
@@ -122,6 +128,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
             break;
         }
     }
+}
 
 char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
     int indexStringTable = 0;
@@ -292,6 +299,47 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
     }
 }
 
+void symbolTableAddEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry) {
+    if (symbolTableEntry->bind == STB_LOCAL) {
+        sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+        sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+        sectionHeader->nbEntry++;
+    }
+    else if (symbolTableEntry->bind == STB_GLOBAL) {
+        for (int i=0; i < sectionHeader->nbEntry; i++) {
+            SymboleTableEntry* currentSymbolTableEntry = sectionHeader->symboleTable[i];
+
+            if (strcmp(symbolTableEntry->name, currentSymbolTableEntry->name) == 0) {
+                if (currentSymbolTableEntry->type != SHT_UNDEF && symbolTableEntry->type != SHT_UNDEF) {
+                    printf("Error : 2 different symbol table entry have the same name. The link edition cant pursue, and will stop.");
+                    exit(1);
+                }
+                else if (currentSymbolTableEntry->type == SHT_UNDEF && symbolTableEntry->type != SHT_UNDEF) {
+                    //On doit enlever l'élément du section header actuel et le remplacer par le nouveau
+                
+                    symboleTableRemoveEntry(sectionHeader, symboleTableEntry);
+
+                    sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+                    sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+                    sectionHeader->nbEntry++;
+                }
+                else if (currentSymbolTableEntry->type != SHT_UNDEF && symbolTableEntry-> == SHT_UNDEF) {
+                    //On ne doit rien faire car le bon élément est déjà dans la table, on ignore celui lu
+                }
+                else if (currentSymbolTableEntry->type == SHT_UNDEF && symbolTableEntry-> == SHT_UNDEF) {
+                    //On ne fait rien car une seule occurence est nécessaire et on en a déjà une
+                }
+            }
+            else {
+                 //On rajoute l'élément si le nom de l'élément actuel n'est pas dans la liste
+                 sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+                 sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+                 sectionHeader->nbEntry++;
+            }
+        }
+    }
+}
+
 void headerAddSection(Header* header, SectionHeader* sectionHeader) {
     header->shnum++;
     header->sectionHeaderTable = realloc(header->sectionHeaderTable, header->shnum * sizeof(SectionHeader*));
@@ -318,6 +366,28 @@ void headerRemoveSectionHeader(Header* header, SectionHeader* sectionHeader) {
 		header->sectionHeaderTable[i] = header->sectionHeaderTable[header->shnum-1];
 		header->shnum--;
 		free(sectionHeader);
+}
+
+int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
+    int i = 0;
+
+    while (i < sectionHeader->nbEntry && sectionHeader->symboleTable[i] != symboleTableEntry) {
+        i++;
+    }
+
+    if (i >= sectionHeader->nbEntry) {
+        printf("Error : symbol table entry %p not found in the symbol table", symboleTableEntry);
+        i = -1;
+    }
+
+    return i;
+}
+
+void symbolTableRemoveEntry(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
+    int i = symbolTableGetEntryIndex(sectionHeader, symboleTableEntry);
+    sectionHeader->symboleTable[i] = sectionHeader->symboleTable[sectionHeader->nbEntry-1];
+    sectionHeader->nbEntry--;
+    free(symboleTableEntry);
 }
 
 void stringTableAddString(SectionHeader* sectionHeader, char* string) {
@@ -365,7 +435,11 @@ int stringTableGetIndex(SectionHeader* sectionHeader, char* string) {
 }
 
 char* sectionHeaderGetData(SectionHeader* sectionHeader) {
+    if (sectionHeader->type == SHT_STRTAB) {
+        return sectionHeader->data.stringTable;
+    } else {
 		return (char*) sectionHeader->rawData;
+    }
 }
 
 uint32_t sectionHeaderGetEntSize(SectionHeader* sectionHeader) {
@@ -378,8 +452,8 @@ void legolasWriteToFile(Header* header, FILE* file) {
     stringTableSectionHeader->name = ".shstrtab";
     stringTableSectionHeader->type = SHT_STRTAB;
     stringTableSectionHeader->size = 0;
-	//stringTableSectionHeader->data.raw = malloc(1);
-	//stringTableSectionHeader->data.stringTable[0] = 0;
+	stringTableSectionHeader->data.stringTable = malloc(1);
+	stringTableSectionHeader->data.stringTable[0] = 0;
     headerAddSection(header, stringTableSectionHeader);
 
     //remplissage de la table des chaines

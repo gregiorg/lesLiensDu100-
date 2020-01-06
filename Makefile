@@ -4,19 +4,10 @@ OBJECTS = etape7 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
 
 all: $(OBJECTS)
 
-# elf_header_class: elf_header_class.o test_elf_header_class.o util.o
-# 	$(CC) $(CFLAGS) -o elf_header_class $^
-
-# elf_header_class.o:
-# 	$(CC) $(CFLAGS) -c elf_header_class.c
-
-# test_elf_header_class.o:
-# 	$(CC) $(CFLAGS) -c test_elf_header_class.c
-
-etape7: etape7.o etape5.o etape4.o etape3.o etape2.o etape1.o legolas.o util.o
+etape7: etape7.o legolas.o util.o
 	$(CC) $(CFLAGS) -o etape7 $^
 
-etape7.o: etape7.c
+etape7.o: etape7.c legolas.h util.h
 	$(CC) $(CFLAGS) -c etape7.c
 
 # test_etape6: test_etape6.o etape6.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
@@ -27,9 +18,6 @@ etape6: etape6.o legolas.o util.o
 
 etape6.o: etape6.c etape6.h legolas.h
 	$(CC) $(CFLAGS) -c etape6.c
-
-legolas.o: legolas.c legolas.h util.h
-	$(CC) $(CFLAGS) -c legolas.c
 
 test_etape5: test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 	$(CC) $(CFLAGS) -o test_etape5 test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
