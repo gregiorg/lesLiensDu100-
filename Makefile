@@ -28,9 +28,6 @@ etape6: etape6.o legolas.o util.o
 etape6.o: etape6.c etape6.h legolas.h
 	$(CC) $(CFLAGS) -c etape6.c
 
-legolas.o: legolas.c legolas.h util.h
-	$(CC) $(CFLAGS) -c legolas.c
-
 test_etape5: test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 	$(CC) $(CFLAGS) -o test_etape5 test_etape5.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 
