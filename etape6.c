@@ -1,11 +1,6 @@
-#include "legolas.h"
-#include <elf.h>
+#include "etape6.h"
 
-int main(int argc, char const *argv[]) {
-
-  FILE* file1 = fopen(argv[1], "r");
-  FILE* file2 = fopen(argv[2], "r");
-  FILE* file3 = fopen(argv[3], "w");
+void fusionProgbit(FILE* file1, FILE* file2, FILE* file3) {
 
   Header* h1 = legolasReadFromFile(file1);
   Header* h2 = legolasReadFromFile(file2);
@@ -38,24 +33,4 @@ int main(int argc, char const *argv[]) {
   }
 
   legolasWriteToFile(h1, file3);
-
-  return 0;
 }
-
-/*
-int addrAligncomp(ElfSecHeaderF secHeaderProgbitF1 ,ElfSecHeaderF secHeaderProgbitF2){
-  uint32_t  addrA1 = addrA1, addrA2 = secHeaderProgbitF2->addrAlign;
-
-  if(addrA1<2 && addrA2<2 )
-    return addrA1; // choix arbitraire
-  else if(addrA1 < 2 && addrA2 >= 2)
-    return addrA2;
-  else if(addrA1 >= 2 && addrA2 < 2)
-    return addrA1;
-  else if(addrA1 == addrA2)
-    return addrA1;
-  else if(addrA1 >= 2 && addrA2 >= 2)
-    printf("Tailles des mots des deux PROGBITS differentes\n");
-
-}
-*/

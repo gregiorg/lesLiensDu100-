@@ -1,10 +1,9 @@
 #ifndef __ETAPE6_H__
 #define __ETAPE6_H__
 
-#include "etape5.h"
+#include "legolas.h"
+#include <elf.h>
 
-int countNbSecProgbits(ElfSecHeaderF** allSecHeaders, int nbSecHeaders);
-ElfSecHeaderF** allocSecHeader(int nbElem);
-ElfSecHeaderF** extractProgbit(ElfSecHeaderF** allSecHeaders, int nbAllSecHeaders, int nbSecProgbit);
+void fusionProgbit(FILE* file1, FILE* file2, FILE* file3);
 
 #endif
