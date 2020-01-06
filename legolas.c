@@ -268,7 +268,7 @@ uint32_t sectionHeaderGetEntSize(SectionHeader* sectionHeader) {
 void legolasWriteToFile(Header* header, FILE* file) {
     //creation de la table des chaines
     SectionHeader* stringTableSectionHeader = malloc(sizeof(SectionHeader));
-    stringTableSectionHeader->name = ".strtab";
+    stringTableSectionHeader->name = ".shstrtab";
     stringTableSectionHeader->type = SHT_STRTAB;
     stringTableSectionHeader->size = 0;
 	//stringTableSectionHeader->data.raw = malloc(1);
@@ -299,7 +299,11 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fileHeader.e_flags = reverseEndian32(header->flags);
     fileHeader.e_ehsize = reverseEndian16(sizeof(fileHeader));
     fileHeader.e_shnum = reverseEndian16(header->shnum);
+	fileHeader.e_shentsize = reverseEndian16(sizeof(Elf32_Shdr));
     fileHeader.e_shstrndx = reverseEndian16(headerGetIndexOfSectionHeader(header, stringTableSectionHeader));
+    fileHeader.e_phoff = 0;
+    fileHeader.e_phentsize = 0;
+    fileHeader.e_phnum = 0;
 
     //on laisse de la place dans le fichier pour le header
     fseek(file, sizeof(fileHeader), SEEK_SET);
@@ -323,7 +327,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	    fileSectionHeader->sh_size = reverseEndian32(sectionHeader->size);
 	    fileSectionHeader->sh_entsize = reverseEndian32(sectionHeaderGetEntSize(sectionHeader));
 	    fileSectionHeader->sh_offset = reverseEndian32(ftell(file));
-	    fwrite(sectionHeaderGetData(sectionHeader), fileSectionHeader->sh_size, 1, file);
+	    fwrite(sectionHeaderGetData(sectionHeader), sectionHeader->size, 1, file);
     }
 
     //ecriture de la table des sections
@@ -335,6 +339,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fwrite(&fileHeader, sizeof(fileHeader), 1, file);
 }
 
+/*
 int main(int argc, char** argv) {
 	FILE* file1 = fopen(argv[1], "r");
 	FILE* file2 = fopen(argv[2], "w");
@@ -351,3 +356,4 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
+*/

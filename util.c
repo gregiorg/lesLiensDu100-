@@ -48,6 +48,7 @@ uint16_t reverseEndian16(uint16_t val) {
     return *((uint16_t*) tabOut);
 }
 
+/*
 char* getRelocationName(uint32_t relocationCode) {
 	char* name = malloc(200);
 
@@ -144,6 +145,7 @@ char* showType(uint32_t type) {
 
 	return typeStr;
 }
+*/
 
 
 char* showName(uint32_t indexName, uint32_t stringTableAddress, FILE* file) {

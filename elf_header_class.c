@@ -1,4 +1,5 @@
 #include "elf_header_class.h"
+#include <stdlib.h>
 #include <elf.h>
 
 void setHeader(ElfHeader elfHeader, Header* header) {
@@ -230,7 +231,7 @@ char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
 
 	if (strcmp(header->sections[indexStringTable]->name, ".strtab") != 0) {
 		printf("The string table for symbols was not found. Please make sure that your ELF file is not corrupted.");
-		exit 1;
+		exit(1);
 	}
 
 	return ((header->sections[indexStringTable]->data.stringTable) + indexName);
@@ -255,7 +256,7 @@ SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 
 	if (header->sections[i]->type != SHT_SYMTAB) {
 		printf("The symbol table was not found. Please make sure that your ELF file is not corrupted.");
-		exit 1;
+		exit(1);
 	}
 
 	return header->sections[i]->data.symboleTable[info];
@@ -269,7 +270,7 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
 	
 	if (shndx > header->nbSections - 1) {
 		printf("L'indice transmis est supérieur au nombre de sections total");
-		exit 1;
+		exit(1);
 	}
 
 	//Sinon, on renvoie l'adresse du section header souhaité
