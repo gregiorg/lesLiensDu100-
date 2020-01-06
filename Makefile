@@ -1,17 +1,23 @@
 CC = gcc
 CFLAGS = -g -Wall -Werror
-OBJECTS = elf_header_class test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
+OBJECTS = etape7 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
 
 all: $(OBJECTS)
 
-elf_header_class: elf_header_class.o test_elf_header_class.o util.o
-	$(CC) $(CFLAGS) -o elf_header_class $^
+# elf_header_class: elf_header_class.o test_elf_header_class.o util.o
+# 	$(CC) $(CFLAGS) -o elf_header_class $^
 
-elf_header_class.o:
-	$(CC) $(CFLAGS) -c elf_header_class.c
+# elf_header_class.o:
+# 	$(CC) $(CFLAGS) -c elf_header_class.c
 
-test_elf_header_class.o:
-	$(CC) $(CFLAGS) -c test_elf_header_class.c
+# test_elf_header_class.o:
+# 	$(CC) $(CFLAGS) -c test_elf_header_class.c
+
+etape7: etape7.o etape5.o etape4.o etape3.o etape2.o etape1.o legolas.o util.o
+	$(CC) $(CFLAGS) -o etape7 $^
+
+etape7.o: etape7.c
+	$(CC) $(CFLAGS) -c etape7.c
 
 # test_etape6: test_etape6.o etape6.o etape5.o etape4.o etape3.o etape2.o etape1.o util.o
 # 	$(CC) $(CFLAGS) -o test_etape6 test_etape6.o etape6.o etape5. etape4.o etape3.o etape2.o etape1.o util.o
@@ -69,6 +75,9 @@ test_etape1.o: test_etape1.c
 
 etape1.o: etape1.c etape1.h util.c util.h
 	$(CC) $(CFLAGS) -c etape1.c
+
+legolas.o: legolas.c legolas.h
+	$(CC) $(CFLAGS) -c legolas.c
 
 util.o: util.c util.h
 	$(CC) $(CFLAGS) -c util.c

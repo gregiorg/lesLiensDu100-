@@ -36,13 +36,13 @@ void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* 
 	fseek(file, reverseEndian32(currentElfSecHeader.offset), SEEK_SET);
 	fread(currentSectionHeader->rawData, currentSectionHeader->size, 1, file);
 
-	typeRawDataIfNeeded(currentSectionHeader, header);	
+	typeRawDataIfNeeded(currentSectionHeader, header);
 
 	header->sections[i] = currentSectionHeader;
 }
 
 void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
-	
+
 	switch(currentSectionHeader->type) {
 		case SHT_STRTAB: {
 			currentSectionHeader->data.stringTable = (char*) currentSectionHeader->rawData;
@@ -56,18 +56,18 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 
 			for (int i=0; i < nbRelocationTableEntry; i++) {
 				RelocationTableEntry* currentRelocationTableEntry = currentSectionHeader->data.relocationTable[i];
-				
+
 				currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
-	
+
 				RealocationEntry* relocationEntry;
 
 				relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
 
 				currentRelocationTableEntry->type = ELF32_R_TYPE(relocationEntry->info);
-				currentRelocationTableEntry->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(relocationEntry->info));	
-			}		
+				currentRelocationTableEntry->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(relocationEntry->info));
+			}
 
-			break; } 
+			break; }
 		case SHT_SYMTAB: {
 			uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
 
@@ -75,9 +75,9 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 
 			for (int i=0; i < nbSymbolTableEntry; i++) {
 				SymboleTableEntry* currentSymbolTableEntry = currentSectionHeader->data.symboleTable[i];
-				
+
 				currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
-	
+
 				Elf32Sym* elf32Sym;
 
 				elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
@@ -89,7 +89,7 @@ void typeRawDataIfNeeded(SectionHeader* currentSectionHeader, Header* header) {
 				currentSymbolTableEntry->type = ELF32_ST_TYPE(elf32Sym->stInfo);
 				currentSymbolTableEntry->sectionHeader = getSectionHeaderAddress(header, elf32Sym->stShndx);
 				currentSymbolTableEntry->name = getSymbolTableEntryName(header, elf32Sym->stName);
-			}		
+			}
 
 			break;
 		}
@@ -108,7 +108,7 @@ char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
 
 SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 	unsigned int i = 0;
-	
+
 	while (header->sections[i]->type != SHT_SYMTAB) {
 		i++;
 	}
@@ -117,7 +117,7 @@ SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 }
 
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
-	return header->sections[shndx];	
+	return header->sections[shndx];
 }
 */
 
@@ -335,19 +335,19 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fwrite(&fileHeader, sizeof(fileHeader), 1, file);
 }
 
-int main(int argc, char** argv) {
-	FILE* file1 = fopen(argv[1], "r");
-	FILE* file2 = fopen(argv[2], "w");
-
-	if (file1 == NULL || file2 == NULL) {
-		return 1;
-	}
-
-	Header* header = legolasReadFromFile(file1);
-	legolasWriteToFile(header, file2);
-	
-	fclose(file1);
-	fclose(file2);
-
-	return 0;
-}
+// int main(int argc, char** argv) {
+// 	FILE* file1 = fopen(argv[1], "r");
+// 	FILE* file2 = fopen(argv[2], "w");
+//
+// 	if (file1 == NULL || file2 == NULL) {
+// 		return 1;
+// 	}
+//
+// 	Header* header = legolasReadFromFile(file1);
+// 	legolasWriteToFile(header, file2);
+//
+// 	fclose(file1);
+// 	fclose(file2);
+//
+// 	return 0;
+// }

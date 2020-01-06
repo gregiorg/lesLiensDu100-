@@ -54,7 +54,7 @@ typedef struct {
     SectionHeader** sectionHeaderTable;
 } Header;
 
-//Header* legolasReadFromFile(FILE* file);
+Header* legolasReadFromFile(FILE* file);
 void legolasWriteToFile(Header* header, FILE* file);
 
 void headerAddSection(Header*, SectionHeader*);

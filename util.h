@@ -28,11 +28,11 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <elf.h>
-//#include "enums.h"
+#include <elf.h>
+#include "enums.h"
 
-#define ELF32_R_SYM(info)    ((info)>>8)
-#define ELF32_R_TYPE(info)   ((unsigned char)(info))
+// #define ELF32_R_SYM(info)    ((info)>>8)
+// #define ELF32_R_TYPE(info)   ((unsigned char)(info))
 
 #define SH_REL 9
 
@@ -120,9 +120,9 @@ typedef struct {
   uint16_t    stShndx;  // Elf32_Half
 } Elf32Sym;
 
-#define ELF32_ST_BIND(i)   ((i)>>4)
-#define ELF32_ST_TYPE(i)   ((i)&0xf)
-#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
+// #define ELF32_ST_BIND(i)   ((i)>>4)
+// #define ELF32_ST_TYPE(i)   ((i)&0xf)
+// #define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
 int is_big_endian();
 

@@ -1,5 +1,6 @@
 #include "elf_header_class.h"
 #include <elf.h>
+#include <stdlib.h>
 
 void setHeader(ElfHeader elfHeader, Header* header) {
 	//On récupère les informations du elfHeader et on les	ajoute au header.
@@ -19,9 +20,9 @@ void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* 
 	//On malloc un "objet" SectionHeader
 
 	SectionHeader* currentSectionHeader = malloc(sizeof(SectionHeader));
-	
+
 	//On recrée un ElfSecHeader avec les informations du i-ème elfSecHeader
-	
+
 	ElfSecHeader currentElfSecHeader = elfSecHeaders[i];
 
 	//On remplit notre "objet" SectionHeader
@@ -42,16 +43,16 @@ void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* 
 	*/
 
 	currentSectionHeader->rawData = malloc(currentSectionHeader->size);
-	
+
 	//On se décale dans le fichier de l'offset de la section courante
-	
+
 	fseek(file, reverseEndian32(currentElfSecHeader.offset), SEEK_SET);
 
 	/*
 		On fait pointer notre "rawData" sur les (tailleSection) premiers
 		octets du fichier à partir de la position courante.
 	*/
-		
+
 	fread(currentSectionHeader->rawData, currentSectionHeader->size, 1, file);
 
 	/*
@@ -60,13 +61,13 @@ void setSectionHeader(Header* header, ElfSecHeader* elfSecHeaders, int i, FILE* 
 		table, symbol table).
 	*/
 
-	typeFirstRawDataPartIfNeeded(currentSectionHeader, header);	
+	typeFirstRawDataPartIfNeeded(currentSectionHeader, header);
 
 	/*
 		On fait pointer la section courante vers le section header que l'on vient
 		de remplir
 	*/
-		
+
 	header->sections[i] = currentSectionHeader;
 }
 
@@ -75,7 +76,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 
 	switch(currentSectionHeader->type) {
 		case SHT_STRTAB: {
-			/*				 
+			/*
 				Dans le cas d'une string table, on fait juste pointer la stringTable de la
 				section courante sur la rawData castée en (char*).
 			*/
@@ -86,10 +87,10 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 
 		case SHT_REL: {
 			//On compte le nombre d'entrées de la table de relocation courante
-			
+
 			uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
 
-			//On malloc notre tableau de pointeurs sur relocation entry 
+			//On malloc notre tableau de pointeurs sur relocation entry
 
 			currentSectionHeader->data.relocationTable = malloc (sizeof(void*) * nbRelocationTableEntry);
 
@@ -99,7 +100,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 				//On malloc notre relocation entry courante de la taille d'une RelocationTableEntry
 
 				RelocationTableEntry* currentRelocationTableEntry = malloc (sizeof(RelocationTableEntry));
-				
+
 				//On fait pointer une RealocationEntry sur le début de la rawData concernée
 
 				RealocationEntry* relocationEntry = (RealocationEntry*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
@@ -107,11 +108,11 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 				//On ajoute le type de relocation entry a notre relocation entry courante
 
 				currentRelocationTableEntry->type = ELF32_R_TYPE(reverseEndian32(relocationEntry->info));
-				
+
 				//On remplit la i-ème case de notre tableau avec la relocation entry courante
 
 				currentSectionHeader->data.relocationTable[i] = currentRelocationTableEntry;
-			}		
+			}
 
 			break;
 		}
@@ -131,7 +132,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 				//On malloc notre symbol entry courante de la taille d'une SymbolTableEntry
 
 				SymboleTableEntry* currentSymbolTableEntry = malloc (sizeof(SymboleTableEntry));
-				
+
 				//On fait pointer une Elf32Sym sur le début de la rawData concernée
 
 				Elf32Sym* elf32Sym = (Elf32Sym*) &(((char*) currentSectionHeader->rawData)[currentSectionHeader->entSize * i]);
@@ -143,11 +144,11 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 				currentSymbolTableEntry->other = elf32Sym->stOther;
 				currentSymbolTableEntry->bind = ELF32_ST_BIND(elf32Sym->stInfo);
 				currentSymbolTableEntry->type = ELF32_ST_TYPE(elf32Sym->stInfo);
-			
+
 				//On remplit la i-ème case de notre tableau avec la symbol entry courante
 
 				currentSectionHeader->data.symboleTable[i] = currentSymbolTableEntry;
-			}		
+			}
 
 			break;
 		}
@@ -172,8 +173,8 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
 
 				//On fait pointer le champ "sym" de notre relocation entry courante sur la bonne symbol entry
 
-				currentSectionHeader->data.relocationTable[i]->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(reverseEndian32(relocationEntry->info)));	
-			}		
+				currentSectionHeader->data.relocationTable[i]->sym = getSymboleTableEntryAddress(header, ELF32_R_SYM(reverseEndian32(relocationEntry->info)));
+			}
 
 			break;
 		}
@@ -203,7 +204,7 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
 				*/
 
 				currentSectionHeader->data.symboleTable[i]->name = getSymbolTableEntryName(header, reverseEndian32(elf32Sym->stName));
-			}		
+			}
 
 			break;
 		}
@@ -212,7 +213,7 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
 
 char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
 	int indexStringTable = 0;
-	
+
 	/*
 		Tant que le nom de la section qu'on analyse est différent de ".strtab" (i.e. le nom
 		de la string table des symboles), on incrément notre indice.
@@ -230,7 +231,7 @@ char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
 
 	if (strcmp(header->sections[indexStringTable]->name, ".strtab") != 0) {
 		printf("The string table for symbols was not found. Please make sure that your ELF file is not corrupted.");
-		exit 1;
+		exit(1);
 	}
 
 	return ((header->sections[indexStringTable]->data.stringTable) + indexName);
@@ -242,7 +243,7 @@ SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 	/*
 		Tant que le type de section est différent du type "symbol table", on incrémente i.
 		En sortie de while, i = indice de la symbol table.
-	*/	
+	*/
 
 	while (i < header->nbSections && header->sections[i]->type != SHT_SYMTAB) {
 		i++;
@@ -255,7 +256,7 @@ SymboleTableEntry* getSymboleTableEntryAddress(Header* header, uint32_t info) {
 
 	if (header->sections[i]->type != SHT_SYMTAB) {
 		printf("The symbol table was not found. Please make sure that your ELF file is not corrupted.");
-		exit 1;
+		exit(1);
 	}
 
 	return header->sections[i]->data.symboleTable[info];
@@ -266,20 +267,20 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
 		Si l'indice transmis est supérieur au nombre de sections total,
 		on quitte le programme avec une erreur.
 	*/
-	
+
 	if (shndx > header->nbSections - 1) {
 		printf("L'indice transmis est supérieur au nombre de sections total");
-		exit 1;
+		exit(1);
 	}
 
 	//Sinon, on renvoie l'adresse du section header souhaité
 
-	return header->sections[shndx];	
+	return header->sections[shndx];
 }
 
 Header* headerFromFile(FILE* file) {
 	// On crée un elfHeader et on lit dans le fichier pour le remplir
-	
+
     ElfHeader elfHeader;
     fseek(file, 0, SEEK_SET);
     fread(&elfHeader, sizeof(ElfHeader), 1, file);
@@ -287,7 +288,7 @@ Header* headerFromFile(FILE* file) {
 	//On malloc un "objet" header qui sera la base de notre arborescence objet
 
     Header* header = malloc(sizeof(Header));
-	
+
 	//On remplit le header avec les informations du elfHeader
 
     setHeader(elfHeader, header);

@@ -8,9 +8,9 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	Header* header = headerFromFile(file1);
+// Header* header = headerFromFile(file1);
 //	headerWriteToFile(header, file2);
-	
+
 	fclose(file1);
 //	fclose(file2);
 
