@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 
 	//Header* header = headerFromFile(file1);
 //	headerWriteToFile(header, file2);
-	
+
 	fclose(file1);
 //	fclose(file2);
 

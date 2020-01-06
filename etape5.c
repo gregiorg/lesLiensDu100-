@@ -24,7 +24,7 @@ RealocationEntryF** getRealocationTable(FILE* file) {
     // extract rel entries
     int relIndex = 0;
     for (int i = 0; i < header->shnum; i++) {
-      if (sectionTable[i]->typeInt == SH_REL) {
+      if (sectionTable[i]->typeInt == SHT_REL) {
 
         int nbrRelInSection = sectionTable[i]->size / sectionTable[i]->entSize;  // compute number of rel entries in the section
 

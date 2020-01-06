@@ -122,7 +122,6 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
             break;
         }
     }
-}
 
 char* getSymbolTableEntryName(Header* header, uint32_t indexName) {
     int indexStringTable = 0;

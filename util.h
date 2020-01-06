@@ -28,8 +28,8 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <elf.h>
-//#include "enums.h"
+#include <elf.h>
+#include "enums.h"
 
 typedef struct {
     uint32_t offset;
@@ -114,6 +114,10 @@ typedef struct {
   unsigned char stOther;
   uint16_t    stShndx;  // Elf32_Half
 } Elf32Sym;
+
+// #define ELF32_ST_BIND(i)   ((i)>>4)
+// #define ELF32_ST_TYPE(i)   ((i)&0xf)
+// #define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
 int is_big_endian();
 
