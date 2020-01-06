@@ -31,8 +31,9 @@ struct SectionHeader {
 	uint32_t info;
 	uint32_t addrAlign;
 	uint32_t size;
-	union {
-		void* raw;
+    uint32_t entSize;
+    void* rawData;
+    union {
 		char* stringTable;
 		SymboleTableEntry** symboleTable;
 		RelocationTableEntry** relocationTable;
@@ -60,6 +61,12 @@ void legolasWriteToFile(Header* header, FILE* file);
 void headerAddSection(Header*, SectionHeader*);
 int headerGetIndexOfSectionHeader(Header*, SectionHeader*);
 void headerRemoveSectionHeader(Header*, SectionHeader*);
+
+void typeFirstRawDataPartIfNeeded(SectionHeader*, Header*);
+void typeLastRawDataPartIfNeeded(SectionHeader*, Header*);
+SymboleTableEntry* getSymboleTableEntryAddress(Header*, uint32_t);
+char* getSymbolTableEntryName(Header* header, uint32_t);
+SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
 
 char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);

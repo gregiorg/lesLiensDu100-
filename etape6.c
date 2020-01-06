@@ -23,8 +23,8 @@ int main(int argc, char const *argv[]) {
           if (sh1->type == SHT_PROGBITS && sh2->type == SHT_PROGBITS && strcmp(sh1->name, sh2->name)==0) {
               progbitFusion = 1;
 
-              sh1->data.raw = realloc(sh1->data.raw, sh1->size + sh2->size);
-              memcpy(((char*) sh1->data.raw) + sh1->size, sh2->data.raw, sh2->size);
+              sh1->rawData = realloc(sh1->rawData, sh1->size + sh2->size);
+              memcpy(((char*) sh1->rawData) + sh1->size, sh2->rawData, sh2->size);
               sh1->size += sh2->size;
 
               break;
