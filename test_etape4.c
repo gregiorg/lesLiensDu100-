@@ -14,6 +14,11 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  ElfHeader* elfHeaderEndian = malloc(sizeof(ElfHeader));
+  freadElfHEader(elfHeaderEndian, sizeof(*elfHeaderEndian), 1, file);
+
+  programsEndian = elfHeaderEndian->indentData;
+
   ElfHeaderF* elfHeader = getElfHeader(file);
   ElfSecHeaderF** elfSecHeader = getTabElfSecHeader(file);
   int i = 0;

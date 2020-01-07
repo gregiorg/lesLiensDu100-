@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "util.h"
 
+extern int programsEndian;
+
 typedef struct SymboleTableEntry SymboleTableEntry;
 typedef struct SectionHeader SectionHeader;
 

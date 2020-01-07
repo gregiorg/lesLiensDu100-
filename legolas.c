@@ -8,6 +8,7 @@
 void setHeader(Elf32_Ehdr* fileHeader, Header* header) {
     header->indentClass = fileHeader->e_ident[EI_CLASS];
     header->indentData  = fileHeader->e_ident[EI_DATA];
+    programsEndian = fileHeader->e_ident[EI_DATA];
     header->indentVersion = fileHeader->e_ident[EI_VERSION];
     header->indentOSABI = fileHeader->e_ident[EI_OSABI];
     header->indentABIVersion = fileHeader->e_ident[EI_ABIVERSION];
@@ -52,7 +53,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 
     switch(currentSectionHeader->type) {
         case SHT_STRTAB: {
-            /*               
+            /*
                 Dans le cas d'une string table, on fait juste pointer la stringTable de la
                 section courante sur la rawData castée en (char*).
             */
@@ -66,7 +67,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
 
             uint32_t nbRelocationTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
 
-            //On malloc notre tableau de pointeurs sur relocation entry 
+            //On malloc notre tableau de pointeurs sur relocation entry
 
             currentSectionHeader->data.relocationTable = malloc (sizeof(void*) * nbRelocationTableEntry);
 
@@ -96,7 +97,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
         case SHT_SYMTAB: {
             //On compte le nombre d'entrées de la table de symboles courante
             uint32_t nbSymbolTableEntry = (currentSectionHeader->size / currentSectionHeader->entSize);
-            
+
             //On malloc notre tableau de pointeurs sur symbol entry
 
             currentSectionHeader->data.symboleTable = malloc (sizeof(void*) * nbSymbolTableEntry);
@@ -323,7 +324,7 @@ void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* 
                 }
                 else if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
                     //On doit enlever l'élément du section header actuel et le remplacer par le nouveau
-                
+
                     symboleTableRemoveEntry(sectionHeader, symbolTableEntry);
 
                     sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
@@ -454,7 +455,7 @@ char* sectionHeaderGetRawData(SectionHeader* sectionHeader) {
 
 Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHeader, SectionHeader* stringTable) {
 	Elf32_Sym* symbolTable = malloc(sizeof(Elf32_Sym) * sectionHeader->nbEntry);
-	
+
 	for (int i=0; i < sectionHeader->nbEntry; i++) {
 		Elf32_Sym* currentNewSymbolTableEntry = &(symbolTable[i]);
 		SymboleTableEntry* currentOldSymbolTableEntry = sectionHeader->data.symboleTable[i];
