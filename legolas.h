@@ -73,9 +73,14 @@ char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
 
 void symbolTableAddEntry(SectionHeader*, SymboleTableEntry*);
+void symboleTableRemoveEntry(SectionHeader*, SymboleTableEntry*);
 void stringTableAddString(SectionHeader*, char*);
 int stringTableGetIndex(SectionHeader*, char*);
 char* stringTableGetString(SectionHeader*, int);
+
+Elf32_Sym* sectionHeaderGetSymbolData(Header*, SectionHeader*, SectionHeader*);
+Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader*);
+Elf32_Rela* sectionHeaderGetExplicitRelocationData(SectionHeader*);
 
 /*
 void typeRawDataIfNeeded(SectionHeader*, Header*);
