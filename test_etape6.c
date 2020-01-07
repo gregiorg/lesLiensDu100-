@@ -15,11 +15,6 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-  ElfHeader* elfHeaderEndian = malloc(sizeof(ElfHeader));
-  freadElfHEader(elfHeaderEndian, sizeof(*elfHeaderEndian), 1, file1);
-
-  programsEndian = elfHeaderEndian->indentData;
-
   fusionProgbit(file1, file2, file3);
 
   fclose(file1);
