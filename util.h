@@ -31,6 +31,8 @@ Contact: Guillaume.Huard@imag.fr
 #include <elf.h>
 #include "enums.h"
 
+int programsEndian;
+
 typedef struct {
     uint32_t offset;
     uint32_t info;
