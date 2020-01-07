@@ -29,7 +29,8 @@ int main(int argc, char* argv[]) {
               memcpy(((char*) sh1->rawData) + sh1->size, sh2->rawData, sh2->size);
               sh1->size += sh2->size;
 
-			  // CHANGER LES POINTEURS DE SECTIONS DANS LA TABLE DES SYMBOLES
+              changeSymbolTableEntryPointerOnSectionHeaderOnFusion(h2, sh2, sh1);
+
               break;
           }
 

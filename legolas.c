@@ -466,7 +466,6 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 		currentNewSymbolTableEntry->st_name = reverseEndian32(stringTableGetIndex(stringTable, currentOldSymbolTableEntry->name));
 		currentNewSymbolTableEntry->st_info = ELF32_ST_INFO(currentOldSymbolTableEntry->bind, currentOldSymbolTableEntry->type);
 		currentNewSymbolTableEntry->st_shndx = reverseEndian16(headerGetIndexOfSectionHeader(header, currentOldSymbolTableEntry->sectionHeader));
-		printf("current ndx %i %i %s\n", reverseEndian16(currentNewSymbolTableEntry->st_shndx), currentOldSymbolTableEntry->sectionHeader->type, currentOldSymbolTableEntry->sectionHeader->name);
 	}
 
 	return symbolTable;
@@ -480,6 +479,20 @@ Elf32_Rela* sectionHeaderGetExplicitRelocatonData(SectionHeader* sectionHeader) 
 */
 uint32_t sectionHeaderGetEntSize(SectionHeader* sectionHeader) {
 		return 1;
+}
+
+void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header* header, SectionHeader* sectionHeaderFile2, SectionHeader* sectionHeaderFile1) {
+     for (int k=0; k < header->shnum; k++) {
+          SectionHeader* symboleTableHeader = header->sectionHeaderTable[k];
+
+          if (symboleTableHeader->type == SHT_SYMTAB) {
+               for (int l=0; l < symboleTableHeader->nbEntry; l++) {
+                    if (symboleTableHeader->data.symboleTable[l]->sectionHeader == sectionHeaderFile2) {
+                         symboleTableHeader->data.symboleTable[l]->sectionHeader = sectionHeaderFile1;
+                    }
+               }
+          }
+     }
 }
 
 void legolasWriteToFile(Header* header, FILE* file) {

@@ -74,6 +74,7 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
 char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
 
+void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header*, SectionHeader*, SectionHeader*);
 void symbolTableAddLocalEntry(SectionHeader*, SymboleTableEntry*, unsigned int);
 void symbolTableAddGlobalEntry(SectionHeader*, SymboleTableEntry*, unsigned int);
 void symboleTableRemoveEntry(SectionHeader*, SymboleTableEntry*);
