@@ -35,10 +35,30 @@ int main(int argc, char* argv[]) {
           // sections de type table des symboles
           if (sh2->type == SHT_SYMTAB && sh1->type == SHT_SYMTAB) {
               fusion = 1;
+			  unsigned int nbGlobalSymbolInFirstFile = 0;
+			  SymboleTableEntry** globalSymbolTable = malloc(sizeof(SymboleTableEntry*));
+			  
+			  for (int k=0; k < sh1->nbEntry; k++) {
+			  	  if (sh1->data.symboleTable[k]->bind == STB_GLOBAL) {
+				  	  nbGlobalSymbolInFirstFile++;
+					  globalSymbolTable = realloc(globalSymbolTable, sizeof(SymboleTableEntry*) * nbGlobalSymbolInFirstFile);
+					  globalSymbolTable[k] = sh1->data.symboleTable[k];
+
+					  symboleTableRemoveEntry(sh1, sh1->data.symboleTable[k]);
+				  }
+			  }
 
               for (int k=0; k < sh2->nbEntry; k++) {
-                  symbolTableAddEntry(sh1, sh2->data.symboleTable[k]);
-              }
+                  symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);	
+			  }
+
+			  for (int k=0; k < nbGlobalSymbolInFirstFile; k++) {
+			  	  symbolTableAddGlobalEntry(sh1, globalSymbolTable[k], k);
+			  }
+
+			  for (int k=0; k < sh2->nbEntry; k++) {
+			      symbolTableAddGlobalEntry(sh1, sh2->data.symboleTable[k], k);
+			  }
 
               break;
           }

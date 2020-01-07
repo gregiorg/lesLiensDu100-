@@ -299,19 +299,26 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
     }
 }
 
-void symbolTableAddEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry) {
-    if (symbolTableEntry->bind == STB_LOCAL) {
+void symbolTableAddLocalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
+	if (symbolTableEntry->bind == STB_LOCAL) {
         sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
         sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
         sectionHeader->nbEntry++;
-    }
-    else if (symbolTableEntry->bind == STB_GLOBAL) {
+    	sectionHeader->size += sizeof(SymboleTableEntry);
+	}
+}
+
+void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
+    if (symbolTableEntry->bind == STB_GLOBAL) {
+		int noMatchInFirstSection = 0;
+
         for (int i=0; i < sectionHeader->nbEntry; i++) {
             SymboleTableEntry* currentSymbolTableEntry = sectionHeader->data.symboleTable[i];
 
             if (strcmp(symbolTableEntry->name, currentSymbolTableEntry->name) == 0) {
-                if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
-                    printf("Error : 2 different symbol table entry are defined and have the same name. The link edition cannot pursue.");
+                noMatchInFirstSection = 1;
+				
+				if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
                     exit(1);
                 }
                 else if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
@@ -322,6 +329,7 @@ void symbolTableAddEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbol
                     sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
                     sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
                     sectionHeader->nbEntry++;
+    				sectionHeader->size += sizeof(SymboleTableEntry);
                 }
                 else if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type == SHN_UNDEF) {
                     //On ne doit rien faire car le bon élément est déjà dans la table, on ignore celui lu
@@ -330,13 +338,15 @@ void symbolTableAddEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbol
                     //On ne fait rien car une seule occurence est nécessaire et on en a déjà une
                 }
             }
-            else {
-                 //On rajoute l'élément si le nom de l'élément actuel n'est pas dans la liste
-                 sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
-                 sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
-                 sectionHeader->nbEntry++;
-            }
         }
+
+		if (noMatchInFirstSection == 0) {
+             //On rajoute l'élément si le nom de l'élément actuel n'est pas dans la liste
+             sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+             sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+             sectionHeader->nbEntry++;	
+    		 sectionHeader->size += sizeof(SymboleTableEntry);
+		}
     }
 }
 
@@ -560,10 +570,11 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	    fileSectionHeader->sh_info = reverseEndian32(sectionHeader->info);
 	    fileSectionHeader->sh_addralign = reverseEndian32(sectionHeader->addrAlign);
 	    fileSectionHeader->sh_size = reverseEndian32(sectionHeader->size);
-	    fileSectionHeader->sh_entsize = reverseEndian32(sectionHeaderGetEntSize(sectionHeader));
+	    fileSectionHeader->sh_entsize = reverseEndian32(sectionHeader->entSize);
 	    fileSectionHeader->sh_offset = reverseEndian32(ftell(file));
 
 		if (sectionHeader->type == SHT_SYMTAB) {
+			fileSectionHeader->sh_size = reverseEndian32(sectionHeader->entSize * sectionHeader->nbEntry);
 			fileSectionHeader->sh_link = reverseEndian32(headerGetIndexOfSectionHeader(header, stringTableSymbolTableEntry));
 			fwrite(sectionHeaderGetSymbolData(header, sectionHeader, stringTableSymbolTableEntry), sectionHeader->size, 1, file);
 		} else if (sectionHeader->type == SHT_REL) {
