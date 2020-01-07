@@ -29,16 +29,33 @@ int is_big_endian() {
 }
 
 uint32_t reverseEndian32(uint32_t val) {
-    uint8_t* tabIn = (uint8_t*) &val;
-    uint8_t tabOut[sizeof (uint32_t)];
+    if (programsEndian == 0) {
+      fprintf(stderr,"ERROR : taille des indiens non detecter\n");
+      exit(EXIT_FAILURE);
+    }
 
-    for (int i = 0; i < sizeof (uint32_t); i++)
-        tabOut[i] = tabIn[sizeof (uint32_t) - 1 - i];
+    if ((is_big_endian() && programsEndian == LITTLE_END) ||
+    (!is_big_endian() && programsEndian == BIG_END)) {  // testing if the programms and the os endianness is different
+      uint8_t* tabIn = (uint8_t*) &val;
+      uint8_t tabOut[sizeof (uint32_t)];
 
-    return *((uint32_t*) tabOut);
+      for (int i = 0; i < sizeof (uint32_t); i++)
+          tabOut[i] = tabIn[sizeof (uint32_t) - 1 - i];
+
+      return *((uint32_t*) tabOut);
+    } else {
+      return val;
+    }
 }
 
 uint16_t reverseEndian16(uint16_t val) {
+  if (programsEndian == 0) {
+    fprintf(stderr,"ERROR : taille des indiens non detecter\n");
+    exit(EXIT_FAILURE);
+  }
+
+  if ((is_big_endian() && programsEndian == LITTLE_END) ||
+  (!is_big_endian() && programsEndian == BIG_END)) {  // testing if the programms and the os endianness is different
     uint8_t* tabIn = (uint8_t*) &val;
     uint8_t tabOut[sizeof (uint16_t)];
 
@@ -46,6 +63,9 @@ uint16_t reverseEndian16(uint16_t val) {
         tabOut[i] = tabIn[sizeof (uint16_t) - 1 - i];
 
     return *((uint16_t*) tabOut);
+  } else {
+    return val;
+  }
 }
 
 
