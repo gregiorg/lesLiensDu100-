@@ -29,15 +29,39 @@ int main(int argc, char* argv[]) {
               memcpy(((char*) sh1->rawData) + sh1->size, sh2->rawData, sh2->size);
               sh1->size += sh2->size;
 
+			  // CHANGER LES POINTEURS DE SECTIONS DANS LA TABLE DES SYMBOLES
               break;
           }
 
           // sections de type table des symboles
           if (sh2->type == SHT_SYMTAB && sh1->type == SHT_SYMTAB) {
               fusion = 1;
+              break;
+          }
+      }
+
+      // sinon ajout de la section
+      if (fusion == 0) {
+          headerAddSection(h1, sh2);
+      }
+  }
+
+  for (int i=0; i < h2->shnum; i++) {
+	
+      SectionHeader* sh2 = h2->sectionHeaderTable[i];
+
+      //int fusion = 0;
+
+      // fusion des sections fusionnables
+      for (int j = 0; j < h1->shnum; j++) {
+          SectionHeader* sh1 = h1->sectionHeaderTable[j];
+
+          if (sh2->type == SHT_SYMTAB && sh1->type == SHT_SYMTAB) {
 			  unsigned int nbGlobalSymbolInFirstFile = 0;
 			  SymboleTableEntry** globalSymbolTable = malloc(sizeof(SymboleTableEntry*));
-			  
+
+			  sh1->info = 0;
+
 			  for (int k=0; k < sh1->nbEntry; k++) {
 			  	  if (sh1->data.symboleTable[k]->bind == STB_GLOBAL) {
 				  	  nbGlobalSymbolInFirstFile++;
@@ -46,9 +70,13 @@ int main(int argc, char* argv[]) {
 
 					  symboleTableRemoveEntry(sh1, sh1->data.symboleTable[k]);
 				  }
+				  else {
+				  	  sh1->info++;
+				  }
 			  }
 
               for (int k=0; k < sh2->nbEntry; k++) {
+				  sh1->info++;
                   symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);	
 			  }
 
@@ -62,12 +90,7 @@ int main(int argc, char* argv[]) {
 
               break;
           }
-      }
-
-      // sinon ajout de la section
-      if (fusion == 0) {
-          headerAddSection(h1, sh2);
-      }
+	  }
   }
 
   legolasWriteToFile(h1, file3);
