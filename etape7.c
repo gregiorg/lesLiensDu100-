@@ -63,7 +63,7 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 			  	  if (sh1->data.symboleTable[k]->bind == STB_GLOBAL) {
 				  	  nbGlobalSymbolInFirstFile++;
 					  globalSymbolTable = realloc(globalSymbolTable, sizeof(SymboleTableEntry*) * nbGlobalSymbolInFirstFile);
-					  globalSymbolTable[k] = sh1->data.symboleTable[k];
+					  globalSymbolTable[nbGlobalSymbolInFirstFile-1] = sh1->data.symboleTable[k];
 
 					  symboleTableRemoveEntry(sh1, sh1->data.symboleTable[k]);
 				  }
