@@ -91,6 +91,7 @@ void typeFirstRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* h
                 //On ajoute le type de relocation entry a notre relocation entry courante
 
                 currentRelocationTableEntry->type = ELF32_R_TYPE(reverseEndian32(relocationEntry->info));
+                currentRelocationTableEntry->offset = reverseEndian32(relocationEntry->offset);
 
                 //On remplit la i-ème case de notre tableau avec la relocation entry courante
 
@@ -420,6 +421,24 @@ void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* 
     }
 }
 
+void relocationTableAddEntry(SectionHeader* sectionHeader, RelocationTableEntry* relocationEntry) {
+   	//On vérifie que les section header et symbol table entry courantes ne soient pas NULL
+   
+   	if (sectionHeader == NULL) {
+		printf("The current section header is NULL. The link edition will stop.");
+		return;
+    }
+    if (relocationEntry == NULL) {
+     	printf("The current relocation entry is NULL. The link edition will stop.");
+		return;
+    }
+
+    sectionHeader->data.relocationTable = realloc(sectionHeader->data.relocationTable, sizeof(RelocationTableEntry*) * (sectionHeader->nbEntry+1));
+    sectionHeader->data.relocationTable[sectionHeader->nbEntry] = relocationEntry;
+    sectionHeader->nbEntry++;
+    sectionHeader->size += sizeof(Elf32_Rel);
+}
+
 void headerAddSection(Header* header, SectionHeader* sectionHeader) {
 	//On ajoute un section header au header actuel.
 	
@@ -612,10 +631,25 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 
 	return symbolTable;
 }
-/*
-Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader) {
+
+Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader, SectionHeader* symbolTableSectionHeader) {
+    sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
+    Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
+
+    for (int i = 0; i < sectionHeader->nbEntry; i++) {
+        RelocationTableEntry* relocationEntry = sectionHeader->data.relocationTable[i];
+        Elf32_Rel* fileRelocationEntry = &(fileRelocationTable[i]);
+
+        fileRelocationEntry->r_offset = reverseEndian32(relocationEntry->offset);
+        char type = relocationEntry->type;
+        uint32_t sym = symbolTableGetEntryIndex(symbolTableSectionHeader, relocationEntry->sym);
+        fileRelocationEntry->r_info = reverseEndian32(ELF32_R_INFO(sym, type));
+    }
+
+    return fileRelocationTable;
 }
 
+/*
 Elf32_Rela* sectionHeaderGetExplicitRelocatonData(SectionHeader* sectionHeader) {
 }
 */
@@ -639,6 +673,28 @@ void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header* header, Sectio
                          symboleTableHeader->data.symboleTable[l]->sectionHeader = sectionHeaderFile1;
                     }
                }
+               break;
+          }
+     }
+}
+
+void updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(Header* header, SectionHeader* sectionHeaderFile2, SectionHeader* sectionHeaderFile1) {
+     /*
+        Après fusion des sections PROGBITS, on doit faire pointer les symbol table entry
+        vers les nouvelles sections créées par la fusion (actuellement, elles pointent sur
+        des sections qui "n'existent plus").
+     */
+
+     for (int k=0; k < header->shnum; k++) {
+          SectionHeader* symboleTableHeader = header->sectionHeaderTable[k];
+
+          if (symboleTableHeader->type == SHT_REL) {
+               for (int l=0; l < symboleTableHeader->nbEntry; l++) {
+                    if (symboleTableHeader->data.relocationTable[l]->sym->sectionHeader == sectionHeaderFile2) {
+                         symboleTableHeader->data.relocationTable[l]->offset += sectionHeaderFile1->size;
+                    }
+               }
+               break;
           }
      }
 }
@@ -717,6 +773,14 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	int fileSectionHeaderTableSize = sizeof(Elf32_Shdr) * header->shnum;
     Elf32_Shdr* fileSectionHeaderTable = malloc(fileSectionHeaderTableSize);
 
+    SectionHeader* symbolTableSectionHeader = NULL;
+    for (int i = 0; i < header->shnum; i++) {
+        if (header->sectionHeaderTable[i]->type == SHT_SYMTAB) {
+            symbolTableSectionHeader = header->sectionHeaderTable[i];
+            break;
+        }
+    }
+
     //ecriture des sections dans le fichier et memorisation des offsets
     for (int i = 0; i < header->shnum; i++) {
 	    SectionHeader* sectionHeader = header->sectionHeaderTable[i];
@@ -726,22 +790,34 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	    fileSectionHeader->sh_type = reverseEndian32(sectionHeader->type);
 	    fileSectionHeader->sh_flags = reverseEndian32(sectionHeader->flags);
 	    fileSectionHeader->sh_addr = reverseEndian32(sectionHeader->addr);
-	    fileSectionHeader->sh_link = reverseEndian32(sectionHeader->link);
 	    fileSectionHeader->sh_info = reverseEndian32(sectionHeader->info);
 	    fileSectionHeader->sh_addralign = reverseEndian32(sectionHeader->addrAlign);
 	    fileSectionHeader->sh_size = reverseEndian32(sectionHeader->size);
 	    fileSectionHeader->sh_entsize = reverseEndian32(sectionHeader->entSize);
 	    fileSectionHeader->sh_offset = reverseEndian32(ftell(file));
+        fileSectionHeader->sh_link = 0;
 
 		if (sectionHeader->type == SHT_SYMTAB) {
 			fileSectionHeader->sh_size = reverseEndian32(sectionHeader->entSize * sectionHeader->nbEntry);
 			fileSectionHeader->sh_link = reverseEndian32(headerGetIndexOfSectionHeader(header, stringTableSymbolTableEntry));
 			fwrite(sectionHeaderGetSymbolData(header, sectionHeader, stringTableSymbolTableEntry), sectionHeader->size, 1, file);
 		} else if (sectionHeader->type == SHT_REL) {
-	//		fwrite(sectionHeaderGetUnexplicitRelocationData(sectionHeader), sectionHeader->size, 1, file);
+			fwrite(sectionHeaderGetUnexplicitRelocationData(sectionHeader, symbolTableSectionHeader), sectionHeader->size, 1, file);
+            fileSectionHeader->sh_size = reverseEndian32(sectionHeader->size);
+            fileSectionHeader->sh_link = reverseEndian32(headerGetIndexOfSectionHeader(header, symbolTableSectionHeader));
+            fileSectionHeader->sh_info = reverseEndian32(headerGetIndexOfSectionHeader(header, sectionHeader->data.relocationTable[0]->sym->sectionHeader));
 		} else if (sectionHeader->type == SHT_RELA) {
 	//		fwrite(sectionHeaderGetExplicitRelocationData(sectionHeader), sectionHeader->size, 1, file);
+        } else if (strcmp(sectionHeader->name, ".strtab") == 0) {
+            fileSectionHeader->sh_info = 0;
+            fileSectionHeader->sh_link = 0;
+            fileSectionHeader->sh_flags = 0;
+            fileSectionHeader->sh_addr = 0;
+            fileSectionHeader->sh_addralign = 0;
+            fileSectionHeader->sh_entsize = 0;
+			fwrite(sectionHeaderGetRawData(sectionHeader), sectionHeader->size, 1, file);
 		} else {
+            fileSectionHeader->sh_info = 0;
 			fwrite(sectionHeaderGetRawData(sectionHeader), sectionHeader->size, 1, file);
 		}
     }

@@ -5,6 +5,10 @@
 #ifndef __ETAPE8_H__
 #define __ETAPE8_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "legolas.h"
 
+void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3);
 
-#endif //__ETAPE8_H__
+#endif

@@ -21,6 +21,7 @@ struct SymboleTableEntry {
 
 typedef struct {
     SymboleTableEntry* sym;
+    uint32_t offset;
     char type;
 } RelocationTableEntry;
 
@@ -75,15 +76,17 @@ char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
 
 void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header*, SectionHeader*, SectionHeader*);
+void updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(Header*, SectionHeader*, SectionHeader*);
 void symbolTableAddLocalEntry(SectionHeader*, SymboleTableEntry*, unsigned int);
 void symbolTableAddGlobalEntry(SectionHeader*, SymboleTableEntry*, unsigned int);
 void symboleTableRemoveEntry(SectionHeader*, SymboleTableEntry*);
+void relocationTableAddEntry(SectionHeader*, RelocationTableEntry*);
 void stringTableAddString(SectionHeader*, char*);
 int stringTableGetIndex(SectionHeader*, char*);
 char* stringTableGetString(SectionHeader*, int);
 
 Elf32_Sym* sectionHeaderGetSymbolData(Header*, SectionHeader*, SectionHeader*);
-Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader*);
+Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader*, SectionHeader*);
 Elf32_Rela* sectionHeaderGetExplicitRelocationData(SectionHeader*);
 
 /*
