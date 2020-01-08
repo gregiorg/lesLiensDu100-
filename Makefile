@@ -5,10 +5,10 @@ OBJECTS = test_etape7 test_etape6 test_etape5 test_etape4 test_etape3 test_etape
 all: $(OBJECTS)
 
 test_etape7: test_etape7.o etape7.o legolas.o util.o
-    $(CC) $(CFLAGS) -o test_etape7 test_etape7.o etape7.o legolas.o util.o
+	$(CC) $(CFLAGS) -o test_etape7 test_etape7.o etape7.o legolas.o util.o
 
 test_etape7.o: test_etape7.c
-    $(CC) $(CFLAGS) -c test_etape7
+	$(CC) $(CFLAGS) -c test_etape7.c
 
 etape7.o: etape7.c legolas.h util.h
 	$(CC) $(CFLAGS) -c etape7.c
