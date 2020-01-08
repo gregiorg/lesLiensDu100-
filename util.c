@@ -30,7 +30,7 @@ int is_big_endian() {
 
 uint32_t reverseEndian32(uint32_t val) {
     if (programsEndian == 0) {
-      fprintf(stderr,"ERROR : taille des indiens non detecter\n");
+      fprintf(stderr,"ERROR : taille des indiens non détectée\n");
       exit(EXIT_FAILURE);
     }
 
