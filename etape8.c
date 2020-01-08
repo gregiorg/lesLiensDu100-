@@ -1,18 +1,18 @@
+#include "etape8.h"
 
-void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
+void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
 
   FILE* file3 = fopen(fName3, "w");
 
   Header* h1 = legolasReadFromFile(file1);
   Header* h2 = legolasReadFromFile(file2);
 
-  // integration des sections du header 2 dans le header 1
+  // fusion des sections progbits et des sections de types inconnues
   for (int i = 0; i < h2->shnum; i++) {
       SectionHeader* sh2 = h2->sectionHeaderTable[i];
 
       int fusion = 0;
 
-      // fusion des sections fusionnables
       for (int j = 0; j < h1->shnum; j++) {
           SectionHeader* sh1 = h1->sectionHeaderTable[j];
 
@@ -25,12 +25,19 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
               sh1->size += sh2->size;
 
               changeSymbolTableEntryPointerOnSectionHeaderOnFusion(h2, sh2, sh1);
+              updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(h2, sh2, sh1);
 
               break;
           }
 
           // sections de type table des symboles
-          if (sh2->type == SHT_SYMTAB && sh1->type == SHT_SYMTAB) {
+          if (sh2->type == SHT_SYMTAB) {
+              fusion = 1;
+              break;
+          }
+
+          // sections de type table des relocation
+          if (sh2->type == SHT_REL || sh2->type == SHT_RELA) {
               fusion = 1;
               break;
           }
@@ -42,13 +49,11 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
       }
   }
 
+  // fusion des sections table de symboles
   for (int i=0; i < h2->shnum; i++) {
-	
       SectionHeader* sh2 = h2->sectionHeaderTable[i];
+	  int matchName = 0;
 
-      //int fusion = 0;
-
-      // fusion des sections fusionnables
       for (int j = 0; j < h1->shnum; j++) {
           SectionHeader* sh1 = h1->sectionHeaderTable[j];
 
@@ -86,6 +91,21 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 
               break;
           }
+
+          if (sh2->type == SHT_REL && sh1->type == SHT_REL && strcmp(sh1->name, sh2->name) == 0) {
+              matchName = 1;
+			  
+			  for (int k = 0; k < sh2->nbEntry; k++) {
+                  relocationTableAddEntry(sh1, sh2->data.relocationTable[k]);
+              }
+
+              break;
+          }
+	  }
+
+	  if (matchName == 0 && sh2->type == SHT_REL) {
+	  	  printf("Warning : The relocation table %p in the second file has no matching table in the first file", sh2);
+	  	  headerAddSection(h1, sh2);
 	  }
   }
 

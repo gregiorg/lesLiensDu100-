@@ -1,8 +1,17 @@
 CC = gcc
 CFLAGS = -g -Wall -Werror
-OBJECTS = test_etape7 test_etape6 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
+OBJECTS = test_etape8 test_etape7 test_etape6 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
 
 all: $(OBJECTS)
+
+test_etape8: test_etape8.o etape8.o legolas.o util.o
+	$(CC) $(CFLAGS) -o test_etape8 test_etape8.o etape8.o legolas.o util.o
+
+test_etape8.o: test_etape8.c
+	$(CC) $(CFLAGS) -c test_etape8.c
+
+etape8.o: etape8.c legolas.h util.h
+	$(CC) $(CFLAGS) -c etape8.c
 
 test_etape7: test_etape7.o etape7.o legolas.o util.o
 	$(CC) $(CFLAGS) -o test_etape7 test_etape7.o etape7.o legolas.o util.o
