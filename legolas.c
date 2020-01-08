@@ -6,7 +6,9 @@
 #include "legolas.h"
 
 void setHeader(Elf32_Ehdr* fileHeader, Header* header) {
-    header->indentClass = fileHeader->e_ident[EI_CLASS];
+	//On ajoute toutes les informations au header courant
+
+	header->indentClass = fileHeader->e_ident[EI_CLASS];
     header->indentData  = fileHeader->e_ident[EI_DATA];
 	programsEndian = fileHeader->e_ident[EI_DATA];
     header->indentVersion = fileHeader->e_ident[EI_VERSION];
@@ -21,6 +23,8 @@ void setHeader(Elf32_Ehdr* fileHeader, Header* header) {
 }
 
 void setSectionHeader(Header* header, Elf32_Shdr* fileSectionHeaderTable, int i, FILE* file) {
+	//On ajoute toutes les informations du section header courant
+	
 	header->sectionHeaderTable[i] = malloc(sizeof(SectionHeader));
 
 	SectionHeader* sectionHeader = header->sectionHeaderTable[i];
@@ -44,6 +48,8 @@ void setSectionHeader(Header* header, Elf32_Shdr* fileSectionHeaderTable, int i,
 
 	fseek(file, reverseEndian32(fileSectionHeader->sh_offset), SEEK_SET);
     fread(sectionHeader->rawData, sectionHeader->size, 1, file);
+
+	//On type le plus possible la raw data du section header actuel si besoin
 
     typeFirstRawDataPartIfNeeded(sectionHeader, header);
 }
@@ -301,66 +307,123 @@ void typeLastRawDataPartIfNeeded(SectionHeader* currentSectionHeader, Header* he
 }
 
 void symbolTableAddLocalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
+   	//On vérifie que les section header et symbol table entry courantes ne soient pas NULL
+   
+   	if (sectionHeader == NULL) {
+		printf("The current section header is NULL. The link edition will stop.");
+		return;
+    }
+    if (symbolTableEntry == NULL) {
+     	printf("The current symbol table entry is NULL. The link edition will stop.");
+		return;
+    }
+
+	//Si la symbol table entry actuelle est de type locale, alors on la rajoute sans autre vérification
+	
 	if (symbolTableEntry->bind == STB_LOCAL) {
-        sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
-        sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
-        sectionHeader->nbEntry++;
-    	sectionHeader->size += sizeof(SymboleTableEntry);
+    	sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+		sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+		sectionHeader->nbEntry++;
+		sectionHeader->size += sizeof(SymboleTableEntry);
 	}
 }
 
 void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
-     if (sectionHeader == NULL) {
+     //On vérifie que les section header et symbol table entry courantes ne soient pas NULL.
+	 
+	 if (sectionHeader == NULL) {
      	 printf("The current section header is NULL. The link edition will stop.");
-	 return;
+	 	 return;
      }
      if (symbolTableEntry == NULL) {
      	 printf("The current symbol table entry is NULL. The link edition will stop.");
-	 return;
+	 	 return;
      }
+	 
+	 /*
+	 	Si la symbol table entry actuelle est de type globale, alors on effectue diverses
+		vérifications afin de voir si on la rajoute ou non.	
+	 */
+
      if (symbolTableEntry->bind == STB_GLOBAL) {
+		/*
+			Booléen mis à jour si la symbol table entry courante matche
+			avec une des symbol table entry du premier fichier.
+		*/
+		
 		int noMatchInFirstSection = 0;
+
+		//On boucle sur le nombre de symbol table entry du fichier 2.
 
         for (int i=0; i < sectionHeader->nbEntry; i++) {
             SymboleTableEntry* currentSymbolTableEntry = sectionHeader->data.symboleTable[i];
 
-            if (strcmp(symbolTableEntry->name, currentSymbolTableEntry->name) == 0) {
-                noMatchInFirstSection = 1;
-				
-				if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
-                    exit(1);
-                }
-                else if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
-                    //On doit enlever l'élément du section header actuel et le remplacer par le nouveau
-                
-                    symboleTableRemoveEntry(sectionHeader, symbolTableEntry);
+			/*
+				On regarde si les symboles du fichier 1 et du fichier 2 courants ont le même nom,
+				et on effectue d'autres vérifications le cas échéant.
+			*/ 
 
-                    sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
-                    sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
-                    sectionHeader->nbEntry++;
-    				sectionHeader->size += sizeof(SymboleTableEntry);
-                }
-                else if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type == SHN_UNDEF) {
-                    //On ne doit rien faire car le bon élément est déjà dans la table, on ignore celui lu
-                }
-                else if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type == SHN_UNDEF) {
-                    //On ne fait rien car une seule occurence est nécessaire et on en a déjà une
-                }
-            }
-        }
+            if (strcmp(symbolTableEntry->name, currentSymbolTableEntry->name) == 0) {
+                //Si on passe ici, ça veut dire qu'on a un match
+				
+				noMatchInFirstSection = 1;
+				
+				//Si les 2 symboles courants sont définis, l'édition de lien échoue
+
+				if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
+                	printf("There are two global symbols defined with the same name if the 2 different files. The link edition will stop.");
+		    		return;
+            	}
+
+				/*
+					Si le symbole est défini dans le fichier 2 et indéfini dans le fichier 1,
+					on le remplace par le symbole du fichier 2.
+				*/
+
+            	if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type != SHN_UNDEF) {
+                	symboleTableRemoveEntry(sectionHeader, symbolTableEntry);
+
+					sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+                	sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+                	sectionHeader->nbEntry++;
+    		    	sectionHeader->size += sizeof(SymboleTableEntry);
+            	}
+
+				/*
+					Si le symbole est défini dans le fichier 1 et indéfini dans le fichier 2,
+					on ne l'ajoute pas, donc on ne fait rien.
+				*/
+
+            	else if (currentSymbolTableEntry->type != SHN_UNDEF && symbolTableEntry->type == SHN_UNDEF){}
+
+				/*
+					Si le symbole est indéfini dans le fichier 1 comme dans le fichier 2,
+					on ne l'ajoute pas, donc on ne fait rien.
+				*/
+
+            	else if (currentSymbolTableEntry->type == SHN_UNDEF && symbolTableEntry->type == SHN_UNDEF){}
+       		}
+    	}
+
+		/*
+			Une fois qu'on a terminé la boucle, on regarde si le symbole actuel du fichier 2
+			a matché avec un des symboles du fichier 1. 
+			Si ce n'est pas le cas, on l'ajoute à la symbol table du fichier 1.
+		*/
 
 		if (noMatchInFirstSection == 0) {
-             //On rajoute l'élément si le nom de l'élément actuel n'est pas dans la liste
-             sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
-             sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
-             sectionHeader->nbEntry++;	
-    		 sectionHeader->size += sizeof(SymboleTableEntry);
+         	sectionHeader->data.symboleTable = realloc(sectionHeader->data.symboleTable, sizeof(SymboleTableEntry*) * (sectionHeader->nbEntry+1));
+         	sectionHeader->data.symboleTable[sectionHeader->nbEntry] = symbolTableEntry;
+         	sectionHeader->nbEntry++;	
+	     	sectionHeader->size += sizeof(SymboleTableEntry);
 		}
     }
 }
 
 void headerAddSection(Header* header, SectionHeader* sectionHeader) {
-    header->shnum++;
+	//On ajoute un section header au header actuel.
+	
+	header->shnum++;
     header->sectionHeaderTable = realloc(header->sectionHeaderTable, header->shnum * sizeof(SectionHeader*));
     header->sectionHeaderTable[header->shnum-1] = sectionHeader;
 }
@@ -368,9 +431,17 @@ void headerAddSection(Header* header, SectionHeader* sectionHeader) {
 int headerGetIndexOfSectionHeader(Header* header, SectionHeader* sectionHeader) {
     int i = 0;
 
+	//On cherche l'index du section header actuel dans la liste des section header.
+
     while (i < header->shnum && header->sectionHeaderTable[i] != sectionHeader) {
         i++;
     }
+
+	/*
+		Si l'index renvoyé est supérieur au nombre de sections renseigné dans le header,
+		c'est qu'on n'a pas trouvé le section header passé en paramètre, donc on renvoie
+		une erreur.
+	*/
 
     if (i >= header->shnum) {
         printf("Error : section header %p not found in header %p\n", sectionHeader, header);
@@ -381,18 +452,32 @@ int headerGetIndexOfSectionHeader(Header* header, SectionHeader* sectionHeader) 
 }
 
 void headerRemoveSectionHeader(Header* header, SectionHeader* sectionHeader) {
-		int i = headerGetIndexOfSectionHeader(header, sectionHeader);
-		header->sectionHeaderTable[i] = header->sectionHeaderTable[header->shnum-1];
-		header->shnum--;
-		free(sectionHeader);
+	/*
+		On supprime le section header actuel de la liste de section header
+		en remplaçant le section header à supprimer par le dernier et en
+		réduisant le nombre de section header de 1.
+	*/
+	
+	int i = headerGetIndexOfSectionHeader(header, sectionHeader);
+	header->sectionHeaderTable[i] = header->sectionHeaderTable[header->shnum-1];
+	header->shnum--;
+	free(sectionHeader);
 }
 
 int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
     int i = 0;
 
+	//On cherche l'index de la symbol table entry actuelle dans la symbol table	
+
     while (i < sectionHeader->nbEntry && sectionHeader->data.symboleTable[i] != symboleTableEntry) {
         i++;
     }
+
+	/*
+		Si l'index retourné est supérieur au nombre total de symbol table entry,
+		c'est que la symbol table entry n'a pas été trouvée, donc on renvoie une
+		erreur.
+	*/
 
     if (i >= sectionHeader->nbEntry) {
         printf("Error : symbol table entry %p not found in the symbol table", symboleTableEntry);
@@ -403,9 +488,16 @@ int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* sy
 }
 
 void symboleTableRemoveEntry(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
-    int i = symbolTableGetEntryIndex(sectionHeader, symboleTableEntry);
+	/*
+		On supprime le section header actuel de la liste de section header
+		en remplaçant le section header à supprimer par le dernier et en
+		réduisant le nombre de section header de 1.
+	*/
+		
+	int i = symbolTableGetEntryIndex(sectionHeader, symboleTableEntry);
     sectionHeader->data.symboleTable[i] = sectionHeader->data.symboleTable[sectionHeader->nbEntry-1];
     sectionHeader->nbEntry--;
+	sectionHeader->size -= sizeof(SymboleTableEntry);
     free(symboleTableEntry);
 }
 
