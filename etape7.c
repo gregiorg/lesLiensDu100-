@@ -1,12 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include "legolas.h"
+#include "etape7.h"
 
-int main(int argc, char* argv[]) {
+void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 
-  FILE* file1 = fopen(argv[1], "r");
-  FILE* file2 = fopen(argv[2], "r");
-  FILE* file3 = fopen(argv[3], "w");
+  FILE* file3 = fopen(fName3, "w");
 
   Header* h1 = legolasReadFromFile(file1);
   Header* h2 = legolasReadFromFile(file2);
@@ -95,6 +91,7 @@ int main(int argc, char* argv[]) {
   }
 
   legolasWriteToFile(h1, file3);
+  fclose(file3);
 
   return 0;
 }
