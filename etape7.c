@@ -92,6 +92,4 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 
   legolasWriteToFile(h1, file3);
   fclose(file3);
-
-  return 0;
 }
