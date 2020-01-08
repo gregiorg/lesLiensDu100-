@@ -312,11 +312,11 @@ void symbolTableAddLocalEntry(SectionHeader* sectionHeader, SymboleTableEntry* s
 void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
      if (sectionHeader == NULL) {
      	 printf("The current section header is NULL. The link edition will stop.");
-	 exit(1);
+	 return;
      }
      if (symbolTableEntry == NULL) {
      	 printf("The current symbol table entry is NULL. The link edition will stop.");
-	 exit(1);
+	 return;
      }
      if (symbolTableEntry->bind == STB_GLOBAL) {
 		int noMatchInFirstSection = 0;
