@@ -196,7 +196,7 @@ SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx) {
     */
 
     if (shndx > header->shnum - 1) {
-        printf("L'indice transmis est supérieur au nombre de sections total");
+        printf("The transmitted index is greater than the total number of sections.");
         exit(1);
     }
 
@@ -633,7 +633,10 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 }
 
 Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader, SectionHeader* symbolTableSectionHeader) {
-    sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
+	//A implémenter
+
+	/*
+	sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
     Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
 
     for (int i = 0; i < sectionHeader->nbEntry; i++) {
@@ -647,6 +650,9 @@ Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader
     }
 
     return fileRelocationTable;
+	*/
+
+	return NULL;
 }
 
 /*
