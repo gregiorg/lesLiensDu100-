@@ -310,7 +310,15 @@ void symbolTableAddLocalEntry(SectionHeader* sectionHeader, SymboleTableEntry* s
 }
 
 void symbolTableAddGlobalEntry(SectionHeader* sectionHeader, SymboleTableEntry* symbolTableEntry, unsigned int index) {
-    if (symbolTableEntry->bind == STB_GLOBAL) {
+     if (sectionHeader == NULL) {
+     	 printf("The current section header is NULL. The link edition will stop.");
+	 return;
+     }
+     if (symbolTableEntry == NULL) {
+     	 printf("The current symbol table entry is NULL. The link edition will stop.");
+	 return;
+     }
+     if (symbolTableEntry->bind == STB_GLOBAL) {
 		int noMatchInFirstSection = 0;
 
         for (int i=0; i < sectionHeader->nbEntry; i++) {
@@ -460,7 +468,7 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 		Elf32_Sym* currentNewSymbolTableEntry = &(symbolTable[i]);
 		SymboleTableEntry* currentOldSymbolTableEntry = sectionHeader->data.symboleTable[i];
 
-		currentNewSymbolTableEntry->st_value = reverseEndian32(currentOldSymbolTableEntry->value);
+		currentNewSymbolTableEntry->st_value = currentOldSymbolTableEntry->value;
 		currentNewSymbolTableEntry->st_size = reverseEndian32(currentOldSymbolTableEntry->size);
 		currentNewSymbolTableEntry->st_other = currentOldSymbolTableEntry->other;
 		currentNewSymbolTableEntry->st_name = reverseEndian32(stringTableGetIndex(stringTable, currentOldSymbolTableEntry->name));
