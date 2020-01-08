@@ -461,7 +461,7 @@ void headerRemoveSectionHeader(Header* header, SectionHeader* sectionHeader) {
 	int i = headerGetIndexOfSectionHeader(header, sectionHeader);
 	header->sectionHeaderTable[i] = header->sectionHeaderTable[header->shnum-1];
 	header->shnum--;
-	free(sectionHeader);
+	//free(sectionHeader);
 }
 
 int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* symboleTableEntry) {
@@ -498,7 +498,7 @@ void symboleTableRemoveEntry(SectionHeader* sectionHeader, SymboleTableEntry* sy
     sectionHeader->data.symboleTable[i] = sectionHeader->data.symboleTable[sectionHeader->nbEntry-1];
     sectionHeader->nbEntry--;
 	sectionHeader->size -= sizeof(SymboleTableEntry);
-    free(symboleTableEntry);
+    //free(symboleTableEntry);
 }
 
 void stringTableAddString(SectionHeader* sectionHeader, char* string) {
