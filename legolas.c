@@ -635,7 +635,6 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader, SectionHeader* symbolTableSectionHeader) {
 	//A implémenter
 
-	/*
 	sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
     Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
 
@@ -650,9 +649,8 @@ Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader
     }
 
     return fileRelocationTable;
-	*/
 
-	return NULL;
+	//return NULL;
 }
 
 /*
