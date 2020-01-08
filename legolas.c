@@ -499,7 +499,7 @@ int symbolTableGetEntryIndex(SectionHeader* sectionHeader, SymboleTableEntry* sy
 	*/
 
     if (i >= sectionHeader->nbEntry) {
-        printf("Error : symbol table entry %p not found in the symbol table", symboleTableEntry);
+        printf("Error : symbol table entry %p not found in the symbol table\n", symboleTableEntry);
         i = -1;
     }
 
@@ -698,6 +698,11 @@ void updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(Header* header, Sec
           }
      }
 }
+
+/*
+nomHeader -> renvoie pointeur sur header
+typeSection -> renvoie pointeur sur section
+*/
 
 void legolasWriteToFile(Header* header, FILE* file) {
 	for (int i=0; i < header->shnum; i++) {
