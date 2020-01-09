@@ -54,7 +54,7 @@ int headerGetIndexOfSectionHeader(Header* header, SectionHeader* sectionHeader) 
 	*/
 
     if (i >= header->shnum) {
-        printf("Error : section header %p not found in header %p\n", sectionHeader, header);
+        printf("Error : section header %p %s %i not found in header %p\n", sectionHeader, sectionHeader->name, sectionHeader->type, header);
         i = -1;
     }
 
@@ -86,8 +86,9 @@ SectionHeader* getSectionHeaderFromName(Header* header, char* nomHeader) {
 	return header->sectionHeaderTable[i];
 }
 
-SectionHeader** getSectionHeaderFromType(Header* header, uint32_t type, size_t* tailleListe) {
+SectionHeader** getSectionHeadersFromType(Header* header, uint32_t type, size_t* tailleListe) {
 	SectionHeader** sectionHeaderList = NULL;
+    *tailleListe = 0;
 
 	/*
 	 	On vérifie le type de chaque section présente dans la table des sections.
