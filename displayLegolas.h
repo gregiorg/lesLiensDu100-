@@ -8,5 +8,6 @@
 void displayElfHeader(Header* header);
 void displayElfSectionHeaderTable(Header* header);
 void displaySectionsRawData(Header* header, char* sectionName);
+void displaySymbolTable(Header* header);
 
 #endif

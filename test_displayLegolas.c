@@ -12,6 +12,14 @@ int main(int argc, char* argv[]) {
   displayElfSectionHeaderTable(header);
   printf("----------END OF TEST ON ELF SECTION HEADER TABLE----------\n\n");
 
+  printf("--------BEGINING TEST ON SECTION DATA EXTRACTING---------\n");
+  displaySectionsRawData(header, ".strtab");
+  printf("----------END OF TEST ON SECTION DATA EXTRACTING----------\n\n");
+
+  printf("--------BEGINING TEST ON SYMBOLE TABLE EXTRACTING---------\n");
+  displaySymbolTable(header);
+  printf("----------END OF TEST ON SYMBOLE TABLE EXTRACTING----------\n\n");
+
   fclose(file);
   return 0;
 }
