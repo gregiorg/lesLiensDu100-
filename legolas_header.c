@@ -60,3 +60,48 @@ int headerGetIndexOfSectionHeader(Header* header, SectionHeader* sectionHeader) 
 
     return i;
 }
+
+SectionHeader* getSectionHeaderFromName(Header* header, char* nomHeader) {
+	unsigned int i = 0;
+
+	/*
+		 On boucle tant qu'on n'a pas trouvé le nom correspondant au nom transmis dans la section
+		 header table ou qu'on n'a pas atteint la dernière section.
+	*/
+
+	while (i < header->shnum && (strcmp(header->sectionHeaderTable[i]->name, nomHeader) != 0)) {
+		i++;
+	}
+
+	/*
+		Si i est supérieur au nombre de section total, c'est qu'on n'a pas trouvé la section, donc
+		on renvoie une erreur.
+	*/
+
+	if (i >= header->shnum) {
+		printf("Error : The section header named %s was not found in the section header table. The link edition will stop.", nomHeader);
+		exit(1);
+	}
+
+	return header->sectionHeaderTable[i];
+}
+
+SectionHeader** getSectionHeaderFromType(Header* header, uint32_t type, size_t* tailleListe) {
+	SectionHeader** sectionHeaderList = NULL;
+
+	/*
+	 	On vérifie le type de chaque section présente dans la table des sections.
+		S'il correspond au type transmis, on le rajoute à la liste des section header,
+		et on incrémente la taille.
+	*/
+
+	for (int i=0; i < header->shnum; i++) {
+		if (header->sectionHeaderTable[i]->type == type) {
+			(*tailleListe)++;
+			sectionHeaderList = realloc(sectionHeaderList, sizeof(SectionHeader*) * (*tailleListe));
+			sectionHeaderList[(*tailleListe)-1] = header->sectionHeaderTable[i];
+		}
+	}
+
+	return sectionHeaderList;
+}

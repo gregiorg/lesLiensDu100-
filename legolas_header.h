@@ -21,5 +21,7 @@ struct Header {
 void headerAddSection(Header*, SectionHeader*);
 void headerRemoveSectionHeader(Header*, SectionHeader*);
 int headerGetIndexOfSectionHeader(Header*, SectionHeader*);
+SectionHeader* getSectionHeaderFromName(Header*, char*);
+SectionHeader** getSectionHeadersFromType(Header*, uint32_t, size_t*);
 
 #endif

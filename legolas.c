@@ -96,7 +96,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
     fileHeader.e_flags = reverseEndian32(header->flags);
     fileHeader.e_ehsize = reverseEndian16(sizeof(fileHeader));
     fileHeader.e_shnum = reverseEndian16(header->shnum);
-	fileHeader.e_shentsize = reverseEndian16(sizeof(Elf32_Shdr));
+		fileHeader.e_shentsize = reverseEndian16(sizeof(Elf32_Shdr));
     fileHeader.e_shstrndx = reverseEndian16(headerGetIndexOfSectionHeader(header, stringTableSectionHeader));
     fileHeader.e_phoff = 0;
     fileHeader.e_phentsize = 0;
