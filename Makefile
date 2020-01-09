@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -Wall -Werror
 SOURCES=$(wildcard *.c)
 OBJ=$(patsubst %.c, %.o, $(SOURCES))
-OBJECTS = test_etape8 test_etape7 test_etape6 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
+OBJECTS = test_displayLegolas test_etape8 test_etape7 test_etape6 test_etape5 test_etape4 test_etape3 test_etape2 test_etape1
 
 all: $(OBJECTS)
 
@@ -22,6 +22,8 @@ test_etape2: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $@.o etape2.o etape1.o util.o
 test_etape1: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $@.o etape1.o util.o
+test_displayLegolas: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $@.o displayLegolas.o legolas.o util.o
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
