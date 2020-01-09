@@ -7,7 +7,7 @@ int main(int argc, const char* argv[]) {
 
     FILE* file1 = fopenR(fName1, "r");
     FILE* file2 = fopenR(fName2, "r");
-    FILE* fileR = fopenR(fNameR, "r");
+    FILE* fileR = fopenR(fNameR, "w");
 
     fusionRelocationTable(file1, file2, fileR);
 
