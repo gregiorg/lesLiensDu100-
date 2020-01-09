@@ -1,8 +1,6 @@
 #include "etape8.h"
 
-void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
-
-  FILE* file3 = fopen(fName3, "w");
+void fusionRelocationTable(FILE* file1, FILE* file2, FILE* fileR){
 
   Header* h1 = legolasReadFromFile(file1);
   Header* h2 = legolasReadFromFile(file2);
@@ -78,7 +76,7 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
 
               for (int k=0; k < sh2->nbEntry; k++) {
 				  sh1->info++;
-                  symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);	
+                  symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);
 			  }
 
 			  for (int k=0; k < nbGlobalSymbolInFirstFile; k++) {
@@ -94,7 +92,7 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
 
           if (sh2->type == SHT_REL && sh1->type == SHT_REL && strcmp(sh1->name, sh2->name) == 0) {
               matchName = 1;
-			  
+
 			  for (int k = 0; k < sh2->nbEntry; k++) {
                   relocationTableAddEntry(sh1, sh2->data.relocationTable[k]);
               }
@@ -109,6 +107,5 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
 	  }
   }
 
-  legolasWriteToFile(h1, file3);
-  fclose(file3);
+  legolasWriteToFile(h1, fileR);
 }

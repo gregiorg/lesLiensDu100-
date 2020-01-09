@@ -1,4 +1,4 @@
-#include "etape7.h"
+#include "etape8.h"
 
 int main(int argc, const char* argv[]) {
     const char* fName1 = argv[1];
@@ -7,13 +7,13 @@ int main(int argc, const char* argv[]) {
 
     FILE* file1 = fopenR(fName1, "r");
     FILE* file2 = fopenR(fName2, "r");
-    FILE* file3 = fopenR(fNameR, "w");
+    FILE* fileR = fopenR(fNameR, "r");
 
-    fusionSymTab(file1, file2, file3);
+    fusionRelocationTable(file1, file2, fileR);
 
     fclose(file1);
     fclose(file2);
-    fclose(file3);
+    fclose(fileR);
 
     return 0;
 }
