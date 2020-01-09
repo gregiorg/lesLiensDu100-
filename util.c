@@ -235,3 +235,15 @@ void gestionErr(size_t codeRet, size_t nmemb, FILE* file){
       }
   }
 }
+
+
+FILE *fopenR(const char *fichier, const char *mode){
+  FILE* file = fopen(fichier, mode);
+  if (file == NULL) {
+    fprintf(stderr, "Value of errno: %d\n", errno);
+    fprintf(stderr, "Error opening the file: %s\n", strerror( errno ));
+    perror("Error printed by perror");
+    exit(EXIT_FAILURE);
+  }
+  return file;
+}
