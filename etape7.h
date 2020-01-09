@@ -9,6 +9,6 @@
 #include <stdlib.h>
 #include "legolas.h"
 
-void fusionSymTab(FILE* file1, FILE* file2, const char* fName3);
+void fusionSymTab(FILE* file1, FILE* file2, FILE* fileR);
 
 #endif //__ETAPE7_H__

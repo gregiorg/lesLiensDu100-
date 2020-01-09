@@ -1,14 +1,6 @@
 #include "etape6.h"
 
-void fusionProgbit(FILE* file1, FILE* file2, char* file3Name) {
-
-  FILE* file3 = fopen(file3Name, "w");
-  if (file3 == NULL) {
-		fprintf(stderr, "Value of errno: %d\n", errno);
-		fprintf(stderr, "Error opening the file: %s\n", strerror( errno ));
-		perror("Error printed by perror");
-		exit(EXIT_FAILURE);
-	}
+void fusionProgbit(FILE* file1, FILE* file2, FILE* file3) {
 
   // extracting the elf informations with legolas
   Header* h1 = legolasReadFromFile(file1);
@@ -44,5 +36,4 @@ void fusionProgbit(FILE* file1, FILE* file2, char* file3Name) {
   }
 
   legolasWriteToFile(h1, file3);
-  fclose(file3);
 }

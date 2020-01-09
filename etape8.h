@@ -9,6 +9,6 @@
 #include <stdlib.h>
 #include "legolas.h"
 
-void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3);
+void fusionRelocationTable(FILE* file1, FILE* file2, FILE* fileR);
 
 #endif

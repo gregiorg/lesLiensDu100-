@@ -1,7 +1,5 @@
 #include "etape1.h"
 
-extern int errno;
-
 extern int programsEndian;
 
 int main(int argc, char* argv[]) {
