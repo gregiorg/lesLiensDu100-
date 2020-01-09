@@ -1,12 +1,12 @@
 Custom ELF Loader intended for pedagogic use
 
-Contributors :
-        AIT GUENI SSAID Abderrahmane
-        BOURNAT-QUERAT Jean-Edouard
-        CIPRIANI Ugo
-        FODOR Gergely
-        NIVON Quentin
-        RICHERMOZ Antoine
+Contributors :                          Role
+        AIT GUENI SSAID Abderrahmane    ()
+        BOURNAT-QUERAT Jean-Edouard     (CHRO)
+        CIPRIANI Ugo                    ()
+        FODOR Gergely                   ()
+        NIVON Quentin                   ()
+        RICHERMOZ Antoine               ()
 
 Use :
     Clone the project with : `git clone https://github.com/gregiorg/lesLiensDu100-.git`
