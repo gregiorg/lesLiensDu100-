@@ -30,4 +30,4 @@ readElfHeader: $(OBJ)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm *.o test_etape?
+	rm *.o test_displayLegolas fusion test_etape7 test_etape6 readElfRelTab readElfSymTab readElfSecRawD readElfSecTab readElfHeader
