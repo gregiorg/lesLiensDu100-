@@ -91,7 +91,7 @@ void displayElfSectionHeaderTable(Header* header) {
 void displaySectionsRawData(Header* header, char* sectionName) {
 
   int sectionIndex = 0;
-  while(sectionIndex < header->shnum && strcpy(header->sectionHeaderTable[sectionIndex]->name, ".symtab") != 0) {
+  while(sectionIndex < header->shnum && strcmp(header->sectionHeaderTable[sectionIndex]->name, sectionName) != 0) {
     sectionIndex++;
   }
   SectionHeader* currentSection = header->sectionHeaderTable[sectionIndex];
@@ -105,14 +105,10 @@ void displaySectionsRawData(Header* header, char* sectionName) {
 void displaySymbolTable(Header* header) {
 
   int symbolTableIndex = 0;
-  while(symbolTableIndex < header->shnum && strcpy(header->sectionHeaderTable[symbolTableIndex]->name, ".symtab") != 0) {
+  while(symbolTableIndex < header->shnum && strcmp(header->sectionHeaderTable[symbolTableIndex]->name, ".symtab") != 0) {
     symbolTableIndex++;
   }
   SectionHeader* symbolTableHeader = header->sectionHeaderTable[symbolTableIndex];
-  printf("name : %s\n", symbolTableHeader->name);
-  printf("size : %d\n", symbolTableHeader->size);
-  printf("entry size : %d\n", symbolTableHeader->entSize);
-  printf("nb entry : %d\n", symbolTableHeader->nbEntry);
 
   SymboleTableEntry** symbolTable = symbolTableHeader->data.symboleTable;
 

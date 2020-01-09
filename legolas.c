@@ -635,9 +635,9 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader, SectionHeader* symbolTableSectionHeader) {
 	//On met à jour la taille de la section courante.
 	sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
-    
+
 	//On malloc une nouvelle relocation table entry.
-	
+
 	Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
 
 	//On rajout toutes les informations des entrées dans notre relocation table entry.
