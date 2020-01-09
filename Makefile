@@ -7,7 +7,7 @@ LEGOLAS_OBJ=$(wildcard $(OBJDIR)/legolas*.o)
 UTIL = $(OBJDIR)/util.o
 OBJECTS = test_displayLegolas fusion test_etape7 test_etape6 readElfRelTab readElfSymTab readElfSecRawD readElfSecTab readElfHeader
 
-all: $(OBJECTS)
+all: $(OBJDIR) $(OBJECTS)
 
 test_displayLegolas: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $(OBJDIR)/$@.o $(LEGOLAS_OBJ) $(OBJDIR)/displayLegolas.o $(UTIL)
@@ -31,5 +31,9 @@ readElfHeader: $(OBJ)
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
 clean:
-	rm $(OBJDIR)/*.o test_displayLegolas fusion test_etape7 test_etape6 readElfRelTab readElfSymTab readElfSecRawD readElfSecTab readElfHeader
+	rm -r $(OBJDIR) 
+	rm test_displayLegolas fusion test_etape7 test_etape6 readElfRelTab readElfSymTab readElfSecRawD readElfSecTab readElfHeader
