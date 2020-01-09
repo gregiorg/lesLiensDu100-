@@ -750,6 +750,17 @@ SectionHeader** getSectionHeaderFromType(Header* header, uint32_t type, size_t* 
 	return sectionHeaderList;
 }
 
+SectionHeader* stringTableCreate(char* name) {
+    SectionHeader* stringTable = malloc(sizeof(SectionHeader));
+    stringTable->name = name;
+    stringTable->type = SHT_STRTAB;
+    stringTable->size = 1;
+	stringTable->data.stringTable = malloc(1);
+	stringTable->data.stringTable[0] = 0;
+
+    return stringTable;
+}
+
 void legolasWriteToFile(Header* header, FILE* file) {
 	for (int i=0; i < header->shnum; i++) {
 		if (header->sectionHeaderTable[i]->type == SHT_STRTAB) {
@@ -759,12 +770,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
 	}
 
 	//creation de la table des chaines des symbol table entry
-    SectionHeader* stringTableSymbolTableEntry = malloc(sizeof(SectionHeader));
-    stringTableSymbolTableEntry->name = ".strtab";
-    stringTableSymbolTableEntry->type = SHT_STRTAB;
-    stringTableSymbolTableEntry->size = 1;
-	stringTableSymbolTableEntry->data.stringTable = malloc(1);
-	stringTableSymbolTableEntry->data.stringTable[0] = 0;
+    SectionHeader* stringTableSymbolTableEntry = stringTableCreate(".strtab");
     headerAddSection(header, stringTableSymbolTableEntry);
 
     //remplissage de la table des chaines des symbol table entry
@@ -779,12 +785,7 @@ void legolasWriteToFile(Header* header, FILE* file) {
     }
 
     //creation de la table des chaines des section header
-    SectionHeader* stringTableSectionHeader = malloc(sizeof(SectionHeader));
-    stringTableSectionHeader->name = ".shstrtab";
-    stringTableSectionHeader->type = SHT_STRTAB;
-    stringTableSectionHeader->size = 1;
-	stringTableSectionHeader->data.stringTable = malloc(1);
-	stringTableSectionHeader->data.stringTable[0] = 0;
+    SectionHeader* stringTableSectionHeader = stringTableCreate(".shstrtab");
     headerAddSection(header, stringTableSectionHeader);
 
     //remplissage de la table des chaines des section header
