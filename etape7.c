@@ -1,8 +1,6 @@
 #include "etape7.h"
 
-void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
-
-  FILE* file3 = fopen(fName3, "w");
+void fusionSymTab(FILE* file1, FILE* file2, FILE* fileR){
 
   Header* h1 = legolasReadFromFile(file1);
   Header* h2 = legolasReadFromFile(file2);
@@ -44,7 +42,7 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
   }
 
   for (int i=0; i < h2->shnum; i++) {
-	
+
       SectionHeader* sh2 = h2->sectionHeaderTable[i];
 
       //int fusion = 0;
@@ -74,7 +72,7 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 
               for (int k=0; k < sh2->nbEntry; k++) {
 				  sh1->info++;
-                  symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);	
+                  symbolTableAddLocalEntry(sh1, sh2->data.symboleTable[k], k);
 			  }
 
 			  for (int k=0; k < nbGlobalSymbolInFirstFile; k++) {
@@ -90,6 +88,5 @@ void fusionSymTab(FILE* file1, FILE* file2, const char* fName3){
 	  }
   }
 
-  legolasWriteToFile(h1, file3);
-  fclose(file3);
+  legolasWriteToFile(h1, fileR);
 }

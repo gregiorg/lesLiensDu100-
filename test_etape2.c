@@ -1,7 +1,5 @@
 #include "etape2.h"
 
-extern int errno;
-
 int main(int argc, char* argv[]) {
 
   FILE* file = fopenR(argv[1], "r");
