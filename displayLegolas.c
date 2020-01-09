@@ -91,9 +91,31 @@ void displayElfSectionHeaderTable(Header* header) {
 void displaySectionsRawData(Header* header, char* sectionName) {
 
   int sectionIndex = 0;
-  while(sectionIndex < header->shnum && strcpy(header->sectionHeaderTable[sectionIndex]->name, ".strtab") != 0) {
+  while(sectionIndex < header->shnum && strcmp(header->sectionHeaderTable[sectionIndex]->name, sectionName) != 0) {
     sectionIndex++;
   }
+  SectionHeader* currentSection = header->sectionHeaderTable[sectionIndex];
 
-  //TODO extract data and display
+  uint32_t* data = currentSection->rawData;
+  for (int i = 0; i < currentSection->size/sizeof(uint32_t); i++) {
+      printf("%08X\n", data[i]);
+    }
+}
+
+void displaySymbolTable(Header* header) {
+
+  int symbolTableIndex = 0;
+  while(symbolTableIndex < header->shnum && strcmp(header->sectionHeaderTable[symbolTableIndex]->name, ".symtab") != 0) {
+    symbolTableIndex++;
+  }
+  SectionHeader* symbolTableHeader = header->sectionHeaderTable[symbolTableIndex];
+
+  SymboleTableEntry** symbolTable = symbolTableHeader->data.symboleTable;
+
+  for(int i = 0; i < symbolTableHeader->nbEntry; i++) {
+    printf("Symbole n°%d :\n", i);
+    printf("	Nom du symbole : %s\n", symbolTable[i]->name);
+    printf("	Valeur du symbole : %08X\n", symbolTable[i]->value);
+    printf("	Taille du symbole : %08X\n", symbolTable[i]->size);
+  }
 }
