@@ -1,6 +1,6 @@
 Custom ELF Loader intended for pedagogic use
 
-Contributors :                          Role
+Contributors :
         AIT GUENI SSAID Abderrahmane    ()
         BOURNAT-QUERAT Jean-Edouard     (CHRO)
         CIPRIANI Ugo                    ()
