@@ -1,11 +1,9 @@
 #include "etape6.h"
-#include <errno.h>
-
 
 int main(int argc, char* argv[]) {
 
-  FILE* file1 = fopen(argv[1], "r");
-  FILE* file2 = fopen(argv[2], "r");
+  FILE* file1 = fopenR(argv[1], "r");
+  FILE* file2 = fopenR(argv[2], "r");
 
   if (file1 == NULL || file2 == NULL) {
 		fprintf(stderr, "Value of errno: %d\n", errno);

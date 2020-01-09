@@ -30,6 +30,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <string.h>
 #include <elf.h>
 #include "enums.h"
+#include <errno.h>
 
 int programsEndian;
 
@@ -141,6 +142,7 @@ void freadData(uint32_t* data, size_t size, size_t nmemb, FILE* file);
 void gestionErr(size_t codeRet, size_t nmemb, FILE* file);
 void freadChar(char* name, size_t size, size_t nmemb, FILE* file);
 void freadRealocationTable(RealocationEntry** realocationTable, size_t size, size_t nmemb, FILE* file);
+FILE *fopenR(const char *file, const char *mode);
 
 #define reverse2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|((((x)>>16)&0xFF)<<8)|(((x)>>24)&0xFF))
