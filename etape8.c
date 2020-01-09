@@ -52,6 +52,7 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
   // fusion des sections table de symboles
   for (int i=0; i < h2->shnum; i++) {
       SectionHeader* sh2 = h2->sectionHeaderTable[i];
+	  int matchName = 0;
 
       for (int j = 0; j < h1->shnum; j++) {
           SectionHeader* sh1 = h1->sectionHeaderTable[j];
@@ -92,12 +93,19 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
           }
 
           if (sh2->type == SHT_REL && sh1->type == SHT_REL && strcmp(sh1->name, sh2->name) == 0) {
-              for (int k = 0; k < sh2->nbEntry; k++) {
+              matchName = 1;
+			  
+			  for (int k = 0; k < sh2->nbEntry; k++) {
                   relocationTableAddEntry(sh1, sh2->data.relocationTable[k]);
               }
 
               break;
           }
+	  }
+
+	  if (matchName == 0 && sh2->type == SHT_REL) {
+	  	  printf("Warning : The relocation table %p in the second file has no matching table in the first file\n", sh2);
+	  	  headerAddSection(h1, sh2);
 	  }
   }
 

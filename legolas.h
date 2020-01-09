@@ -71,6 +71,8 @@ void typeLastRawDataPartIfNeeded(SectionHeader*, Header*);
 SymboleTableEntry* getSymboleTableEntryAddress(Header*, uint32_t);
 char* getSymbolTableEntryName(Header* header, uint32_t);
 SectionHeader* getSectionHeaderAddress(Header* header, uint16_t shndx);
+SectionHeader* getSectionHeaderFromName(Header*, char*);
+SectionHeader** getSectionHeadersFromType(Header*, uint32_t, size_t*);
 
 char* sectionHeaderGetData(SectionHeader*);
 uint32_t sectionHeaderGetEntSize(SectionHeader*);
