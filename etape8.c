@@ -104,7 +104,7 @@ void fusionRelocationTable(FILE* file1, FILE* file2, const char* fName3){
 	  }
 
 	  if (matchName == 0 && sh2->type == SHT_REL) {
-	  	  printf("Warning : The relocation table %p in the second file has no matching table in the first file", sh2);
+	  	  printf("Warning : The relocation table %p in the second file has no matching table in the first file\n", sh2);
 	  	  headerAddSection(h1, sh2);
 	  }
   }

@@ -633,10 +633,14 @@ Elf32_Sym* sectionHeaderGetSymbolData(Header* header, SectionHeader* sectionHead
 }
 
 Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader, SectionHeader* symbolTableSectionHeader) {
-	//A implémenter
-
+	//On met à jour la taille de la section courante.
 	sectionHeader->size = sizeof(Elf32_Rel) * sectionHeader->nbEntry;
-    Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
+    
+	//On malloc une nouvelle relocation table entry.
+	
+	Elf32_Rel* fileRelocationTable = malloc(sectionHeader->size);
+
+	//On rajout toutes les informations des entrées dans notre relocation table entry.
 
     for (int i = 0; i < sectionHeader->nbEntry; i++) {
         RelocationTableEntry* relocationEntry = sectionHeader->data.relocationTable[i];
@@ -649,8 +653,6 @@ Elf32_Rel* sectionHeaderGetUnexplicitRelocationData(SectionHeader* sectionHeader
     }
 
     return fileRelocationTable;
-
-	//return NULL;
 }
 
 /*
@@ -665,7 +667,7 @@ void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header* header, Sectio
      /*
 	 	Après fusion des sections PROGBITS, on doit faire pointer les symbol table entry
 		vers les nouvelles sections créées par la fusion (actuellement, elles pointent sur
-		des sections qui "n'existent plus").
+		des sections qui ne sont plus définies).
 	 */
 
 	 for (int k=0; k < header->shnum; k++) {
@@ -684,9 +686,9 @@ void changeSymbolTableEntryPointerOnSectionHeaderOnFusion(Header* header, Sectio
 
 void updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(Header* header, SectionHeader* sectionHeaderFile2, SectionHeader* sectionHeaderFile1) {
      /*
-        Après fusion des sections PROGBITS, on doit faire pointer les symbol table entry
+        Après fusion des sections PROGBITS, on doit faire pointer les relocation table entry
         vers les nouvelles sections créées par la fusion (actuellement, elles pointent sur
-        des sections qui "n'existent plus").
+        des sections qui ne sont plus définies).
      */
 
      for (int k=0; k < header->shnum; k++) {
@@ -703,10 +705,50 @@ void updateRelocationTableEntryOffsetOnSectionHeaderOnFusion(Header* header, Sec
      }
 }
 
-/*
-nomHeader -> renvoie pointeur sur header
-typeSection -> renvoie pointeur sur section
-*/
+SectionHeader* getSectionHeaderFromName(Header* header, char* nomHeader) {
+	unsigned int i = 0;
+
+	/*
+		 On boucle tant qu'on n'a pas trouvé le nom correspondant au nom transmis dans la section
+		 header table ou qu'on n'a pas atteint la dernière section.
+	*/
+
+	while (i < header->shnum && (strcmp(header->sectionHeaderTable[i]->name, nomHeader) != 0)) {
+		i++;
+	}
+
+	/*
+		Si i est supérieur au nombre de section total, c'est qu'on n'a pas trouvé la section, donc
+		on renvoie une erreur.
+	*/
+
+	if (i >= header->shnum) {
+		printf("Error : The section header named %s was not found in the section header table. The link edition will stop.", nomHeader);
+		exit(1);
+	}
+
+	return header->sectionHeaderTable[i];
+}
+
+SectionHeader** getSectionHeaderFromType(Header* header, uint32_t type, size_t* tailleListe) {
+	SectionHeader** sectionHeaderList = NULL;
+
+	/*
+	 	On vérifie le type de chaque section présente dans la table des sections.
+		S'il correspond au type transmis, on le rajoute à la liste des section header,
+		et on incrémente la taille.
+	*/
+
+	for (int i=0; i < header->shnum; i++) {
+		if (header->sectionHeaderTable[i]->type == type) {
+			(*tailleListe)++;
+			sectionHeaderList = realloc(sectionHeaderList, sizeof(SectionHeader*) * (*tailleListe));
+			sectionHeaderList[(*tailleListe)-1] = header->sectionHeaderTable[i];
+		}
+	}
+
+	return sectionHeaderList;
+}
 
 void legolasWriteToFile(Header* header, FILE* file) {
 	for (int i=0; i < header->shnum; i++) {
