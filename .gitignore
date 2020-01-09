@@ -15,3 +15,9 @@ configure
 scanner.*
 elf_header_class
 test_displayLegolas
+fusion
+readElfHeader
+readElfRelTab
+readElfSecRawD
+readElfSecTab
+readElfSymTab
