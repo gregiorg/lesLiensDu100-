@@ -5,8 +5,8 @@ int main(int argc, const char* argv[]) {
     const char* fName2 = argv[2];
     const char* fName3 = argv[3];
 
-    FILE* file1 = fopen(fName1, "r");
-    FILE* file2 = fopen(fName2, "r");
+    FILE* file1 = fopenR(fName1, "r");
+    FILE* file2 = fopenR(fName2, "r");
 
     fusionSymTab(file1, file2, fName3);
 
